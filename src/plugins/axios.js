@@ -16,9 +16,11 @@ axios.defaults.headers.common['Accept'] = 'application/json'  // Menerima respon
 // Akan dijalankan sebelum request dikirim
 axios.interceptors.request.use(
   config => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url)
     return config
   },
   error => {
+    console.error('Request error:', error)
     return Promise.reject(error)
   }
 )
@@ -26,9 +28,12 @@ axios.interceptors.request.use(
 // Interceptor untuk response
 // Akan dijalankan setelah response diterima
 axios.interceptors.response.use(
-  response => response,
+  response => {
+    console.log('API Response:', response.status, response.config.url)
+    return response
+  },
   error => {
-    console.error('API Error:', error)
+    console.error('API Error:', error.response?.status, error.response?.data || error.message)
     return Promise.reject(error)
   }
 )

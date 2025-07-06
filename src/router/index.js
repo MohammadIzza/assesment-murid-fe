@@ -10,6 +10,7 @@ import Admin from '@/layouts/Admin.vue'      // Layout untuk halaman admin
 // Import komponen-komponen halaman guru
 import GuruList from '@/views/guru/GuruList.vue'
 import GuruDetail from '@/views/guru/GuruDetail.vue'
+import GuruEdit from '@/views/guru/GuruEdit.vue'
 import GuruIndex from '@/views/guru/index.vue'
 
 // Import komponen dashboard
@@ -73,6 +74,15 @@ const router = createRouter({
           meta: {
             requiresAuth: false,
             title: 'Detail Guru',
+          },
+        },
+        {
+          path: 'guru/:id/edit',
+          name: 'guru-edit',
+          component: GuruEdit,
+          meta: {
+            requiresAuth: false,
+            title: 'Edit Guru',
           },
         },
       ],

@@ -66,14 +66,14 @@
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <div v-if="searchQuery || selectedSchool || selectedRole" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <div v-if="hasActiveFilters" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
                 </svg>
-                Filter Aktif
+                {{ activeFilterCount }} Filter Aktif
               </div>
-              <button @click="clearAllFilters" v-if="searchQuery || selectedSchool || selectedRole" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors">
-                Reset Filter
+              <button @click="clearAllFilters" v-if="hasActiveFilters" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+                Reset Semua Filter
               </button>
             </div>
           </div>
@@ -112,7 +112,7 @@
           </div>
           
           <!-- Advanced Filters -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- School Filter -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Sekolah</label>
@@ -159,31 +159,107 @@
               </div>
             </div>
             
-            <!-- Action Buttons -->
+            <!-- Status Filter -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Aksi</label>
-              <div class="flex space-x-3">
+              <label class="block text-sm font-medium text-gray-700">Status Akun</label>
+              <div class="relative">
+                <select v-model="selectedStatus" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
+                  <option value="">Semua Status</option>
+                  <option value="aktif">Aktif</option>
+                  <option value="belum_aktif">Belum Aktif</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="selectedStatus" class="flex items-center text-xs text-blue-600">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter diterapkan
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Row -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Aksi Cepat</label>
+              <div class="flex flex-col sm:flex-row gap-3">
                 <button @click="loadGuruData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-blue-300 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                   </svg>
-                  Refresh
+                  Refresh Data
                 </button>
                 <button @click="exportData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-green-300 rounded-xl text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm hover:shadow-md">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
-                  Export
+                  Export Excel
+                </button>
+                <button @click="toggleAdvancedFilter" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-purple-300 rounded-xl text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                  </svg>
+                  {{ showAdvancedFilter ? 'Sembunyikan' : 'Filter Lanjutan' }}
                 </button>
               </div>
-              <div class="text-xs text-gray-500">
-                Refresh data atau ekspor hasil pencarian
+            </div>
+          </div>
+          
+          <!-- Advanced Filter Section -->
+          <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Filter Berdasarkan NIP</label>
+              <input
+                v-model="nipFilter"
+                type="text"
+                placeholder="Masukkan NIP guru..."
+                class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
+              />
+            </div>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Filter Berdasarkan Email</label>
+              <input
+                v-model="emailFilter"
+                type="text"
+                placeholder="Masukkan domain email..."
+                class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
+              />
+            </div>
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Urutkan Berdasarkan</label>
+              <div class="flex gap-2">
+                <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
+                  <option value="nama">Nama</option>
+                  <option value="email">Email</option>
+                  <option value="nip">NIP</option>
+                  <option value="id_sekolah">Sekolah</option>
+                  <option value="id_role">Role</option>
+                </select>
+                <button 
+                  @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
+                  class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
+                  :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
+                >
+                  <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                  </svg>
+                  <svg v-else class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Quick Filter Tags -->
-          <div v-if="searchQuery || selectedSchool || selectedRole" class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
+            <!-- Quick Filter Tags -->
+            <div v-if="hasActiveFilters" class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
             <span class="text-sm font-medium text-gray-700">Filter aktif:</span>
             <div v-if="searchQuery" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
               <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,6 +289,39 @@
               </svg>
               Role: {{ getRoleName(selectedRole) }}
               <button @click="selectedRole = ''" class="ml-1 text-purple-600 hover:text-purple-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="selectedStatus" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Status: {{ getStatusFilterText(selectedStatus) }}
+              <button @click="selectedStatus = ''" class="ml-1 text-orange-600 hover:text-orange-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="nipFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+              </svg>
+              NIP: "{{ nipFilter }}"
+              <button @click="nipFilter = ''" class="ml-1 text-indigo-600 hover:text-indigo-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="emailFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+              </svg>
+              Email: "{{ emailFilter }}"
+              <button @click="emailFilter = ''" class="ml-1 text-pink-600 hover:text-pink-800">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -479,7 +588,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
 
@@ -493,14 +602,20 @@ export default {
     const searchQuery = ref('')
     const selectedSchool = ref('')
     const selectedRole = ref('')
+    const selectedStatus = ref('')
+    const nipFilter = ref('')
+    const emailFilter = ref('')
+    const sortBy = ref('nama')
+    const sortOrder = ref('asc')
+    const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
 
     // Computed properties
     const filteredGuruList = computed(() => {
-      let filtered = guruStore.getGuruList
+      let filtered = [...guruStore.getGuruList]
 
-      // Filter by search query
+      // Filter by search query (nama, email, NIP)
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(guru => 
@@ -520,7 +635,68 @@ export default {
         filtered = filtered.filter(guru => guru.id_role == selectedRole.value)
       }
 
+      // Filter by status
+      if (selectedStatus.value) {
+        filtered = filtered.filter(guru => {
+          const isActive = !!guru.password_hash
+          if (selectedStatus.value === 'aktif') {
+            return isActive
+          } else if (selectedStatus.value === 'belum_aktif') {
+            return !isActive
+          }
+          return true
+        })
+      }
+
+      // Filter by NIP
+      if (nipFilter.value) {
+        const nipQuery = nipFilter.value.toLowerCase()
+        filtered = filtered.filter(guru => 
+          guru.nip && guru.nip.toLowerCase().includes(nipQuery)
+        )
+      }
+
+      // Filter by email domain
+      if (emailFilter.value) {
+        const emailQuery = emailFilter.value.toLowerCase()
+        filtered = filtered.filter(guru => 
+          guru.email && guru.email.toLowerCase().includes(emailQuery)
+        )
+      }
+
+      // Sort the results
+      filtered.sort((a, b) => {
+        let aValue = a[sortBy.value] || ''
+        let bValue = b[sortBy.value] || ''
+
+        // Convert to string for comparison
+        aValue = String(aValue).toLowerCase()
+        bValue = String(bValue).toLowerCase()
+
+        if (sortOrder.value === 'asc') {
+          return aValue.localeCompare(bValue)
+        } else {
+          return bValue.localeCompare(aValue)
+        }
+      })
+
       return filtered
+    })
+
+    const hasActiveFilters = computed(() => {
+      return !!(searchQuery.value || selectedSchool.value || selectedRole.value || 
+               selectedStatus.value || nipFilter.value || emailFilter.value)
+    })
+
+    const activeFilterCount = computed(() => {
+      let count = 0
+      if (searchQuery.value) count++
+      if (selectedSchool.value) count++
+      if (selectedRole.value) count++
+      if (selectedStatus.value) count++
+      if (nipFilter.value) count++
+      if (emailFilter.value) count++
+      return count
     })
 
     const totalPages = computed(() => {
@@ -559,6 +735,38 @@ export default {
       }
     }
 
+    const applyFilters = async () => {
+      try {
+        // Siapkan object filters untuk API
+        const apiFilters = {}
+        
+        if (searchQuery.value) apiFilters.search = searchQuery.value
+        if (selectedSchool.value) apiFilters.sekolah = selectedSchool.value
+        if (selectedRole.value) apiFilters.role = selectedRole.value
+        if (selectedStatus.value) apiFilters.status = selectedStatus.value
+        if (nipFilter.value) apiFilters.nip = nipFilter.value
+        if (emailFilter.value) apiFilters.email = emailFilter.value
+        if (sortBy.value) apiFilters.sort_by = sortBy.value
+        if (sortOrder.value) apiFilters.sort_order = sortOrder.value
+
+        // Coba gunakan API filter terlebih dahulu
+        if (Object.keys(apiFilters).length > 0) {
+          try {
+            await guruStore.fetchGuruListWithFilters(apiFilters)
+            console.log('Filter diterapkan melalui API')
+            return
+          } catch (error) {
+            console.log('API filter tidak tersedia, menggunakan filter frontend')
+          }
+        }
+        
+        // Fallback ke loading data biasa dan filter di frontend
+        await loadGuruData()
+      } catch (error) {
+        console.error('Failed to apply filters:', error)
+      }
+    }
+
     const viewGuruDetail = (id) => {
       router.push({ name: 'guru-detail', params: { id } })
     }
@@ -567,7 +775,24 @@ export default {
       searchQuery.value = ''
       selectedSchool.value = ''
       selectedRole.value = ''
+      selectedStatus.value = ''
+      nipFilter.value = ''
+      emailFilter.value = ''
+      sortBy.value = 'nama'
+      sortOrder.value = 'asc'
       currentPage.value = 1
+    }
+
+    const toggleAdvancedFilter = () => {
+      showAdvancedFilter.value = !showAdvancedFilter.value
+    }
+
+    const getStatusFilterText = (status) => {
+      const statusMap = {
+        'aktif': 'Aktif',
+        'belum_aktif': 'Belum Aktif'
+      }
+      return statusMap[status] || status
     }
 
     const exportData = () => {
@@ -686,20 +911,45 @@ export default {
       loadGuruData()
     })
 
+    // Watch filters untuk auto-apply (dengan debounce)
+    let filterTimeout = null
+    const watchFilters = () => {
+      if (filterTimeout) clearTimeout(filterTimeout)
+      filterTimeout = setTimeout(() => {
+        if (hasActiveFilters.value) {
+          applyFilters()
+        }
+      }, 300) // Debounce 300ms
+    }
+
+    // Watch individual filters
+    watch([searchQuery, selectedSchool, selectedRole, selectedStatus, nipFilter, emailFilter, sortBy, sortOrder], watchFilters)
+
     return {
       guruStore,
       searchQuery,
       selectedSchool,
       selectedRole,
+      selectedStatus,
+      nipFilter,
+      emailFilter,
+      sortBy,
+      sortOrder,
+      showAdvancedFilter,
       currentPage,
       itemsPerPage,
       filteredGuruList,
+      hasActiveFilters,
+      activeFilterCount,
       totalPages,
       paginatedGuruList,
       visiblePages,
       loadGuruData,
+      applyFilters,
       viewGuruDetail,
       clearAllFilters,
+      toggleAdvancedFilter,
+      getStatusFilterText,
       exportData,
       getSchoolName,
       getSchoolClass,

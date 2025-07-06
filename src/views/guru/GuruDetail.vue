@@ -297,10 +297,107 @@ export default {
       router.push({ name: 'guru-edit', params: { id: route.params.id } })
     }
 
-    const deleteGuru = () => {
-      if (confirm('Apakah Anda yakin ingin menghapus guru ini?')) {
-        // Implementasi delete guru
-        console.log('Delete guru:', route.params.id)
+    const deleteGuru = async () => {
+      const guru = guruStore.getCurrentGuru
+      const confirmMessage = `Apakah Anda yakin ingin menghapus guru "${guru?.nama || 'ini'}"?\n\nTindakan ini tidak dapat dibatalkan.`
+      
+      if (confirm(confirmMessage)) {
+        try {
+          console.log('Deleting guru with route params:', route.params)
+          console.log('Guru ID from route:', route.params.id)
+          console.log('Current guru data:', guru)
+          
+          // Tampilkan loading state
+          const loadingAlert = () => {
+            const alertDiv = document.createElement('div')
+            alertDiv.id = 'delete-loading'
+            alertDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50'
+            alertDiv.innerHTML = `
+              <div class="flex items-center">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
+                Menghapus guru...
+              </div>
+            `
+            document.body.appendChild(alertDiv)
+          }
+          
+          const removeLoadingAlert = () => {
+            const alertDiv = document.getElementById('delete-loading')
+            if (alertDiv) {
+              alertDiv.remove()
+            }
+          }
+          
+          loadingAlert()
+          
+          await guruStore.deleteGuru(route.params.id)
+          
+          removeLoadingAlert()
+          
+          // Tampilkan success message
+          const successDiv = document.createElement('div')
+          successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50'
+          successDiv.innerHTML = `
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guru berhasil dihapus!
+            </div>
+          `
+          document.body.appendChild(successDiv)
+          
+          setTimeout(() => {
+            successDiv.remove()
+            router.push({ name: 'guru-list' })
+          }, 2000)
+          
+        } catch (error) {
+          // Remove loading alert if exists
+          const alertDiv = document.getElementById('delete-loading')
+          if (alertDiv) {
+            alertDiv.remove()
+          }
+          
+          console.error('Failed to delete guru:', error)
+          console.error('Error details:', error.response?.data)
+          
+          // Tampilkan error message yang lebih detail
+          let errorMessage = 'Terjadi kesalahan saat menghapus guru'
+          
+          if (error.response?.status === 500) {
+            errorMessage = 'Server error (500): Kemungkinan ada masalah di backend atau endpoint tidak sesuai'
+          } else if (error.response?.status === 404) {
+            errorMessage = 'Endpoint tidak ditemukan (404): Guru mungkin sudah dihapus atau endpoint salah'
+          } else if (error.response?.status === 405) {
+            errorMessage = 'Method tidak diizinkan (405): Endpoint mungkin tidak mendukung operasi delete'
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+          
+          // Tampilkan error alert
+          const errorDiv = document.createElement('div')
+          errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-md'
+          errorDiv.innerHTML = `
+            <div class="flex items-start">
+              <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              <div>
+                <div class="font-medium">Gagal menghapus guru</div>
+                <div class="text-sm mt-1 text-red-100">${errorMessage}</div>
+                <div class="text-xs mt-2 text-red-200">Periksa console untuk detail error</div>
+              </div>
+            </div>
+          `
+          document.body.appendChild(errorDiv)
+          
+          setTimeout(() => {
+            errorDiv.remove()
+          }, 8000)
+        }
       }
     }
 
