@@ -20,6 +20,10 @@ import Dashboard from '@/views/dasbord/index.vue'
 import Login from '@/views/auth/login.vue'
 import Register from '@/views/auth/regist.vue'
 
+// Import komponen profile
+import ProfileView from '@/views/profile/ProfileView.vue'
+import SettingsView from '@/views/profile/SettingsView.vue'
+
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -121,6 +125,25 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Edit Guru',
+          },
+        },
+        // Profile routes
+        {
+          path: 'profile',
+          name: 'profile',
+          component: ProfileView,
+          meta: {
+            requiresAuth: true,
+            title: 'Profil Saya',
+          },
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: SettingsView,
+          meta: {
+            requiresAuth: true,
+            title: 'Pengaturan',
           },
         },
       ],
