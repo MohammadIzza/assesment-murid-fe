@@ -40,16 +40,6 @@ npm run dev
 npm run build
 ```
 
-## Features
-
-- 🔐 **Authentication System** - Login/Register dengan role-based access
-- 👤 **Multi-Role Support** - User dan Admin dengan akses berbeda
-- 📊 **Dashboard Analytics** - Statistik dan grafik assessment
-- 📝 **Assessment Management** - CRUD operations untuk assessment
-- 🔍 **Filter & Search** - Pencarian dan filter assessment
-- 📱 **Responsive Design** - Tampilan optimal di semua device
-- ⚡ **Modern UI/UX** - Interface yang clean dan user-friendly
-
 ## Project Structure
 
 ```
