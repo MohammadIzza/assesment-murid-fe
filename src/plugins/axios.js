@@ -7,7 +7,7 @@
 import axios from 'axios'
 
 // Konfigurasi default untuk Axios
-axios.defaults.baseURL = 'http://129.150.60.200:3000'  // URL dasar API
+axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'  // Menandai request sebagai AJAX
 axios.defaults.headers.common['Content-Type'] = 'application/json'  // Format data default
 axios.defaults.headers.common['Accept'] = 'application/json'  // Menerima response dalam format JSON

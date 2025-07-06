@@ -1,166 +1,478 @@
 <template>
-  <div class="guru-list-container">
-    <!-- Header Section -->
-    <div class="header-section">
-      <h1 class="page-title">Daftar Guru</h1>
-      <p class="page-subtitle">Kelola data guru di sistem</p>
-    </div>
-
-    <!-- Search and Filter Section -->
-    <div class="search-filter-section">
-      <div class="search-box">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Cari guru berdasarkan nama, email, atau NIP..."
-          class="search-input"
-        />
-        <i class="search-icon">🔍</i>
-      </div>
-      
-      <div class="filter-options">
-        <select v-model="selectedSchool" class="filter-select">
-          <option value="">Semua Sekolah</option>
-          <option value="1">SMA Negeri 1 Semarang</option>
-          <option value="2">SMA Negeri 2 Semarang</option>
-        </select>
-        
-        <select v-model="selectedRole" class="filter-select">
-          <option value="">Semua Role</option>
-          <option value="2">Guru</option>
-          <option value="3">Kepala Sekolah</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="guruStore.isLoading" class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Memuat data guru...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="guruStore.getError" class="error-container">
-      <div class="error-icon">⚠️</div>
-      <h3>Terjadi Kesalahan</h3>
-      <p>{{ guruStore.getError }}</p>
-      <button @click="loadGuruData" class="retry-button">
-        Coba Lagi
-      </button>
-    </div>
-
-    <!-- Data Table -->
-    <div v-else class="table-container">
-      <div class="table-header">
-        <div class="table-info">
-          <span>Total: {{ filteredGuruList.length }} guru</span>
+  <div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header Section -->
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-600 p-8 mb-8 text-white">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex items-center space-x-6">
+            <div class="relative">
+              <div class="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+              </div>
+              <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2">Daftar Guru</h1>
+              <p class="text-blue-100 text-lg">Kelola dan pantau data guru dalam sistem assessment</p>
+              <div class="flex items-center mt-3 space-x-4">
+                <div class="flex items-center text-blue-100">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-sm font-medium">Sistem Aktif</span>
+                </div>
+                <div class="flex items-center text-blue-100">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-sm font-medium">Update Real-time</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 lg:mt-0">
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+              <div class="text-3xl font-bold text-white mb-1">{{ filteredGuruList.length }}</div>
+              <div class="text-sm text-blue-100 font-medium mb-2">Total Guru</div>
+              <div class="flex items-center justify-center space-x-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span class="text-xs text-blue-100">Live Data</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="table-actions">
-          <button @click="loadGuruData" class="refresh-button">
-            🔄 Refresh
+      </div>
+
+      <!-- Search and Filter Section -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
+        <!-- Filter Header -->
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Filter & Pencarian</h3>
+                <p class="text-sm text-gray-500">Temukan guru berdasarkan kriteria yang Anda inginkan</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div v-if="searchQuery || selectedSchool || selectedRole" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+                </svg>
+                Filter Aktif
+              </div>
+              <button @click="clearAllFilters" v-if="searchQuery || selectedSchool || selectedRole" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+                Reset Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Content -->
+        <div class="p-6 space-y-6">
+          <!-- Search Bar -->
+          <div class="relative group">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Pencarian Cepat</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Ketik nama guru, email, atau NIP untuk mencari..."
+                class="block w-full pl-12 pr-12 py-4 border border-gray-300 rounded-xl text-sm leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
+                @focus="searchFocused = true"
+                @blur="searchFocused = false"
+              />
+              <div v-if="searchQuery" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                <button @click="searchQuery = ''" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div v-if="searchQuery" class="mt-2 text-xs text-gray-500">
+              Ditemukan {{ filteredGuruList.length }} guru dari {{ guruStore.getGuruList.length }} total guru
+            </div>
+          </div>
+          
+          <!-- Advanced Filters -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- School Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Sekolah</label>
+              <div class="relative">
+                <select v-model="selectedSchool" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
+                  <option value="">Semua Sekolah</option>
+                  <option value="1">SMA Negeri 1 Semarang</option>
+                  <option value="2">SMA Negeri 2 Semarang</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="selectedSchool" class="flex items-center text-xs text-blue-600">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter diterapkan
+              </div>
+            </div>
+            
+            <!-- Role Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Role/Jabatan</label>
+              <div class="relative">
+                <select v-model="selectedRole" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
+                  <option value="">Semua Role</option>
+                  <option value="2">Guru</option>
+                  <option value="3">Kepala Sekolah</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="selectedRole" class="flex items-center text-xs text-blue-600">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter diterapkan
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Aksi</label>
+              <div class="flex space-x-3">
+                <button @click="loadGuruData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-blue-300 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Refresh
+                </button>
+                <button @click="exportData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-green-300 rounded-xl text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Export
+                </button>
+              </div>
+              <div class="text-xs text-gray-500">
+                Refresh data atau ekspor hasil pencarian
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Filter Tags -->
+          <div v-if="searchQuery || selectedSchool || selectedRole" class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
+            <span class="text-sm font-medium text-gray-700">Filter aktif:</span>
+            <div v-if="searchQuery" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              Pencarian: "{{ searchQuery }}"
+              <button @click="searchQuery = ''" class="ml-1 text-blue-600 hover:text-blue-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+              Sekolah: {{ getSchoolName(selectedSchool) }}
+              <button @click="selectedSchool = ''" class="ml-1 text-green-600 hover:text-green-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="selectedRole" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              Role: {{ getRoleName(selectedRole) }}
+              <button @click="selectedRole = ''" class="ml-1 text-purple-600 hover:text-purple-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="guruStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+        <div class="text-center">
+          <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-gray-600 font-medium">Memuat data guru...</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="guruStore.getError" class="bg-white rounded-xl shadow-sm border border-red-200 p-12">
+        <div class="text-center">
+          <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Terjadi Kesalahan</h3>
+          <p class="text-gray-600 mb-4">{{ guruStore.getError }}</p>
+          <button @click="loadGuruData" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Coba Lagi
           </button>
         </div>
       </div>
 
-      <div class="table-wrapper">
-        <table class="guru-table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>NIP</th>
-              <th>Sekolah</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(guru, index) in paginatedGuruList" :key="guru.id_guru" class="table-row">
-              <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td class="guru-name">
-                <div class="name-info">
-                  <span class="name">{{ guru.nama || 'N/A' }}</span>
+      <!-- Data Table -->
+      <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <!-- Table Header -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-medium text-gray-700">
+              Menampilkan {{ paginatedGuruList.length }} dari {{ filteredGuruList.length }} guru
+            </p>
+          </div>
+        </div>
+
+        <!-- Table - Responsive Grid Layout -->
+        <div class="divide-y divide-gray-200">
+          <!-- Desktop Table Header -->
+          <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div class="col-span-1">No</div>
+            <div class="col-span-3">Guru</div>
+            <div class="col-span-2">Kontak</div>
+            <div class="col-span-2">Sekolah</div>
+            <div class="col-span-2">Role & Status</div>
+            <div class="col-span-2 text-center">Aksi</div>
+          </div>
+
+          <!-- Table Rows -->
+          <div v-for="(guru, index) in paginatedGuruList" :key="guru.id_guru" class="hover:bg-gray-50 transition-colors duration-150">
+            <!-- Desktop Layout -->
+            <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-4 items-center">
+              <div class="col-span-1 text-sm text-gray-900 font-medium">
+                {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+              </div>
+              
+              <div class="col-span-3">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <span class="text-sm font-medium text-blue-600">{{ getInitials(guru.nama) }}</span>
+                    </div>
+                  </div>
+                  <div class="ml-3 min-w-0 flex-1">
+                    <div class="text-sm font-medium text-gray-900 truncate">{{ guru.nama || 'N/A' }}</div>
+                    <div class="text-xs text-gray-500">NIP: {{ guru.nip || 'N/A' }}</div>
+                  </div>
                 </div>
-              </td>
-              <td class="guru-email">
-                <a :href="`mailto:${guru.email}`" class="email-link">
+              </div>
+              
+              <div class="col-span-2">
+                <a :href="`mailto:${guru.email}`" class="text-sm text-blue-600 hover:text-blue-900 truncate block">
                   {{ guru.email || 'N/A' }}
                 </a>
-              </td>
-              <td class="guru-nip">{{ guru.nip || 'N/A' }}</td>
-              <td class="guru-school">
-                <span class="school-badge" :class="getSchoolClass(guru.id_sekolah)">
+              </div>
+              
+              <div class="col-span-2">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(guru.id_sekolah)">
                   {{ getSchoolName(guru.id_sekolah) }}
                 </span>
-              </td>
-              <td class="guru-role">
-                <span class="role-badge" :class="getRoleClass(guru.id_role)">
+              </div>
+              
+              <div class="col-span-2 space-y-1">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getRoleClass(guru.id_role)">
                   {{ getRoleName(guru.id_role) }}
                 </span>
-              </td>
-              <td class="guru-status">
-                <span class="status-badge" :class="getStatusClass(guru)">
+                <br>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guru)">
                   {{ getStatusText(guru) }}
                 </span>
-              </td>
-              <td class="guru-actions">
+              </div>
+              
+              <div class="col-span-2 text-center">
                 <button 
                   @click="viewGuruDetail(guru.id_guru)"
-                  class="action-button view-button"
+                  class="inline-flex items-center px-3 py-1.5 border border-blue-300 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   title="Lihat Detail"
                 >
-                  👁️
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  Detail
                 </button>
-                <button 
-                  @click="editGuru(guru.id_guru)"
-                  class="action-button edit-button"
-                  title="Edit"
-                >
-                  ✏️
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </div>
 
-      <!-- Empty State -->
-      <div v-if="filteredGuruList.length === 0 && !guruStore.isLoading" class="empty-state">
-        <div class="empty-icon">📚</div>
-        <h3>Tidak Ada Data Guru</h3>
-        <p>Tidak ada guru yang ditemukan dengan kriteria pencarian saat ini.</p>
-      </div>
+            <!-- Mobile/Tablet Layout -->
+            <div class="lg:hidden px-6 py-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <span class="text-sm font-medium text-blue-600">{{ getInitials(guru.nama) }}</span>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <div class="text-sm font-medium text-gray-900">{{ guru.nama || 'N/A' }}</div>
+                    <div class="text-xs text-gray-500">{{ guru.email || 'N/A' }}</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs text-gray-500 mb-1">No. {{ (currentPage - 1) * itemsPerPage + index + 1 }}</div>
+                  <button 
+                    @click="viewGuruDetail(guru.id_guru)"
+                    class="inline-flex items-center px-2 py-1 border border-blue-300 rounded text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none"
+                  >
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    Detail
+                  </button>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span class="text-gray-500">NIP:</span>
+                  <div class="font-medium text-gray-900">{{ guru.nip || 'N/A' }}</div>
+                </div>
+                <div>
+                  <span class="text-gray-500">Sekolah:</span>
+                  <div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(guru.id_sekolah)">
+                      {{ getSchoolName(guru.id_sekolah) }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-gray-500">Role:</span>
+                  <div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getRoleClass(guru.id_role)">
+                      {{ getRoleName(guru.id_role) }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-gray-500">Status:</span>
+                  <div>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guru)">
+                      {{ getStatusText(guru) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination">
-        <button 
-          @click="currentPage--" 
-          :disabled="currentPage === 1"
-          class="pagination-button"
-        >
-          ← Sebelumnya
-        </button>
-        
-        <div class="page-numbers">
-          <button 
-            v-for="page in visiblePages" 
-            :key="page"
-            @click="currentPage = page"
-            :class="['page-button', { active: currentPage === page }]"
-          >
-            {{ page }}
+        <!-- Empty State -->
+        <div v-if="filteredGuruList.length === 0 && !guruStore.isLoading" class="text-center py-12">
+          <div class="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Data Guru</h3>
+          <p class="text-gray-600 mb-4">Tidak ada guru yang ditemukan dengan kriteria pencarian saat ini.</p>
+          <button @click="loadGuruData" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Muat Ulang Data
           </button>
         </div>
-        
-        <button 
-          @click="currentPage++" 
-          :disabled="currentPage === totalPages"
-          class="pagination-button"
-        >
-          Selanjutnya →
-        </button>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button 
+                @click="currentPage--" 
+                :disabled="currentPage === 1"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sebelumnya
+              </button>
+              <button 
+                @click="currentPage++" 
+                :disabled="currentPage === totalPages"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Selanjutnya
+              </button>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">
+                  Menampilkan halaman <span class="font-medium">{{ currentPage }}</span> dari <span class="font-medium">{{ totalPages }}</span>
+                </p>
+              </div>
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button 
+                    @click="currentPage--" 
+                    :disabled="currentPage === 1"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  <button 
+                    v-for="page in visiblePages" 
+                    :key="page"
+                    @click="currentPage = page"
+                    :class="[
+                      'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
+                      currentPage === page 
+                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    ]"
+                  >
+                    {{ page }}
+                  </button>
+                  
+                  <button 
+                    @click="currentPage++" 
+                    :disabled="currentPage === totalPages"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -251,8 +563,67 @@ export default {
       router.push({ name: 'guru-detail', params: { id } })
     }
 
-    const editGuru = (id) => {
-      router.push({ name: 'guru-edit', params: { id } })
+    const clearAllFilters = () => {
+      searchQuery.value = ''
+      selectedSchool.value = ''
+      selectedRole.value = ''
+      currentPage.value = 1
+    }
+
+    const exportData = () => {
+      try {
+        const dataToExport = filteredGuruList.value
+        
+        if (dataToExport.length === 0) {
+          alert('Tidak ada data untuk diekspor!')
+          return
+        }
+
+        // Prepare CSV headers
+        const headers = [
+          'ID Guru',
+          'Nama',
+          'Email', 
+          'NIP',
+          'Sekolah',
+          'Role',
+          'Status'
+        ]
+
+        // Convert data to CSV format
+        const csvContent = [
+          headers.join(','),
+          ...dataToExport.map(guru => [
+            guru.id_guru || '',
+            `"${guru.nama || ''}"`,
+            guru.email || '',
+            guru.nip || '',
+            `"${getSchoolName(guru.id_sekolah)}"`,
+            `"${getRoleName(guru.id_role)}"`,
+            `"${getStatusText(guru)}"`
+          ].join(','))
+        ].join('\n')
+
+        // Create and download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob)
+          link.setAttribute('href', url)
+          link.setAttribute('download', `data-guru-${new Date().toISOString().split('T')[0]}.csv`)
+          link.style.visibility = 'hidden'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          
+          // Show success message
+          console.log('Data exported successfully')
+        }
+      } catch (error) {
+        console.error('Export error:', error)
+        alert('Terjadi kesalahan saat mengekspor data!')
+      }
     }
 
     const getSchoolName = (schoolId) => {
@@ -265,8 +636,12 @@ export default {
     }
 
     const getSchoolClass = (schoolId) => {
-      if (!schoolId) return 'school-unknown'
-      return `school-${schoolId}`
+      if (!schoolId) return 'bg-gray-100 text-gray-800'
+      const classes = {
+        1: 'bg-green-100 text-green-800',
+        2: 'bg-blue-100 text-blue-800'
+      }
+      return classes[schoolId] || 'bg-gray-100 text-gray-800'
     }
 
     const getRoleName = (roleId) => {
@@ -279,8 +654,12 @@ export default {
     }
 
     const getRoleClass = (roleId) => {
-      if (!roleId) return 'role-unknown'
-      return `role-${roleId}`
+      if (!roleId) return 'bg-gray-100 text-gray-800'
+      const classes = {
+        2: 'bg-blue-100 text-blue-800',
+        3: 'bg-purple-100 text-purple-800'
+      }
+      return classes[roleId] || 'bg-gray-100 text-gray-800'
     }
 
     const getStatusText = (guru) => {
@@ -289,8 +668,17 @@ export default {
     }
 
     const getStatusClass = (guru) => {
-      if (!guru.password_hash) return 'status-inactive'
-      return 'status-active'
+      if (!guru.password_hash) return 'bg-red-100 text-red-800'
+      return 'bg-green-100 text-green-800'
+    }
+
+    const getInitials = (name) => {
+      if (!name) return '?'
+      return name.split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
     }
 
     // Lifecycle
@@ -311,329 +699,16 @@ export default {
       visiblePages,
       loadGuruData,
       viewGuruDetail,
-      editGuru,
+      clearAllFilters,
+      exportData,
       getSchoolName,
       getSchoolClass,
       getRoleName,
       getRoleClass,
       getStatusText,
-      getStatusClass
+      getStatusClass,
+      getInitials
     }
   }
 }
 </script>
-
-<style scoped>
-.guru-list-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header-section {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: #718096;
-  margin: 0;
-}
-
-.search-filter-section {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  position: relative;
-  flex: 1;
-  min-width: 300px;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-}
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #a0aec0;
-}
-
-.filter-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter-select {
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.5rem;
-  background: white;
-  font-size: 0.9rem;
-  min-width: 150px;
-}
-
-.loading-container {
-  text-align: center;
-  padding: 3rem;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #4299e1;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-container {
-  text-align: center;
-  padding: 3rem;
-  background: #fed7d7;
-  border-radius: 0.5rem;
-  border: 1px solid #feb2b2;
-}
-
-.error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.retry-button {
-  background: #e53e3e;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  margin-top: 1rem;
-}
-
-.table-container {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: #f7fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.table-info {
-  font-weight: 600;
-  color: #4a5568;
-}
-
-.refresh-button {
-  background: #4299e1;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.guru-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.guru-table th {
-  background: #f7fafc;
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: #4a5568;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.guru-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  vertical-align: middle;
-}
-
-.table-row:hover {
-  background: #f7fafc;
-}
-
-.guru-name .name {
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.email-link {
-  color: #4299e1;
-  text-decoration: none;
-}
-
-.email-link:hover {
-  text-decoration: underline;
-}
-
-.school-badge, .role-badge, .status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.school-1 { background: #c6f6d5; color: #22543d; }
-.school-2 { background: #fed7d7; color: #742a2a; }
-.school-unknown { background: #e2e8f0; color: #4a5568; }
-
-.role-2 { background: #bee3f8; color: #2a4365; }
-.role-3 { background: #faf089; color: #744210; }
-.role-unknown { background: #e2e8f0; color: #4a5568; }
-
-.status-active { background: #c6f6d5; color: #22543d; }
-.status-inactive { background: #fed7d7; color: #742a2a; }
-
-.guru-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.action-button {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background-color 0.2s;
-}
-
-.view-button:hover { background: #bee3f8; }
-.edit-button:hover { background: #faf089; }
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #718096;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: #f7fafc;
-  border-top: 1px solid #e2e8f0;
-}
-
-.pagination-button {
-  background: white;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.page-button {
-  background: white;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  min-width: 40px;
-}
-
-.page-button.active {
-  background: #4299e1;
-  color: white;
-  border-color: #4299e1;
-}
-
-@media (max-width: 768px) {
-  .guru-list-container {
-    padding: 1rem;
-  }
-  
-  .search-filter-section {
-    flex-direction: column;
-  }
-  
-  .search-box {
-    min-width: auto;
-  }
-  
-  .filter-options {
-    flex-direction: column;
-  }
-  
-  .table-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .guru-table th,
-  .guru-table td {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
-}
-</style> 

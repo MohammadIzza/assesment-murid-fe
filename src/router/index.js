@@ -12,6 +12,9 @@ import GuruList from '@/views/guru/GuruList.vue'
 import GuruDetail from '@/views/guru/GuruDetail.vue'
 import GuruIndex from '@/views/guru/index.vue'
 
+// Import komponen dashboard
+import Dashboard from '@/views/dasbord/index.vue'
+
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -29,11 +32,20 @@ const router = createRouter({
       children: [
         {
           path: '',
-          name: 'guru-index',
-          component: GuruIndex,
+          name: 'dashboard',
+          component: Dashboard,
           meta: {
             requiresAuth: false,  // Tidak memerlukan autentikasi untuk demo
-            title: 'Guru Management',
+            title: 'Dashboard',
+          },
+        },
+        {
+          path: 'dashboard',
+          name: 'dashboard-main',
+          component: Dashboard,
+          meta: {
+            requiresAuth: false,
+            title: 'Dashboard',
           },
         },
         {
