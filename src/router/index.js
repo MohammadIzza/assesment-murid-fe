@@ -1,6 +1,6 @@
 /**
  * File: router/index.js
- * Deskripsi: Konfigurasi routing untuk aplikasi guru
+ * Deskripsi: Konfigurasi routing untuk aplikasi guru dengan authentication
  * Fungsi: Mengatur navigasi dan akses ke halaman-halaman guru
  */
 
@@ -16,6 +16,10 @@ import GuruIndex from '@/views/guru/index.vue'
 // Import komponen dashboard
 import Dashboard from '@/views/dasbord/index.vue'
 
+// Import komponen auth
+import Login from '@/views/auth/login.vue'
+import Register from '@/views/auth/regist.vue'
+
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -26,17 +30,42 @@ const router = createRouter({
   
   // Konfigurasi routes
   routes: [
-    // Route untuk guru management
+    // Auth routes (tidak memerlukan layout)
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: {
+        requiresAuth: false,
+        title: 'Login',
+        guestOnly: true, // Hanya untuk user yang belum login
+      },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Register,
+      meta: {
+        requiresAuth: false,
+        title: 'Register',
+        guestOnly: true, // Hanya untuk user yang belum login
+      },
+    },
+    
+    // Protected routes dengan layout
     {
       path: '/',
       component: Admin,
+      meta: {
+        requiresAuth: true,
+      },
       children: [
         {
           path: '',
           name: 'dashboard',
           component: Dashboard,
           meta: {
-            requiresAuth: false,  // Tidak memerlukan autentikasi untuk demo
+            requiresAuth: true,
             title: 'Dashboard',
           },
         },
@@ -45,7 +74,7 @@ const router = createRouter({
           name: 'dashboard-main',
           component: Dashboard,
           meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             title: 'Dashboard',
           },
         },
@@ -54,7 +83,7 @@ const router = createRouter({
           name: 'guru-index',
           component: GuruIndex,
           meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             title: 'Guru Management',
           },
         },
@@ -63,8 +92,17 @@ const router = createRouter({
           name: 'guru-list',
           component: GuruList,
           meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             title: 'Daftar Guru',
+          },
+        },
+        {
+          path: 'guru/add',
+          name: 'guru-add',
+          component: GuruEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Tambah Guru',
           },
         },
         {
@@ -72,7 +110,7 @@ const router = createRouter({
           name: 'guru-detail',
           component: GuruDetail,
           meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             title: 'Detail Guru',
           },
         },
@@ -81,7 +119,7 @@ const router = createRouter({
           name: 'guru-edit',
           component: GuruEdit,
           meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             title: 'Edit Guru',
           },
         },
@@ -90,9 +128,41 @@ const router = createRouter({
   ],
 })
 
-// Middleware untuk mengecek autentikasi (disabled untuk demo)
+// Route guard untuk mengecek autentikasi
 router.beforeEach(async (to, from, next) => {
-  // Untuk demo, skip autentikasi
+  // Import auth store disini untuk menghindari circular dependency
+  const { useAuthStore } = await import('@/stores/auth')
+  const authStore = useAuthStore()
+  
+  // Initialize auth jika belum
+  if (!authStore.isAuthenticated && localStorage.getItem('token')) {
+    authStore.initAuth()
+  }
+  
+  const isAuthenticated = authStore.isAuthenticated
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const guestOnly = to.matched.some(record => record.meta.guestOnly)
+  
+  // Jika halaman memerlukan auth tapi user belum login
+  if (requiresAuth && !isAuthenticated) {
+    next({
+      name: 'login',
+      query: { redirect: to.fullPath }
+    })
+    return
+  }
+  
+  // Jika halaman hanya untuk guest tapi user sudah login
+  if (guestOnly && isAuthenticated) {
+    next({ name: 'dashboard' })
+    return
+  }
+  
+  // Set title halaman
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - Guru Management`
+  }
+  
   next()
 })
 

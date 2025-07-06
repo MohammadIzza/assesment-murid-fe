@@ -14,6 +14,8 @@ import App from './App.vue'
 import router from './router'
 // Import file CSS utama
 import './assets/main.css'  // Tambahkan ini
+// Import auth store untuk inisialisasi
+import { useAuthStore } from './stores/auth'
 
 // Membuat instance aplikasi Vue
 const app = createApp(App)
@@ -24,6 +26,10 @@ const pinia = createPinia()
 app.use(pinia)
 // Menggunakan Router di aplikasi
 app.use(router)
+
+// Initialize auth store
+const authStore = useAuthStore()
+authStore.initAuth()
 
 // Memasang aplikasi ke elemen dengan id 'app' di index.html
 app.mount('#app')

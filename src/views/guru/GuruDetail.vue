@@ -1,5 +1,73 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-6">
+    <!-- Toast Component -->
+    <Toast 
+      :show="showToast" 
+      :type="toastType" 
+      :title="toastTitle" 
+      :message="toastMessage" 
+      @close="showToast = false" 
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showDeleteModal = false"></div>
+        
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-14 w-14 rounded-full bg-red-100 sm:mx-0 sm:h-12 sm:w-12">
+                <svg class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-semibold text-gray-900" id="modal-title">
+                  Konfirmasi Hapus Guru
+                </h3>
+                <div class="mt-3">
+                  <p class="text-sm text-gray-600">
+                    Apakah Anda yakin ingin menghapus guru <span class="font-semibold text-gray-900">"{{ guruStore.getCurrentGuru?.nama || 'ini' }}"</span>?
+                  </p>
+                  <p class="text-sm text-red-600 mt-2 font-medium">
+                    Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data terkait.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-6 py-4 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              @click="confirmDeleteGuru"
+              :disabled="isDeleting"
+              class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2.5 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="!isDeleting" class="flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Ya, Hapus
+              </span>
+              <span v-else class="flex items-center">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Menghapus...
+              </span>
+            </button>
+            <button
+              @click="showDeleteModal = false"
+              :disabled="isDeleting"
+              class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="mb-8">
@@ -12,7 +80,7 @@
               Kembali ke Daftar Guru
             </button>
             <div class="flex items-center space-x-3">
-              <h1 class="text-3xl font-bold text-gray-900">Detail Guru</h1>
+              <h1 class="text-2xl font-bold text-gray-900">Detail Guru</h1>
               <div class="flex items-center px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">
                 <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                 <span class="text-sm font-medium">Live Data</span>
@@ -56,7 +124,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">Terjadi Kesalahan</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Terjadi Kesalahan</h3>
           <p class="text-gray-600 mb-6">{{ guruStore.getError }}</p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <button @click="loadGuruDetail" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
@@ -89,8 +157,8 @@
                 </div>
               </div>
               <div class="flex-1">
-                <h2 class="text-3xl font-bold text-white mb-2">{{ guruStore.getCurrentGuru.nama || 'Nama Tidak Tersedia' }}</h2>
-                <p class="text-blue-100 text-lg mb-3">{{ guruStore.getCurrentGuru.email || 'Email Tidak Tersedia' }}</p>
+                <h2 class="text-2xl font-bold text-white mb-2">{{ guruStore.getCurrentGuru.nama || 'Nama Tidak Tersedia' }}</h2>
+                <p class="text-blue-100 text-base mb-3">{{ guruStore.getCurrentGuru.email || 'Email Tidak Tersedia' }}</p>
                 <div class="flex flex-wrap gap-2">
                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="getStatusClass(guruStore.getCurrentGuru)">
                     <div class="w-2 h-2 rounded-full mr-2" :class="guruStore.getCurrentGuru.password_hash ? 'bg-green-400' : 'bg-red-400'"></div>
@@ -103,17 +171,17 @@
               </div>
               <!-- Action Buttons - Move to header for better UX -->
               <div class="flex flex-col space-y-2 md:space-y-0 md:space-x-3 md:flex-row">
-                <button @click="editGuru" class="inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all">
+                <button @click="editGuru" class="inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200 transform hover:scale-105">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                   </svg>
-                  Edit
+                  Edit Guru
                 </button>
-                <button @click="deleteGuru" class="inline-flex items-center justify-center px-4 py-2 bg-red-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-red-600/80 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all">
+                <button @click="showDeleteModal = true" class="inline-flex items-center justify-center px-4 py-2 bg-red-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-red-600/90 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all duration-200 transform hover:scale-105 shadow-lg">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
-                  Hapus
+                  Hapus Guru
                 </button>
               </div>
             </div>
@@ -125,7 +193,7 @@
               <!-- Personal Information -->
               <div class="space-y-6">
                 <div class="bg-gray-50 rounded-lg p-4">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Personal</h3>
+                  <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Personal</h3>
                   <div class="space-y-4">
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
                       <span class="text-sm font-medium text-gray-600">ID Guru</span>
@@ -152,7 +220,7 @@
               <!-- Institution Information -->
               <div class="space-y-6">
                 <div class="bg-gray-50 rounded-lg p-4">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Institusi</h3>
+                  <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Institusi</h3>
                   <div class="space-y-4">
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
                       <span class="text-sm font-medium text-gray-600">Sekolah</span>
@@ -197,7 +265,7 @@
               </div>
               <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Assessment(masi dummy data)</p>
-                <p class="text-2xl font-bold text-gray-900">24</p>
+                <p class="text-xl font-bold text-gray-900">24</p>
               </div>
             </div>
           </div>
@@ -214,7 +282,7 @@
               <!-- masih dummiy bray -->
               <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Siswa Dinilai(masi dummy data)</p>
-                <p class="text-2xl font-bold text-gray-900">156</p>
+                <p class="text-xl font-bold text-gray-900">156</p>
               </div>
             </div>
           </div>
@@ -231,7 +299,7 @@
               <!-- masih dummiy bray -->
               <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Assessment Selesai(masi dummy data bray)</p>
-                <p class="text-2xl font-bold text-gray-900">18</p>
+                <p class="text-xl font-bold text-gray-900">18</p>
               </div>
             </div>
           </div>
@@ -246,7 +314,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">Guru Tidak Ditemukan</h3>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Guru Tidak Ditemukan</h3>
           <p class="text-gray-600 mb-6">Guru dengan ID <span class="font-medium">{{ $route.params.id }}</span> tidak ditemukan dalam sistem.</p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <button @click="goBack" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
@@ -269,16 +337,38 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
+import Toast from '@/components/common/Toast.vue'
 
 export default {
   name: 'GuruDetail',
+  components: {
+    Toast
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()
     const guruStore = useGuruStore()
+
+    // Toast state
+    const showToast = ref(false)
+    const toastType = ref('success')
+    const toastTitle = ref('')
+    const toastMessage = ref('')
+
+    // Delete modal state
+    const showDeleteModal = ref(false)
+    const isDeleting = ref(false)
+
+    // Toast helper
+    const showToastMessage = (type, title, message) => {
+      toastType.value = type
+      toastTitle.value = title
+      toastMessage.value = message
+      showToast.value = true
+    }
 
     // Methods
     const loadGuruDetail = async () => {
@@ -297,107 +387,61 @@ export default {
       router.push({ name: 'guru-edit', params: { id: route.params.id } })
     }
 
-    const deleteGuru = async () => {
+    const confirmDeleteGuru = async () => {
       const guru = guruStore.getCurrentGuru
-      const confirmMessage = `Apakah Anda yakin ingin menghapus guru "${guru?.nama || 'ini'}"?\n\nTindakan ini tidak dapat dibatalkan.`
       
-      if (confirm(confirmMessage)) {
-        try {
-          console.log('Deleting guru with route params:', route.params)
-          console.log('Guru ID from route:', route.params.id)
-          console.log('Current guru data:', guru)
-          
-          // Tampilkan loading state
-          const loadingAlert = () => {
-            const alertDiv = document.createElement('div')
-            alertDiv.id = 'delete-loading'
-            alertDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50'
-            alertDiv.innerHTML = `
-              <div class="flex items-center">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
-                Menghapus guru...
-              </div>
-            `
-            document.body.appendChild(alertDiv)
-          }
-          
-          const removeLoadingAlert = () => {
-            const alertDiv = document.getElementById('delete-loading')
-            if (alertDiv) {
-              alertDiv.remove()
-            }
-          }
-          
-          loadingAlert()
-          
-          await guruStore.deleteGuru(route.params.id)
-          
-          removeLoadingAlert()
-          
-          // Tampilkan success message
-          const successDiv = document.createElement('div')
-          successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50'
-          successDiv.innerHTML = `
-            <div class="flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              Guru berhasil dihapus!
-            </div>
-          `
-          document.body.appendChild(successDiv)
-          
-          setTimeout(() => {
-            successDiv.remove()
-            router.push({ name: 'guru-list' })
-          }, 2000)
-          
-        } catch (error) {
-          // Remove loading alert if exists
-          const alertDiv = document.getElementById('delete-loading')
-          if (alertDiv) {
-            alertDiv.remove()
-          }
-          
-          console.error('Failed to delete guru:', error)
-          console.error('Error details:', error.response?.data)
-          
-          // Tampilkan error message yang lebih detail
-          let errorMessage = 'Terjadi kesalahan saat menghapus guru'
-          
-          if (error.response?.status === 500) {
-            errorMessage = 'Server error (500): Kemungkinan ada masalah di backend atau endpoint tidak sesuai'
-          } else if (error.response?.status === 404) {
-            errorMessage = 'Endpoint tidak ditemukan (404): Guru mungkin sudah dihapus atau endpoint salah'
-          } else if (error.response?.status === 405) {
-            errorMessage = 'Method tidak diizinkan (405): Endpoint mungkin tidak mendukung operasi delete'
-          } else if (error.response?.data?.message) {
-            errorMessage = error.response.data.message
-          } else if (error.message) {
-            errorMessage = error.message
-          }
-          
-          // Tampilkan error alert
-          const errorDiv = document.createElement('div')
-          errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-md'
-          errorDiv.innerHTML = `
-            <div class="flex items-start">
-              <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-              </svg>
-              <div>
-                <div class="font-medium">Gagal menghapus guru</div>
-                <div class="text-sm mt-1 text-red-100">${errorMessage}</div>
-                <div class="text-xs mt-2 text-red-200">Periksa console untuk detail error</div>
-              </div>
-            </div>
-          `
-          document.body.appendChild(errorDiv)
-          
-          setTimeout(() => {
-            errorDiv.remove()
-          }, 8000)
+      try {
+        isDeleting.value = true
+        
+        console.log('Deleting guru with route params:', route.params)
+        console.log('Guru ID from route:', route.params.id)
+        console.log('Current guru data:', guru)
+        
+        await guruStore.deleteGuru(route.params.id)
+        
+        // Close modal
+        showDeleteModal.value = false
+        isDeleting.value = false
+        
+        // Show success toast
+        showToastMessage(
+          'success',
+          'Berhasil!',
+          `Guru "${guru?.nama || 'tersebut'}" berhasil dihapus dari sistem.`
+        )
+        
+        // Redirect after toast duration
+        setTimeout(() => {
+          router.push({ name: 'guru-list' })
+        }, 1500)
+        
+      } catch (error) {
+        isDeleting.value = false
+        showDeleteModal.value = false
+        
+        console.error('Failed to delete guru:', error)
+        console.error('Error details:', error.response?.data)
+        
+        // Show error message yang lebih detail
+        let errorMessage = 'Terjadi kesalahan saat menghapus guru'
+        
+        if (error.response?.status === 500) {
+          errorMessage = 'Server error: Kemungkinan ada masalah di backend atau endpoint tidak sesuai'
+        } else if (error.response?.status === 404) {
+          errorMessage = 'Data guru tidak ditemukan atau sudah dihapus sebelumnya'
+        } else if (error.response?.status === 405) {
+          errorMessage = 'Method tidak diizinkan: Endpoint mungkin tidak mendukung operasi hapus'
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message
+        } else if (error.message) {
+          errorMessage = error.message
         }
+        
+        showToastMessage(
+          'error',
+          'Gagal Menghapus',
+          errorMessage
+        )
       }
     }
 
@@ -484,10 +528,16 @@ export default {
 
     return {
       guruStore,
+      showToast,
+      toastType,
+      toastTitle,
+      toastMessage,
+      showDeleteModal,
+      isDeleting,
       loadGuruDetail,
       goBack,
       editGuru,
-      deleteGuru,
+      confirmDeleteGuru,
       getInitials,
       formatDate,
       getSchoolName,

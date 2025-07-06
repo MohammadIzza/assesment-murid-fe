@@ -18,8 +18,8 @@
               </div>
             </div>
             <div>
-              <h1 class="text-3xl font-bold text-white mb-2">Daftar Guru</h1>
-              <p class="text-blue-100 text-lg">Kelola dan pantau data guru dalam sistem assessment</p>
+              <h1 class="text-2xl font-bold text-white mb-2">Daftar Guru</h1>
+              <p class="text-blue-100 text-base">Kelola dan pantau data guru dalam sistem assessment</p>
               <div class="flex items-center mt-3 space-x-4">
                 <div class="flex items-center text-blue-100">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
           </div>
           <div class="mt-6 lg:mt-0">
             <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
-              <div class="text-3xl font-bold text-white mb-1">{{ filteredGuruList.length }}</div>
+              <div class="text-2xl font-bold text-white mb-1">{{ filteredGuruList.length }}</div>
               <div class="text-sm text-blue-100 font-medium mb-2">Total Guru</div>
               <div class="flex items-center justify-center space-x-2">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -49,287 +49,542 @@
         </div>
       </div>
 
+      <!-- Action Section -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center space-x-3">
+            <div class="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
+              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900">Kelola Data Guru</h3>
+              <p class="text-sm text-gray-500">Tambah guru baru atau kelola data yang sudah ada</p>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button
+              @click="goToAddGuru"
+              class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+            >
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Tambah Guru Baru
+            </button>
+            <button
+              @click="refreshData"
+              class="inline-flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Search and Filter Section -->
       <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
         <!-- Filter Header -->
-        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center space-x-3">
-              <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl shadow-sm">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900">Filter & Pencarian</h3>
-                <p class="text-sm text-gray-500">Temukan guru berdasarkan kriteria yang Anda inginkan</p>
+                <h3 class="text-lg font-semibold text-gray-900">Filter & Pencarian Data Guru</h3>
+                <p class="text-sm text-gray-600">Temukan dan filter data guru berdasarkan kriteria spesifik</p>
               </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <div v-if="hasActiveFilters" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+            <div class="flex items-center gap-3">
+              <div v-if="hasActiveFilters" class="flex items-center text-sm text-blue-700 bg-blue-100 px-4 py-2 rounded-full shadow-sm border border-blue-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 {{ activeFilterCount }} Filter Aktif
               </div>
-              <button @click="clearAllFilters" v-if="hasActiveFilters" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors">
-                Reset Semua Filter
+              <button 
+                @click="clearAllFilters" 
+                v-if="hasActiveFilters" 
+                class="inline-flex items-center text-sm text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full transition-all duration-200 border border-red-200 hover:border-red-300 shadow-sm"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Reset Semua
               </button>
             </div>
           </div>
         </div>
 
         <!-- Filter Content -->
-        <div class="p-6 space-y-6">
-          <!-- Search Bar -->
-          <div class="relative group">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pencarian Cepat</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="p-6 space-y-8">
+          <!-- Quick Search and Preset Filters -->
+          <div class="space-y-4">
+            <!-- Search Bar -->
+            <div class="relative group">
+              <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-              </div>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Ketik nama guru, email, atau NIP untuk mencari..."
-                class="block w-full pl-12 pr-12 py-4 border border-gray-300 rounded-xl text-sm leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
-                @focus="searchFocused = true"
-                @blur="searchFocused = false"
-              />
-              <div v-if="searchQuery" class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                <button @click="searchQuery = ''" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div v-if="searchQuery" class="mt-2 text-xs text-gray-500">
-              Ditemukan {{ filteredGuruList.length }} guru dari {{ guruStore.getGuruList.length }} total guru
-            </div>
-          </div>
-          
-          <!-- Advanced Filters -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- School Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Sekolah</label>
+                Pencarian Cepat
+              </label>
               <div class="relative">
-                <select v-model="selectedSchool" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
-                  <option value="">Semua Sekolah</option>
-                  <option value="1">SMA Negeri 1 Semarang</option>
-                  <option value="2">SMA Negeri 2 Semarang</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
-              </div>
-              <div v-if="selectedSchool" class="flex items-center text-xs text-blue-600">
-                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-                Filter diterapkan
-              </div>
-            </div>
-            
-            <!-- Role Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Role/Jabatan</label>
-              <div class="relative">
-                <select v-model="selectedRole" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
-                  <option value="">Semua Role</option>
-                  <option value="2">Guru</option>
-                  <option value="3">Kepala Sekolah</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Cari berdasarkan nama, email, atau NIP guru..."
+                  class="block w-full pl-12 pr-12 py-4 border border-gray-300 rounded-xl text-sm leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
+                />
+                <div v-if="searchQuery" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                  <button @click="searchQuery = ''" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <div v-if="selectedRole" class="flex items-center text-xs text-blue-600">
-                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-                Filter diterapkan
-              </div>
-            </div>
-            
-            <!-- Status Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Status Akun</label>
-              <div class="relative">
-                <select v-model="selectedStatus" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
-                  <option value="">Semua Status</option>
-                  <option value="aktif">Aktif</option>
-                  <option value="belum_aktif">Belum Aktif</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
+              <div v-if="searchQuery || hasActiveFilters" class="mt-3 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                  <span class="font-medium text-blue-600">{{ filteredGuruList.length }}</span> guru ditemukan 
+                  <span v-if="searchQuery">untuk pencarian "<span class="font-medium">{{ searchQuery }}</span>"</span>
+                  dari {{ guruStore.getGuruList.length }} total guru
+                </div>
+                <div v-if="guruStore.isLoading" class="flex items-center text-sm text-blue-600">
+                  <div class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                  Memuat...
                 </div>
               </div>
-              <div v-if="selectedStatus" class="flex items-center text-xs text-blue-600">
-                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-                Filter diterapkan
-              </div>
             </div>
-          </div>
 
-          <!-- Action Buttons Row -->
-          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Aksi Cepat</label>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <button @click="loadGuruData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-blue-300 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                  </svg>
-                  Refresh Data
-                </button>
-                <button @click="exportData" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-green-300 rounded-xl text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                  Export Excel
-                </button>
-                <button @click="toggleAdvancedFilter" class="flex-1 inline-flex items-center justify-center px-4 py-3 border border-purple-300 rounded-xl text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                  </svg>
-                  {{ showAdvancedFilter ? 'Sembunyikan' : 'Filter Lanjutan' }}
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Advanced Filter Section -->
-          <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Filter Berdasarkan NIP</label>
-              <input
-                v-model="nipFilter"
-                type="text"
-                placeholder="Masukkan NIP guru..."
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
-              />
-            </div>
-            
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Filter Berdasarkan Email</label>
-              <input
-                v-model="emailFilter"
-                type="text"
-                placeholder="Masukkan domain email..."
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
-              />
-            </div>
-            
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Urutkan Berdasarkan</label>
-              <div class="flex gap-2">
-                <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md appearance-none">
-                  <option value="nama">Nama</option>
-                  <option value="email">Email</option>
-                  <option value="nip">NIP</option>
-                  <option value="id_sekolah">Sekolah</option>
-                  <option value="id_role">Role</option>
-                </select>
+            <!-- Preset Quick Filters -->
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-800 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Filter Cepat
+              </label>
+              <div class="flex flex-wrap gap-2">
                 <button 
-                  @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
-                  class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md"
-                  :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
+                  @click="applyQuickFilter('all')"
+                  :class="!hasActiveFilters ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-150'"
+                  class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm"
                 >
-                  <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                   </svg>
-                  <svg v-else class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                  Semua Guru
+                </button>
+                <button 
+                  @click="applyQuickFilter('active')"
+                  :class="quickFilterActive === 'active' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-150'"
+                  class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm"
+                >
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
+                  Guru Aktif
+                </button>
+                <button 
+                  @click="applyQuickFilter('inactive')"
+                  :class="quickFilterActive === 'inactive' ? 'bg-red-100 text-red-700 border-red-300' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-150'"
+                  class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm"
+                >
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Belum Aktif
+                </button>
+                <button 
+                  @click="applyQuickFilter('teacher')"
+                  :class="quickFilterActive === 'teacher' ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-150'"
+                  class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm"
+                >
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Guru Pengajar
+                </button>
+                <button 
+                  @click="applyQuickFilter('principal')"
+                  :class="quickFilterActive === 'principal' ? 'bg-indigo-100 text-indigo-700 border-indigo-300' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-150'"
+                  class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-sm"
+                >
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                  </svg>
+                  Kepala Sekolah
                 </button>
               </div>
             </div>
           </div>
+          <!-- Advanced Filters Section -->
+          <div class="border-t border-gray-200 pt-6">
+            <div class="flex items-center justify-between mb-6">
+              <label class="text-sm font-semibold text-gray-800 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                </svg>
+                Filter Lanjutan
+              </label>
+              <button 
+                @click="toggleAdvancedFilter" 
+                class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-indigo-200"
+              >
+                <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+                {{ showAdvancedFilter ? 'Sembunyikan' : 'Tampilkan' }}
+              </button>
+            </div>
 
-            <!-- Quick Filter Tags -->
-            <div v-if="hasActiveFilters" class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
-            <span class="text-sm font-medium text-gray-700">Filter aktif:</span>
-            <div v-if="searchQuery" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-              Pencarian: "{{ searchQuery }}"
-              <button @click="searchQuery = ''" class="ml-1 text-blue-600 hover:text-blue-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+            <!-- Basic Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              <!-- School Filter -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                  Sekolah
+                </label>
+                <div class="relative">
+                  <select v-model="selectedSchool" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                    <option value="">Semua Sekolah</option>
+                    <option value="1">SMA Negeri 1 Semarang</option>
+                    <option value="2">SMA Negeri 2 Semarang</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="selectedSchool" class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  Filter aktif
+                </div>
+              </div>
+              
+              <!-- Role Filter -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Role/Jabatan
+                </label>
+                <div class="relative">
+                  <select v-model="selectedRole" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                    <option value="">Semua Role</option>
+                    <option value="2">Guru</option>
+                    <option value="3">Kepala Sekolah</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="selectedRole" class="flex items-center text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-md">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  Filter aktif
+                </div>
+              </div>
+              
+              <!-- Status Filter -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Status Akun
+                </label>
+                <div class="relative">
+                  <select v-model="selectedStatus" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                    <option value="">Semua Status</option>
+                    <option value="aktif">Aktif</option>
+                    <option value="belum_aktif">Belum Aktif</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="selectedStatus" class="flex items-center text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  Filter aktif
+                </div>
+              </div>
+
+              <!-- Date Filter -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  Filter Tanggal
+                </label>
+                <div class="relative">
+                  <select v-model="dateFilter" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                    <option value="">Semua Periode</option>
+                    <option value="today">Hari Ini</option>
+                    <option value="week">Minggu Ini</option>
+                    <option value="month">Bulan Ini</option>
+                    <option value="year">Tahun Ini</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="dateFilter" class="flex items-center text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  Filter aktif
+                </div>
+              </div>
             </div>
-            <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-              </svg>
-              Sekolah: {{ getSchoolName(selectedSchool) }}
-              <button @click="selectedSchool = ''" class="ml-1 text-green-600 hover:text-green-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+
+            <!-- Advanced Filter Section (Collapsible) -->
+            <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                  </svg>
+                  Filter Berdasarkan NIP
+                </label>
+                <input
+                  v-model="nipFilter"
+                  type="text"
+                  placeholder="Masukkan NIP guru (contoh: 19850601)"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
+                />
+                <div v-if="nipFilter" class="text-xs text-gray-500">
+                  Mencari NIP yang mengandung "{{ nipFilter }}"
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                  </svg>
+                  Filter Berdasarkan Email
+                </label>
+                <input
+                  v-model="emailFilter"
+                  type="text"
+                  placeholder="Masukkan domain email (contoh: @gmail.com)"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
+                />
+                <div v-if="emailFilter" class="text-xs text-gray-500">
+                  Mencari email yang mengandung "{{ emailFilter }}"
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                  </svg>
+                  Urutkan Berdasarkan
+                </label>
+                <div class="flex gap-2">
+                  <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                    <option value="nama">Nama</option>
+                    <option value="email">Email</option>
+                    <option value="nip">NIP</option>
+                    <option value="id_sekolah">Sekolah</option>
+                    <option value="id_role">Role</option>
+                  </select>
+                  <button 
+                    @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
+                    class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md hover:bg-gray-50"
+                    :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
+                  >
+                    <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                    </svg>
+                    <svg v-else class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="text-xs text-gray-500">
+                  Urutan: {{ sortOrder === 'asc' ? 'A → Z' : 'Z → A' }}
+                </div>
+              </div>
             </div>
-            <div v-if="selectedRole" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-              </svg>
-              Role: {{ getRoleName(selectedRole) }}
-              <button @click="selectedRole = ''" class="ml-1 text-purple-600 hover:text-purple-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+          </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <div class="flex-1">
+                <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  Aksi & Tools
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button 
+                    @click="loadGuruData" 
+                    :disabled="guruStore.isLoading"
+                    class="inline-flex items-center justify-center px-4 py-3 border border-blue-300 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg v-if="!guruStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                    {{ guruStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
+                  </button>
+                  <button 
+                    @click="exportData" 
+                    :disabled="filteredGuruList.length === 0"
+                    class="inline-flex items-center justify-center px-4 py-3 border border-green-300 rounded-xl text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Export Excel
+                  </button>
+                  <button 
+                    @click="printData" 
+                    :disabled="filteredGuruList.length === 0"
+                    class="inline-flex items-center justify-center px-4 py-3 border border-purple-300 rounded-xl text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    Print Data
+                  </button>
+                </div>
+              </div>
             </div>
-            <div v-if="selectedStatus" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Status: {{ getStatusFilterText(selectedStatus) }}
-              <button @click="selectedStatus = ''" class="ml-1 text-orange-600 hover:text-orange-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            <div v-if="nipFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-              </svg>
-              NIP: "{{ nipFilter }}"
-              <button @click="nipFilter = ''" class="ml-1 text-indigo-600 hover:text-indigo-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            <div v-if="emailFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-              </svg>
-              Email: "{{ emailFilter }}"
-              <button @click="emailFilter = ''" class="ml-1 text-pink-600 hover:text-pink-800">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+
+            <!-- Active Filter Tags -->
+            <div v-if="hasActiveFilters" class="pt-6 border-t border-gray-200">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-sm font-semibold text-gray-800 flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                  Filter Aktif:
+                </span>
+                
+                <div v-if="searchQuery" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  Pencarian: "{{ searchQuery }}"
+                  <button @click="searchQuery = ''" class="ml-1.5 text-blue-600 hover:text-blue-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                  Sekolah: {{ getSchoolName(selectedSchool) }}
+                  <button @click="selectedSchool = ''" class="ml-1.5 text-green-600 hover:text-green-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="selectedRole" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Role: {{ getRoleName(selectedRole) }}
+                  <button @click="selectedRole = ''" class="ml-1.5 text-purple-600 hover:text-purple-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="selectedStatus" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Status: {{ getStatusFilterText(selectedStatus) }}
+                  <button @click="selectedStatus = ''" class="ml-1.5 text-orange-600 hover:text-orange-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="dateFilter" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  Periode: {{ getDateFilterText(dateFilter) }}
+                  <button @click="dateFilter = ''" class="ml-1.5 text-blue-600 hover:text-blue-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="nipFilter" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                  </svg>
+                  NIP: "{{ nipFilter }}"
+                  <button @click="nipFilter = ''" class="ml-1.5 text-indigo-600 hover:text-indigo-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div v-if="emailFilter" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800 border border-pink-200">
+                  <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                  </svg>
+                  Email: "{{ emailFilter }}"
+                  <button @click="emailFilter = ''" class="ml-1.5 text-pink-600 hover:text-pink-800 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <!-- Loading State -->
       <div v-if="guruStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -605,6 +860,8 @@ export default {
     const selectedStatus = ref('')
     const nipFilter = ref('')
     const emailFilter = ref('')
+    const dateFilter = ref('')
+    const quickFilterActive = ref('')
     const sortBy = ref('nama')
     const sortOrder = ref('asc')
     const showAdvancedFilter = ref(false)
@@ -648,6 +905,35 @@ export default {
         })
       }
 
+      // Filter by date
+      if (dateFilter.value) {
+        const now = new Date()
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        
+        filtered = filtered.filter(guru => {
+          if (!guru.created_at) return false
+          
+          const guruDate = new Date(guru.created_at)
+          const guruDateOnly = new Date(guruDate.getFullYear(), guruDate.getMonth(), guruDate.getDate())
+          
+          switch (dateFilter.value) {
+            case 'today':
+              return guruDateOnly.getTime() === today.getTime()
+            case 'week':
+              const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+              return guruDateOnly >= weekAgo
+            case 'month':
+              const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+              return guruDate >= monthAgo
+            case 'year':
+              const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+              return guruDate >= yearAgo
+            default:
+              return true
+          }
+        })
+      }
+
       // Filter by NIP
       if (nipFilter.value) {
         const nipQuery = nipFilter.value.toLowerCase()
@@ -685,7 +971,7 @@ export default {
 
     const hasActiveFilters = computed(() => {
       return !!(searchQuery.value || selectedSchool.value || selectedRole.value || 
-               selectedStatus.value || nipFilter.value || emailFilter.value)
+               selectedStatus.value || nipFilter.value || emailFilter.value || dateFilter.value)
     })
 
     const activeFilterCount = computed(() => {
@@ -696,6 +982,7 @@ export default {
       if (selectedStatus.value) count++
       if (nipFilter.value) count++
       if (emailFilter.value) count++
+      if (dateFilter.value) count++
       return count
     })
 
@@ -771,6 +1058,14 @@ export default {
       router.push({ name: 'guru-detail', params: { id } })
     }
 
+    const goToAddGuru = () => {
+      router.push({ name: 'guru-add' })
+    }
+
+    const refreshData = async () => {
+      await loadGuruData()
+    }
+
     const clearAllFilters = () => {
       searchQuery.value = ''
       selectedSchool.value = ''
@@ -778,9 +1073,131 @@ export default {
       selectedStatus.value = ''
       nipFilter.value = ''
       emailFilter.value = ''
+      dateFilter.value = ''
+      quickFilterActive.value = ''
       sortBy.value = 'nama'
       sortOrder.value = 'asc'
       currentPage.value = 1
+    }
+
+    const applyQuickFilter = (filterType) => {
+      // Reset all filters first
+      clearAllFilters()
+      
+      // Apply specific quick filter
+      quickFilterActive.value = filterType
+      
+      switch (filterType) {
+        case 'all':
+          // No additional filters needed
+          break
+        case 'active':
+          selectedStatus.value = 'aktif'
+          break
+        case 'inactive':
+          selectedStatus.value = 'belum_aktif'
+          break
+        case 'teacher':
+          selectedRole.value = '2'
+          break
+        case 'principal':
+          selectedRole.value = '3'
+          break
+      }
+    }
+
+    const getDateFilterText = (filter) => {
+      const filterMap = {
+        'today': 'Hari Ini',
+        'week': 'Minggu Ini', 
+        'month': 'Bulan Ini',
+        'year': 'Tahun Ini'
+      }
+      return filterMap[filter] || filter
+    }
+
+    const printData = () => {
+      try {
+        const dataToExport = filteredGuruList.value
+        
+        if (dataToExport.length === 0) {
+          alert('Tidak ada data untuk dicetak!')
+          return
+        }
+
+        // Create print content
+        const printContent = `
+          <html>
+            <head>
+              <title>Daftar Guru - ${new Date().toLocaleDateString('id-ID')}</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .header h1 { color: #2563eb; margin-bottom: 5px; }
+                .header p { color: #666; margin: 0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f8f9fa; font-weight: bold; }
+                .no-col { width: 50px; text-align: center; }
+                .footer { margin-top: 30px; text-align: right; font-size: 12px; color: #666; }
+                @media print { body { margin: 0; } }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>Daftar Data Guru</h1>
+                <p>Dicetak pada: ${new Date().toLocaleDateString('id-ID', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</p>
+                <p>Total Data: ${dataToExport.length} guru</p>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th class="no-col">No</th>
+                    <th>Nama Guru</th>
+                    <th>Email</th>
+                    <th>NIP</th>
+                    <th>Sekolah</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${dataToExport.map((guru, index) => `
+                    <tr>
+                      <td class="no-col">${index + 1}</td>
+                      <td>${guru.nama || 'N/A'}</td>
+                      <td>${guru.email || 'N/A'}</td>
+                      <td>${guru.nip || 'N/A'}</td>
+                      <td>${getSchoolName(guru.id_sekolah)}</td>
+                      <td>${getRoleName(guru.id_role)}</td>
+                      <td>${getStatusText(guru)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <div class="footer">
+                Sistem Manajemen Assessment Murid - Generated by System
+              </div>
+            </body>
+          </html>
+        `
+
+        // Open print window
+        const printWindow = window.open('', '_blank')
+        if (printWindow) {
+          printWindow.document.write(printContent)
+          printWindow.document.close()
+          printWindow.print()
+        }
+      } catch (error) {
+        console.error('Print error:', error)
+        alert('Terjadi kesalahan saat mencetak data!')
+      }
     }
 
     const toggleAdvancedFilter = () => {
@@ -923,7 +1340,7 @@ export default {
     }
 
     // Watch individual filters
-    watch([searchQuery, selectedSchool, selectedRole, selectedStatus, nipFilter, emailFilter, sortBy, sortOrder], watchFilters)
+    watch([searchQuery, selectedSchool, selectedRole, selectedStatus, nipFilter, emailFilter, dateFilter, sortBy, sortOrder], watchFilters)
 
     return {
       guruStore,
@@ -933,6 +1350,8 @@ export default {
       selectedStatus,
       nipFilter,
       emailFilter,
+      dateFilter,
+      quickFilterActive,
       sortBy,
       sortOrder,
       showAdvancedFilter,
@@ -947,10 +1366,15 @@ export default {
       loadGuruData,
       applyFilters,
       viewGuruDetail,
+      goToAddGuru,
+      refreshData,
       clearAllFilters,
+      applyQuickFilter,
       toggleAdvancedFilter,
       getStatusFilterText,
+      getDateFilterText,
       exportData,
+      printData,
       getSchoolName,
       getSchoolClass,
       getRoleName,

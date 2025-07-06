@@ -5,7 +5,7 @@
  */
 
 import { defineStore } from 'pinia'
-import { axiosInstance } from '@/plugins/axios'
+import axios from '@/plugins/axios'
 
 export const useGuruStore = defineStore('guru', {
   state: () => ({
@@ -55,7 +55,7 @@ export const useGuruStore = defineStore('guru', {
         const queryString = params.toString()
         const url = queryString ? `/list/guru?${queryString}` : '/list/guru'
         
-        const response = await axiosInstance.get(url)
+        const response = await axios.get(url)
         
         if (response.data.success) {
           this.guruList = response.data.data
@@ -86,7 +86,7 @@ export const useGuruStore = defineStore('guru', {
       
       try {
         // Menggunakan base URL yang sesuai dengan API backend
-        const response = await axiosInstance.get('/list/guru')
+        const response = await axios.get('/list/guru')
         
         if (response.data.success) {
           this.guruList = response.data.data
@@ -111,7 +111,7 @@ export const useGuruStore = defineStore('guru', {
       this.error = null
       
       try {
-        const response = await axiosInstance.get(`/view/guru/${id}`)
+        const response = await axios.get(`/view/guru/${id}`)
         
         if (response.data.success) {
           this.currentGuru = response.data.data
@@ -142,6 +142,46 @@ export const useGuruStore = defineStore('guru', {
     },
 
     /**
+     * Tambah guru baru
+     * @param {object} guruData - Data guru yang akan ditambahkan
+     */
+    async addGuru(guruData) {
+      this.loading = true
+      this.error = null
+      
+      try {
+        console.log('Attempting to add guru')
+        console.log('Add URL:', '/add/guru')
+        console.log('Add data:', guruData)
+        
+        const response = await axios.post('/add/guru', guruData)
+        
+        console.log('Add response:', response)
+        console.log('Add response status:', response.status)
+        console.log('Add response data:', response.data)
+        
+        if (response.data.success) {
+          // Reload guru list untuk mendapatkan data terbaru
+          await this.fetchGuruList()
+          
+          return response.data
+        } else {
+          throw new Error(response.data.message || 'Gagal menambahkan guru')
+        }
+      } catch (error) {
+        console.error('Error adding guru:', error)
+        console.error('Add error response:', error.response)
+        console.error('Add error response status:', error.response?.status)
+        console.error('Add error response data:', error.response?.data)
+        
+        this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menambahkan guru'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
      * Update data guru
      * @param {number} id - ID guru yang akan diupdate
      * @param {object} guruData - Data guru yang akan diupdate
@@ -155,7 +195,7 @@ export const useGuruStore = defineStore('guru', {
         console.log('Update URL:', `/update/guru/${id}`)
         console.log('Update data:', guruData)
         
-        const response = await axiosInstance.put(`/update/guru/${id}`, guruData)
+        const response = await axios.put(`/update/guru/${id}`, guruData)
         
         console.log('Update response:', response)
         console.log('Update response status:', response.status)
@@ -210,7 +250,7 @@ export const useGuruStore = defineStore('guru', {
           { method: 'post', url: `/guru/delete`, data: { id_guru: id }, description: 'POST /guru/delete with id_guru in body' },
           { method: 'post', url: `/guru/delete`, data: { id }, description: 'POST /guru/delete with id in body' },
           { method: 'put', url: `/guru/${id}`, data: { _method: 'DELETE' }, description: 'PUT /guru/:id with _method DELETE' },
-          { method: 'post', url: `/api/guru/delete/${id}`, description: 'POST /api/guru/delete/:id' }
+          { method: 'post', url: `/guru/delete/${id}`, description: 'POST /guru/delete/:id' }
         ]
         
         let response
@@ -222,11 +262,11 @@ export const useGuruStore = defineStore('guru', {
           
           try {
             if (endpoint.method === 'delete') {
-              response = await axiosInstance.delete(endpoint.url)
+              response = await axios.delete(endpoint.url)
             } else if (endpoint.method === 'post') {
-              response = await axiosInstance.post(endpoint.url, endpoint.data || {})
+              response = await axios.post(endpoint.url, endpoint.data || {})
             } else if (endpoint.method === 'put') {
-              response = await axiosInstance.put(endpoint.url, endpoint.data || {})
+              response = await axios.put(endpoint.url, endpoint.data || {})
             }
             
             console.log(`✅ SUCCESS with ${endpoint.description}:`, response.status, response.data)
