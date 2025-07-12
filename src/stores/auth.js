@@ -1,14 +1,40 @@
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
+import Cookies from 'js-cookie'
+
+// Constants for cookie names and options
+const TOKEN_COOKIE = 'auth_token'
+const USER_COOKIE = 'user_data'
+const SESSION_COOKIE = 'session_id'
+const COOKIE_OPTIONS = {
+  expires: 1, // 1 day
+  secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+  sameSite: 'strict',
+  path: '/',
+  domain: process.env.NODE_ENV === 'production' ? process.env.VITE_COOKIE_DOMAIN : undefined
+}
 
 export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: null,
-    token: localStorage.getItem('token') || null,
-    isAuthenticated: false,
-    loading: false,
-    error: null
-  }),
+  state: () => {
+    let user = null;
+    try {
+      const userCookie = Cookies.get(USER_COOKIE);
+      if (userCookie) {
+        user = JSON.parse(userCookie);
+      }
+    } catch (e) {
+      console.error('Error parsing user cookie:', e);
+    }
+
+    return {
+      user,
+      token: Cookies.get(TOKEN_COOKIE) || null,
+      sessionId: Cookies.get(SESSION_COOKIE) || null,
+      isAuthenticated: false,
+      loading: false,
+      error: null
+    }
+  },
 
   getters: {
     isLoggedIn: (state) => !!state.token && !!state.user,
@@ -17,19 +43,62 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    // Initialize auth state from localStorage
+    // Initialize auth state from cookies
     initAuth() {
-      const token = localStorage.getItem('token')
-      const user = localStorage.getItem('user')
+      const token = Cookies.get(TOKEN_COOKIE)
+      const user = Cookies.get(USER_COOKIE)
+      const sessionId = Cookies.get(SESSION_COOKIE)
       
-      if (token && user) {
+      if (token && user && sessionId) {
         this.token = token
         this.user = JSON.parse(user)
+        this.sessionId = sessionId
         this.isAuthenticated = true
         
-        // Set axios default header
+        // Set axios default headers
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        axios.defaults.headers.common['Session-Id'] = sessionId
       }
+    },
+
+    // Set secure cookies with proper options
+    setAuthCookies(token, user, sessionId) {
+      try {
+        // Set cookies in a specific order and verify each one
+        Cookies.set(TOKEN_COOKIE, token, COOKIE_OPTIONS);
+        if (!Cookies.get(TOKEN_COOKIE)) {
+          throw new Error('Failed to set token cookie');
+        }
+
+        Cookies.set(SESSION_COOKIE, sessionId, COOKIE_OPTIONS);
+        if (!Cookies.get(SESSION_COOKIE)) {
+          throw new Error('Failed to set session cookie');
+        }
+
+        const userStr = JSON.stringify(user);
+        Cookies.set(USER_COOKIE, userStr, COOKIE_OPTIONS);
+        if (!Cookies.get(USER_COOKIE)) {
+          throw new Error('Failed to set user cookie');
+        }
+
+        // Additional security check
+        const storedUser = JSON.parse(Cookies.get(USER_COOKIE));
+        if (!storedUser || storedUser.email !== user.email) {
+          throw new Error('User cookie verification failed');
+        }
+      } catch (error) {
+        console.error('Error setting auth cookies:', error);
+        // Cleanup in case of partial cookie setting
+        this.clearAuthCookies();
+        throw error;
+      }
+    },
+
+    // Clear all auth cookies
+    clearAuthCookies() {
+      Cookies.remove(TOKEN_COOKIE)
+      Cookies.remove(USER_COOKIE)
+      Cookies.remove(SESSION_COOKIE)
     },
 
     // Register new user
@@ -65,7 +134,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Login user
+    // Login user with enhanced session handling
     async login(credentials) {
       this.loading = true
       this.error = null
@@ -75,28 +144,36 @@ export const useAuthStore = defineStore('auth', {
         
         const response = await axios.post('/auth/login', {
           email: credentials.email,
-          password_hash: credentials.password
+          password_hash: credentials.password,
+          deviceInfo: {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language
+          }
         })
         
         console.log('Login response:', response.data)
         
         if (response.data.success && response.data.token) {
-          const token = response.data.token
+          const { token, sessionId } = response.data
+          const user = { 
+            name: credentials.email.split('@')[0], 
+            email: credentials.email,
+            lastLogin: new Date().toISOString()
+          }
           
           // Store in state
           this.token = token
-          this.user = { 
-            name: credentials.email.split('@')[0], 
-            email: credentials.email 
-          }
+          this.user = user
+          this.sessionId = sessionId
           this.isAuthenticated = true
           
-          // Store in localStorage
-          localStorage.setItem('token', token)
-          localStorage.setItem('user', JSON.stringify(this.user))
+          // Store in secure cookies
+          this.setAuthCookies(token, user, sessionId)
           
-          // Set axios default header
+          // Set axios default headers
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          axios.defaults.headers.common['Session-Id'] = sessionId
           
           console.log('Login successful, token saved:', token)
           return response.data
@@ -112,42 +189,67 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Logout user
-    logout() {
-      // Clear state
-      this.token = null
-      this.user = null
-      this.isAuthenticated = false
-      this.error = null
-      
-      // Clear localStorage
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      
-      // Remove axios default header
-      delete axios.defaults.headers.common['Authorization']
+    // Logout user with session cleanup
+    async logout() {
+      try {
+        // Call backend to invalidate session if session exists
+        if (this.sessionId) {
+          await axios.post('/auth/logout', {
+            sessionId: this.sessionId
+          })
+        }
+      } catch (error) {
+        console.error('Logout error:', error)
+      } finally {
+        // Clear state
+        this.token = null
+        this.user = null
+        this.sessionId = null
+        this.isAuthenticated = false
+        this.error = null
+        
+        // Clear cookies
+        this.clearAuthCookies()
+        
+        // Remove axios default headers
+        delete axios.defaults.headers.common['Authorization']
+        delete axios.defaults.headers.common['Session-Id']
+      }
     },
 
-    // Check if token is valid
+    // Check if token and session are valid
     async checkAuth() {
-      if (!this.token) {
+      if (!this.token || !this.sessionId) {
         return false
       }
       
       try {
-        const response = await axios.get('/auth/me')
+        const response = await axios.post('/auth/verify', {
+          sessionId: this.sessionId,
+          deviceInfo: {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language
+          }
+        })
         
         if (response.data.success && response.data.user) {
+          // Update user data and session if needed
           this.user = response.data.user
+          if (response.data.newToken) {
+            this.token = response.data.newToken
+            this.setAuthCookies(this.token, this.user, this.sessionId)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+          }
           this.isAuthenticated = true
           return true
         } else {
-          throw new Error('Invalid token')
+          throw new Error('Invalid session')
         }
       } catch (error) {
-        console.error('Token verification failed:', error)
-        // Token is invalid, logout
-        this.logout()
+        console.error('Session verification failed:', error)
+        // Session/token is invalid, logout
+        await this.logout()
         return false
       }
     },
@@ -160,13 +262,29 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await axios.put('/profile', userData)
         
-        // Update user in state and localStorage
-        this.user = response.data.user
-        localStorage.setItem('user', JSON.stringify(this.user))
+        // Update user in state and cookies
+        const updatedUser = response.data.user
+        this.user = updatedUser
+
+        // Update cookies while preserving session
+        const currentToken = Cookies.get(TOKEN_COOKIE)
+        const currentSessionId = Cookies.get(SESSION_COOKIE)
+        
+        if (currentToken && currentSessionId) {
+          this.setAuthCookies(currentToken, updatedUser, currentSessionId)
+        } else {
+          throw new Error('Session expired during profile update')
+        }
         
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Profile update failed'
+        
+        // If session related error, force logout
+        if (error.message.includes('Session expired')) {
+          await this.logout()
+        }
+        
         throw new Error(this.error)
       } finally {
         this.loading = false
