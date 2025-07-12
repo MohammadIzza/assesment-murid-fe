@@ -110,6 +110,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import axios from '@/plugins/axios'
 
 interface DashboardData {
   userName: string
@@ -136,22 +137,33 @@ const fetchDashboardData = async () => {
   try {
     loading.value = true
     error.value = null
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Mock error state for demonstration
-    error.value = 'Tidak dapat mengambil data dashboard dari server'
-    
-    // In real implementation, you would fetch data from your API:
-    // const response = await fetch('/api/dashboard')
-    // const data = await response.json()
-    // dashboardData.value = {
-    //   ...dashboardData.value,
-    //   ...data
-    // }
-  } catch (err) {
-    error.value = 'Terjadi kesalahan saat mengambil data'
+
+    // Ambil data kelas
+    const kelasRes = await axios.get('/list/kelas')
+    dashboardData.value.totalKelas = Array.isArray(kelasRes.data.data) ? kelasRes.data.data.length : 0
+
+    // Ambil data assessment
+    const assessmentRes = await axios.get('/list/assessment')
+    dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
+    dashboardData.value.assessments = assessmentRes.data.data || []
+
+    // Ambil data siswa
+    const siswaRes = await axios.get('/list/siswa')
+    dashboardData.value.totalSiswa = Array.isArray(siswaRes.data.data) ? siswaRes.data.data.length : 0
+
+    // Ambil data nilai
+    const nilaiRes = await axios.get('/list/nilai')
+    const nilaiList = nilaiRes.data.data || []
+    // Hitung assessment yang belum dinilai (contoh: assessment yang tidak ada di nilai)
+    // Sederhana: total assessment - jumlah nilai unik id_assessment
+    const dinilaiSet = new Set(nilaiList.map((n: any) => n.id_assessment))
+    dashboardData.value.belumDinilai = Math.max(0, dashboardData.value.totalAssessment - dinilaiSet.size)
+
+    // Ambil nama user dari localStorage jika ada
+    const user = localStorage.getItem('user')
+    dashboardData.value.userName = user ? JSON.parse(user).nama || '' : ''
+  } catch (err: any) {
+    error.value = err?.response?.data?.message || 'Tidak dapat mengambil data dashboard dari server'
   } finally {
     loading.value = false
   }

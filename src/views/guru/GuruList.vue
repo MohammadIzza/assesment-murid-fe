@@ -496,149 +496,43 @@
       </div>
 
       <!-- Data Table -->
-      <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <!-- Table Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-gray-700">
-              Menampilkan {{ paginatedGuruList.length }} dari {{ filteredGuruList.length }} guru
-            </p>
-          </div>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sekolah</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="guru in paginatedGuruList" :key="guru.id_guru" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.id_guru }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.nama }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.nip }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getSchoolName(guru.id_sekolah) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getRoleName(guru.id_role) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getStatusText(guru) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button @click="viewGuruDetail(guru.id_guru)" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition-colors">Detail</button>
+                </td>
+              </tr>
+              <tr v-if="paginatedGuruList.length === 0">
+                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                  <div>Tidak ada data guru</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <!-- Table - Responsive Grid Layout -->
-        <div class="divide-y divide-gray-200">
-          <!-- Desktop Table Header -->
-          <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <div class="col-span-1">No</div>
-            <div class="col-span-3">Guru</div>
-            <div class="col-span-2">Kontak</div>
-            <div class="col-span-2">Sekolah</div>
-            <div class="col-span-2">Role & Status</div>
-            <div class="col-span-2 text-center">Aksi</div>
-          </div>
-
-          <!-- Table Rows -->
-          <div v-for="(guru, index) in paginatedGuruList" :key="guru.id_guru" class="hover:bg-gray-50 transition-colors duration-150">
-            <!-- Desktop Layout -->
-            <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-4 items-center">
-              <div class="col-span-1 text-sm text-gray-900 font-medium">
-                {{ (currentPage - 1) * itemsPerPage + index + 1 }}
-              </div>
-              
-              <div class="col-span-3">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10">
-                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span class="text-sm font-medium text-blue-600">{{ getInitials(guru.nama) }}</span>
-                    </div>
-                  </div>
-                  <div class="ml-3 min-w-0 flex-1">
-                    <div class="text-sm font-medium text-gray-900 truncate">{{ guru.nama || 'N/A' }}</div>
-                    <div class="text-xs text-gray-500">NIP: {{ guru.nip || 'N/A' }}</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="col-span-2">
-                <a :href="`mailto:${guru.email}`" class="text-sm text-blue-600 hover:text-blue-900 truncate block">
-                  {{ guru.email || 'N/A' }}
-                </a>
-              </div>
-              
-              <div class="col-span-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(guru.id_sekolah)">
-                  {{ getSchoolName(guru.id_sekolah) }}
-                </span>
-              </div>
-              
-              <div class="col-span-2 space-y-1">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getRoleClass(guru.id_role)">
-                  {{ getRoleName(guru.id_role) }}
-                </span>
-                <br>
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guru)">
-                  {{ getStatusText(guru) }}
-                </span>
-              </div>
-              
-              <div class="col-span-2 text-center">
-                <button 
-                  @click="viewGuruDetail(guru.id_guru)"
-                  class="inline-flex items-center px-3 py-1.5 border border-blue-300 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                  title="Lihat Detail"
-                >
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                  </svg>
-                  Detail
-                </button>
-              </div>
-            </div>
-
-            <!-- Mobile/Tablet Layout -->
-            <div class="lg:hidden px-6 py-4 space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10">
-                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span class="text-sm font-medium text-blue-600">{{ getInitials(guru.nama) }}</span>
-                    </div>
-                  </div>
-                  <div class="ml-3">
-                    <div class="text-sm font-medium text-gray-900">{{ guru.nama || 'N/A' }}</div>
-                    <div class="text-xs text-gray-500">{{ guru.email || 'N/A' }}</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-gray-500 mb-1">No. {{ (currentPage - 1) * itemsPerPage + index + 1 }}</div>
-                  <button 
-                    @click="viewGuruDetail(guru.id_guru)"
-                    class="inline-flex items-center px-2 py-1 border border-blue-300 rounded text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none"
-                  >
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                    Detail
-                  </button>
-                </div>
-              </div>
-              
-              <div class="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span class="text-gray-500">NIP:</span>
-                  <div class="font-medium text-gray-900">{{ guru.nip || 'N/A' }}</div>
-                </div>
-                <div>
-                  <span class="text-gray-500">Sekolah:</span>
-                  <div>
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(guru.id_sekolah)">
-                      {{ getSchoolName(guru.id_sekolah) }}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <span class="text-gray-500">Role:</span>
-                  <div>
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getRoleClass(guru.id_role)">
-                      {{ getRoleName(guru.id_role) }}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <span class="text-gray-500">Status:</span>
-                  <div>
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guru)">
-                      {{ getStatusText(guru) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
         <!-- Empty State -->
         <div v-if="filteredGuruList.length === 0 && !guruStore.isLoading" class="text-center py-12">
@@ -724,7 +618,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>

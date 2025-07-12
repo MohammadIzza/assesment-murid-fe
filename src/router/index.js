@@ -24,6 +24,11 @@ import Register from '@/views/auth/regist.vue'
 import ProfileView from '@/views/profile/ProfileView.vue'
 import SettingsView from '@/views/profile/SettingsView.vue'
 
+// Import komponen siswa
+import SiswaList from '@/views/siswa/SiswaList.vue'
+import SiswaEdit from '@/views/siswa/SiswaEdit.vue'
+import SiswaDetail from '@/views/siswa/SiswaDetail.vue'
+
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -144,6 +149,43 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Pengaturan',
+          },
+        },
+        // Siswa routes
+        {
+          path: 'siswa',
+          name: 'SiswaList',
+          component: SiswaList,
+          meta: {
+            requiresAuth: true,
+            title: 'Daftar Siswa',
+          },
+        },
+        {
+          path: 'siswa/add',
+          name: 'SiswaAdd',
+          component: SiswaEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Tambah Siswa',
+          },
+        },
+        {
+          path: 'siswa/:id/edit',
+          name: 'SiswaEdit',
+          component: SiswaEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Edit Siswa',
+          },
+        },
+        {
+          path: 'siswa/:id',
+          name: 'SiswaDetail',
+          component: SiswaDetail,
+          meta: {
+            requiresAuth: true,
+            title: 'Detail Siswa',
           },
         },
       ],
