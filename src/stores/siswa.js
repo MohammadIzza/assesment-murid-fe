@@ -292,6 +292,33 @@ export const useSiswaStore = defineStore('siswa', {
       } finally {
         this.loading = false
       }
+    },
+
+    /**
+     * Mengambil daftar siswa berdasarkan kelas
+     * @param {number} id_kelas - ID kelas untuk filter siswa
+     */
+    async fetchSiswaByKelas(id_kelas) {
+      this.loading = true
+      this.error = null
+      
+      try {
+        // Use the filter API endpoint if available
+        const response = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
+        
+        if (response.data.success) {
+          this.siswaList = response.data.data
+        } else {
+          throw new Error('Gagal mengambil data siswa berdasarkan kelas')
+        }
+      } catch (error) {
+        console.error('Error fetching students by class:', error)
+        this.error = error.message || 'Terjadi kesalahan saat mengambil data siswa'
+        throw error
+      } finally {
+        this.loading = false
+      }
     }
   }
-}) 
+})
+

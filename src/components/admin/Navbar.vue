@@ -32,6 +32,18 @@
             Dashboard
           </RouterLink>
 
+          <!-- Assessment Link -->
+          <RouterLink 
+            :to="{ name: 'assesment-index' }"
+            class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            :class="isAssessmentActive ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Assessment
+          </RouterLink>
+
           <!-- Data Dropdown (was Guru Dropdown) -->
           <div class="relative group">
             <div 
@@ -190,6 +202,19 @@
             Dashboard
           </RouterLink>
 
+          <!-- Assessment Mobile -->
+          <RouterLink 
+            :to="{ name: 'assesment-index' }"
+            @click="closeMobileMenu"
+            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+            :class="isAssessmentActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+          >
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Assessment
+          </RouterLink>
+
           <!-- Data Mobile -->
           <RouterLink 
             :to="{ name: 'guru-list' }"
@@ -285,6 +310,10 @@ const isGuruActive = computed(() => {
 
 const isDashboardActive = computed(() => {
   return ['dashboard', 'dashboard-main'].includes(route.name)
+})
+
+const isAssessmentActive = computed(() => {
+  return ['assesment-index', 'assesment-detail', 'assesment-add', 'assesment-edit'].includes(route.name)
 })
 
 const userInitial = computed(() => {

@@ -188,6 +188,15 @@ const router = createRouter({
             title: 'Detail Siswa',
           },
         },
+        {
+          path: '/assesment',
+          name: 'assesment-index',
+          component: () => import('@/views/assesment/index.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Assessment Siswa'
+          }
+        }
       ],
     },
   ],
