@@ -16,6 +16,7 @@ import router from './router'
 import './assets/main.css'  // Tambahkan ini
 // Import auth store untuk inisialisasi
 import { useAuthStore } from './stores/auth'
+import Cookies from 'js-cookie';
 
 // Membuat instance aplikasi Vue
 const app = createApp(App)

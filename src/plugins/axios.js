@@ -4,65 +4,62 @@
  * Fungsi: Mengatur instance Axios dengan interceptors dan headers default
  */
 
-import axios from 'axios'
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-// Konfigurasi default untuk Axios
-axios.defaults.baseURL = import.meta.env.VITE_API_URL
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'  // Menandai request sebagai AJAX
-axios.defaults.headers.common['Content-Type'] = 'application/json'  // Format data default
-axios.defaults.headers.common['Accept'] = 'application/json'  // Menerima response dalam format JSON
+// Set base URL dari environment variable
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
-// Set JWT token jika tersedia di localStorage
-const token = localStorage.getItem('token')
-if (token) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-}
-
-// Interceptor untuk request
-// Akan dijalankan sebelum request dikirim
+// Add request interceptor untuk menambahkan token otentikasi
 axios.interceptors.request.use(
-  config => {
-    // Tambahkan token jika tersedia dan belum ada di header
-    const token = localStorage.getItem('token')
-    if (token && !config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${token}`
+  (config) => {
+    // Get token from cookie
+    const token = Cookies.get('token');
+    
+    // If token exists, add to headers
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     
-    console.log('API Request:', config.method?.toUpperCase(), config.url)
-    return config
-  },
-  error => {
-    console.error('Request error:', error)
-    return Promise.reject(error)
-  }
-)
-
-// Interceptor untuk response
-// Akan dijalankan setelah response diterima
-axios.interceptors.response.use(
-  response => {
-    console.log('API Response:', response.status, response.config.url)
-    return response
-  },
-  error => {
-    console.error('API Error:', error.response?.status, error.response?.data || error.message)
+    // Remove this line to stop logging API requests
+    // console.log('API Request:', config.method?.toUpperCase(), config.url);
     
-    // Jika token expired atau unauthorized, redirect ke login
+    return config;
+  },
+  (error) => {
+    // Remove or modify this line
+    // console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor untuk handling error
+axios.interceptors.response.use(
+  (response) => {
+    // Remove this line to stop logging API responses
+    // console.log('API Response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    // Modify this to be less specific
+    // console.error('API Error:', error.response?.status, error.response?.data || error.message);
+    console.error('API request failed');
+    
+    // Rest of your error handling code
     if (error.response?.status === 401) {
       // Hapus token yang tidak valid
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      delete axios.defaults.headers.common['Authorization']
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      delete axios.defaults.headers.common['Authorization'];
       
       // Redirect ke login jika bukan di halaman auth
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        // Your redirect code
       }
     }
     
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-// Export instance Axios yang sudah dikonfigurasi
-export default axios
+export default axios;

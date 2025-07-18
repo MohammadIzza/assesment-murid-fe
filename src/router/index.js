@@ -21,7 +21,6 @@ import Login from '@/views/auth/login.vue'
 import Register from '@/views/auth/regist.vue'
 
 // Import komponen profile
-import ProfileView from '@/views/profile/ProfileView.vue'
 import SettingsView from '@/views/profile/SettingsView.vue'
 
 // Import komponen siswa
@@ -136,7 +135,7 @@ const router = createRouter({
         {
           path: 'profile',
           name: 'profile',
-          component: ProfileView,
+          component: () => import('@/views/profile/ProfileView.vue'),
           meta: {
             requiresAuth: true,
             title: 'Profil Saya',
