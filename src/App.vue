@@ -5,14 +5,42 @@
 -->
 
 <script setup>
-  // Import komponen RouterLink dan RouterView dari vue-router
-  // RouterLink: Komponen untuk navigasi antar halaman
-  // RouterView: Komponen yang akan menampilkan halaman sesuai route
-  import { RouterLink, RouterView } from 'vue-router';
+import { RouterLink, RouterView } from 'vue-router';
+import { useThemeStore } from '@/stores/theme';
+import { onMounted, watch, computed } from 'vue';
+
+// Inisialisasi theme store
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
+
+// Initialize theme when app is mounted
+onMounted(() => {
+  themeStore.initTheme();
+});
+
+// Watch for theme changes to update meta theme-color
+watch(() => themeStore.isDarkMode, (newIsDarkMode) => {
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) {
+    metaThemeColor.content = newIsDarkMode ? '#0F172A' : '#3B82F6';
+  }
+}, { immediate: true });
 </script>
 
 <template>
-  <!-- RouterView akan menampilkan komponen yang sesuai dengan URL saat ini -->
-  <!-- Misalnya: jika URL /login, maka akan menampilkan komponen Login.vue -->
-  <RouterView />
+  <div :class="{ 'dark': isDarkMode }">
+    <!-- RouterView akan menampilkan komponen yang sesuai dengan URL saat ini -->
+    <RouterView />
+  </div>
 </template>
+
+<style>
+html, body {
+  height: 100%;
+}
+
+/* Apply transition for theme switching */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+</style>

@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div :class="[
+    'min-h-screen py-8 transition-colors duration-300',
+    isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
+  ]">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="mb-8">
@@ -39,22 +42,47 @@
             </div>
 
             <!-- Theme Setting -->
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div :class="[
+              'flex items-center justify-between p-4 border rounded-lg',
+              isDarkMode ? 'border-dark-border' : 'border-gray-200'
+            ]">
               <div class="flex items-center space-x-3">
-                <div class="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-lg">
-                  <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                <div :class="[
+                  'flex items-center justify-center w-10 h-10 rounded-lg',
+                  isDarkMode ? 'bg-indigo-900/30' : 'bg-indigo-100'
+                ]">
+                  <svg :class="[
+                    'w-5 h-5', 
+                    isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                   </svg>
                 </div>
                 <div>
-                  <h4 class="font-medium text-gray-900">Tema</h4>
-                  <p class="text-sm text-gray-500">Pilih tema tampilan aplikasi</p>
+                  <h4 :class="[
+                    'font-medium', 
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  ]">Tema</h4>
+                  <p :class="[
+                    'text-sm', 
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  ]">
+                    Pilih tema tampilan aplikasi
+                  </p>
                 </div>
               </div>
-              <select v-model="settings.theme" class="px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="auto">Otomatis</option>
+              <select 
+                v-model="themeValue" 
+                :class="[
+                  'px-4 py-2 border rounded-lg',
+                  isDarkMode ? 
+                    'border-gray-600 bg-gray-800 text-gray-200' : 
+                    'border-gray-300 bg-white text-gray-700'
+                ]"
+              >
+                <option value="light">Terang</option>
+                <option value="dark">Gelap</option>
+                <option value="auto">Sistem (Otomatis)</option>
               </select>
             </div>
 
@@ -218,7 +246,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useThemeStore } from '@/stores/theme'
 
 const isSaving = ref(false)
 
@@ -232,6 +261,19 @@ const settings = reactive({
   twoFactorEnabled: false,
   sessionTimeout: '60'
 })
+
+const themeStore = useThemeStore();
+
+const themeValue = computed({
+  get() {
+    return themeStore.currentTheme;
+  },
+  set(value) {
+    themeStore.setTheme(value);
+  }
+});
+
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 const saveSettings = async () => {
   isSaving.value = true

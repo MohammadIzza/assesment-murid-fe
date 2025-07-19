@@ -1,0 +1,241 @@
+/* Dark Mode CSS Variables */
+:root {
+  /* Light mode defaults */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F8FAFC;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-border: #E2E8F0;
+  --color-input-bg: #FFFFFF;
+  --color-header-bg: #3B82F6;
+  --color-card-bg: #FFFFFF;
+  --color-sidebar-bg: #1E40AF;
+  --color-sidebar-text: #FFFFFF;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+  
+  /* Transition for smooth theme switching */
+  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode variables */
+.dark {
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #1F2937;
+  --color-text-primary: #E5E7EB;
+  --color-text-secondary: #9CA3AF;
+  --color-border: #374151;
+  --color-input-bg: #1F2937;
+  --color-header-bg: #1E3A8A;
+  --color-card-bg: #1F2937;
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-text: #E5E7EB;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+}
+
+/* Apply transitions for smooth theme switching */
+body, div, span, p, h1, h2, h3, h4, h5, h6, button, input, select, textarea {
+  transition: var(--theme-transition);
+}
+
+/* Core elements styling for dark mode */
+.dark body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* Common components styling for dark mode */
+.dark .bg-white {
+  background-color: var(--color-card-bg) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.dark .bg-blue-600 {
+  background-color: var(--color-header-bg) !important;
+}
+
+/* Text colors */
+.dark .text-gray-900 {
+  color: var(--color-text-primary) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--color-text-primary) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--color-text-primary) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Border colors */
+.dark .border,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: var(--color-border) !important;
+}
+
+/* Form controls styling */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--color-input-bg);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Shadow adjustments for dark mode */
+.dark .shadow,
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* Blue container backgrounds (assessment page) */
+.dark .bg-blue-600 {
+  background-color: #1E3A8A !important;
+}
+
+/* Tables styling for dark mode */
+.dark table tbody tr:nth-child(even) {
+  background-color: rgba(31, 41, 55, 0.6);
+}
+
+.dark table thead th {
+  background-color: rgba(31, 41, 55, 0.8);
+  color: var(--color-text-primary);
+}
+
+/* Button styling */
+.dark .bg-blue-600 {
+  background-color: #2563EB !important;
+}
+
+.dark .bg-blue-600:hover {
+  background-color: #1D4ED8 !important;
+}
+
+.dark .bg-green-600 {
+  background-color: #059669 !important;
+}
+
+.dark .bg-green-600:hover {
+  background-color: #047857 !important;
+}
+
+.dark .bg-red-600 {
+  background-color: #DC2626 !important;
+}
+
+.dark .bg-red-600:hover {
+  background-color: #B91C1C !important;
+}
+
+/* Modal backgrounds */
+.dark .bg-gray-50 {
+  background-color: #1F2937 !important;
+}
+
+/* Custom classes for Facebook-like dark mode elements */
+.dark .fb-card {
+  background-color: #242526;
+  border-color: #3E4042;
+}
+
+.dark .fb-input {
+  background-color: #3A3B3C;
+  border: none;
+  color: #E4E6EB;
+}
+
+.dark .fb-button-primary {
+  background-color: #2374E1;
+}
+
+.dark .fb-button-secondary {
+  background-color: #3A3B3C;
+}
+
+/* Toast/notification styling */
+.dark .notification,
+.dark .toast {
+  background-color: #1F2937;
+  border-color: #374151;
+  color: var(--color-text-primary);
+}
+
+/* Perbaikan untuk visibility filter dan tombol */
+.dark select,
+.dark input[type="text"],
+.dark input[type="search"] {
+  background-color: var(--color-input-bg);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  z-index: 20;
+}
+
+.dark select:disabled {
+  background-color: rgba(31, 41, 55, 0.7);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Perbaiki warna button di dark mode */
+.dark .bg-green-600 {
+  background-color: #059669 !important;
+}
+
+.dark .bg-green-600:hover {
+  background-color: #047857 !important;
+}
+
+.dark .bg-blue-600 {
+  background-color: #2563EB !important;
+}
+
+.dark .bg-blue-600:hover {
+  background-color: #1D4ED8 !important;
+}
+
+/* Perbaikan untuk form radio buttons di dark mode */
+.dark .form-radio {
+  color: #3B82F6;
+  background-color: #1F2937;
+}
+
+/* Container untuk area content */
+.container {
+  position: relative;
+  z-index: 10; /* Meningkatkan z-index untuk memastikan konten selalu di atas */
+}
+
+/* Memastikan tombol selalu terlihat */
+button {
+  position: relative;
+  z-index: 20;
+}
+
+/* Memastikan dropdown dan input field selalu terlihat */
+select, input {
+  position: relative;
+  z-index: 20;
+}
+
+/* Untuk memastikan modal selalu di atas */
+.fixed {
+  z-index: 50;
+}

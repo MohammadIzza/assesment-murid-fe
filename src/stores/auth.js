@@ -140,8 +140,6 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       
       try {
-        console.log('Attempting login with:', { email: credentials.email })
-        
         const response = await axios.post('/auth/login', {
           email: credentials.email,
           password_hash: credentials.password,
@@ -151,8 +149,6 @@ export const useAuthStore = defineStore('auth', {
             language: navigator.language
           }
         })
-        
-        console.log('Login response:', response.data)
         
         if (response.data.success && response.data.token) {
           const { token, sessionId } = response.data
@@ -175,13 +171,12 @@ export const useAuthStore = defineStore('auth', {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
           axios.defaults.headers.common['Session-Id'] = sessionId
           
-          console.log('Login successful, token saved:', token)
           return response.data
         } else {
           throw new Error(response.data.message || 'Login failed')
         }
       } catch (error) {
-        console.error('Login error:', error)
+        console.error('Login error occurred')
         this.error = error.response?.data?.message || error.message || 'Login failed'
         throw new Error(this.error)
       } finally {
@@ -308,6 +303,27 @@ export const useAuthStore = defineStore('auth', {
         throw new Error(this.error)
       } finally {
         this.loading = false
+      }
+    },
+
+    // Di dalam method initAuth()
+    async initAuth() {
+      const token = Cookies.get('token')
+      
+      if (token) {
+        try {
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          
+          // Ambil data user
+          const response = await axios.get('/user/profile')
+          if (response.data.success) {
+            this.user = response.data.data || response.data.user
+            this.isAuthenticated = true
+          }
+        } catch (error) {
+          console.error('Failed to initialize auth')
+          this.logout()
+        }
       }
     }
   }
