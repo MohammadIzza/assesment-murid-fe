@@ -1,8 +1,10 @@
 <template>
   <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div class="bg-blue-600 rounded-xl shadow-xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div class="rounded-xl shadow-xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col"
+      :class="{'bg-blue-600': !isDarkMode, 'bg-dark-header': isDarkMode}">
       <!-- Modal Header -->
-      <div class="bg-blue-700 p-4 text-white flex justify-between items-center">
+      <div class="p-4 text-white flex justify-between items-center"
+        :class="{'bg-blue-700': !isDarkMode, 'bg-blue-900': isDarkMode}">
         <h3 class="text-lg font-semibold">
           {{ isEdit ? 'Ubah Assessment' : 'Buat Assessment Baru' }}
         </h3>
@@ -14,19 +16,21 @@
       </div>
       
       <!-- Modal Form Content -->
-      <div class="bg-white flex-1 overflow-y-auto">
-        <div class="p-6">
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-6" :class="{'bg-white': !isDarkMode, 'bg-dark-surface': isDarkMode}">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <!-- Assessment Name -->
             <div class="group">
-              <label for="nama_assessment" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="nama_assessment" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Nama Assessment <span class="text-red-500">*</span>
               </label>
               <input
                 v-model="form.nama_assessment"
                 type="text"
                 id="nama_assessment"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 placeholder="Contoh: Quiz 1, UTS, dsb."
                 :disabled="isEdit"
               />
@@ -34,13 +38,15 @@
             
             <!-- Kelas selection -->
             <div class="group">
-              <label for="id_kelas" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="id_kelas" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Kelas <span class="text-red-500">*</span>
               </label>
               <select
                 v-model="form.id_kelas"
                 id="id_kelas"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 @change="loadSiswaByKelas"
                 :disabled="isEdit"
               >
@@ -53,13 +59,15 @@
 
             <!-- Dimensi -->
             <div class="group">
-              <label for="id_dimensi" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="id_dimensi" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Dimensi <span class="text-red-500">*</span>
               </label>
               <select
                 v-model="form.id_dimensi"
                 id="id_dimensi"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 @change="loadElemen"
                 :disabled="isEdit"
               >
@@ -72,13 +80,15 @@
 
             <!-- Elemen -->
             <div class="group">
-              <label for="id_elemen" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="id_elemen" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Elemen <span class="text-red-500">*</span>
               </label>
               <select
                 v-model="form.id_elemen"
                 id="id_elemen"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 @change="loadSubElemen"
                 :disabled="isEdit || !form.id_dimensi"
               >
@@ -91,13 +101,15 @@
 
             <!-- Sub Elemen -->
             <div class="group">
-              <label for="id_sub_elemen" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="id_sub_elemen" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Sub Elemen <span class="text-red-500">*</span>
               </label>
               <select
                 v-model="form.id_sub_elemen"
                 id="id_sub_elemen"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 @change="loadCapaian"
                 :disabled="isEdit || !form.id_elemen"
               >
@@ -110,13 +122,15 @@
 
             <!-- Capaian -->
             <div class="group col-span-1 md:col-span-2">
-              <label for="id_capaian" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="id_capaian" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Capaian <span class="text-red-500">*</span>
               </label>
               <select
                 v-model="form.id_capaian"
                 id="id_capaian"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 :disabled="isEdit || !form.id_sub_elemen"
               >
                 <option value="" disabled>Pilih Capaian</option>
@@ -128,14 +142,16 @@
 
             <!-- Kompetensi -->
             <div class="group col-span-1 md:col-span-2">
-              <label for="kompetensi" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="kompetensi" class="block text-sm font-medium mb-2"
+                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
                 Kompetensi <span class="text-red-500">*</span>
               </label>
               <input
                 v-model="form.kompetensi"
                 type="text"
                 id="kompetensi"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 placeholder="Masukkan kompetensi yang dinilai"
                 :disabled="isEdit"
               />
@@ -148,7 +164,8 @@
                   v-model="searchQuery"
                   type="text"
                   placeholder="Cari siswa..."
-                  class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                 />
                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -158,12 +175,17 @@
           </div>
 
           <!-- Students List -->
-          <div class="mt-6 border border-gray-200 rounded-xl overflow-hidden">
-            <div class="bg-gray-50 p-4 border-b border-gray-200">
+          <div class="mt-6 border rounded-xl overflow-hidden"
+            :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
+            <div class="p-4 border-b"
+              :class="{'bg-gray-50 border-gray-200': !isDarkMode, 'bg-gray-800 border-gray-700': isDarkMode}">
               <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-1 font-medium text-gray-500 text-sm">#</div>
-                <div class="col-span-5 font-medium text-gray-500 text-sm">Nama Siswa</div>
-                <div class="col-span-6 font-medium text-gray-500 text-sm flex items-center justify-center">
+                <div class="col-span-1 font-medium text-sm"
+                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">#</div>
+                <div class="col-span-5 font-medium text-sm"
+                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">Nama Siswa</div>
+                <div class="col-span-6 font-medium text-sm flex items-center justify-center"
+                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
                   Nilai
                 </div>
               </div>
@@ -173,11 +195,14 @@
               <div 
                 v-for="(siswa, index) in filteredSiswaList" 
                 :key="siswa.id_siswa"
-                class="p-4 border-b border-gray-100 hover:bg-gray-50"
+                class="p-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700"
+                :class="{'border-gray-100': !isDarkMode, 'border-gray-700': isDarkMode}"
               >
                 <div class="grid grid-cols-12 gap-4 items-center">
-                  <div class="col-span-1 text-gray-500">{{ index + 1 }}</div>
-                  <div class="col-span-5">{{ siswa.nama }}</div>
+                  <div class="col-span-1"
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">{{ index + 1 }}</div>
+                  <div class="col-span-5"
+                    :class="{'text-gray-900': !isDarkMode, 'text-gray-200': isDarkMode}">{{ siswa.nama }}</div>
                   <div class="col-span-6">
                     <div class="flex items-center justify-between space-x-2">
                       <label class="flex items-center">
@@ -188,7 +213,8 @@
                           v-model="form.nilai[siswa.id_siswa]"
                           class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                         />
-                        <span class="ml-2 text-sm text-gray-700">MB</span>
+                        <span class="ml-2 text-sm"
+                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">MB</span>
                       </label>
                       
                       <label class="flex items-center">
@@ -199,7 +225,8 @@
                           v-model="form.nilai[siswa.id_siswa]"
                           class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                         />
-                        <span class="ml-2 text-sm text-gray-700">SB</span>
+                        <span class="ml-2 text-sm"
+                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">SB</span>
                       </label>
                       
                       <label class="flex items-center">
@@ -210,7 +237,8 @@
                           v-model="form.nilai[siswa.id_siswa]"
                           class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                         />
-                        <span class="ml-2 text-sm text-gray-700">BSH</span>
+                        <span class="ml-2 text-sm"
+                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">BSH</span>
                       </label>
                       
                       <label class="flex items-center">
@@ -221,14 +249,16 @@
                           v-model="form.nilai[siswa.id_siswa]"
                           class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                         />
-                        <span class="ml-2 text-sm text-gray-700">SAB</span>
+                        <span class="ml-2 text-sm"
+                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">SAB</span>
                       </label>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div v-if="filteredSiswaList.length === 0" class="p-8 text-center text-gray-500">
+              <div v-if="filteredSiswaList.length === 0" class="p-8 text-center"
+                :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
                 {{ form.id_kelas ? 'Tidak ada siswa ditemukan' : 'Pilih kelas untuk melihat daftar siswa' }}
               </div>
             </div>
@@ -237,16 +267,22 @@
       </div>
       
       <!-- Modal Footer -->
-      <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+      <div class="px-6 py-4 flex justify-end space-x-3"
+        :class="{'bg-gray-50': !isDarkMode, 'bg-gray-800': isDarkMode}">
         <button 
           @click="$emit('close')" 
-          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
+          class="px-4 py-2 border rounded-lg"
+          :class="{'border-gray-300 text-gray-700 hover:bg-gray-100': !isDarkMode, 'border-gray-600 text-gray-300 hover:bg-gray-700': isDarkMode}"
         >
           Batal
         </button>
         <button 
           @click="submitForm"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          :class="[
+            {'bg-blue-600 hover:bg-blue-700': !isDarkMode, 'bg-blue-700 hover:bg-blue-800': isDarkMode},
+            {'opacity-50 cursor-not-allowed': !isFormValid || isSubmitting}
+          ]"
           :disabled="!isFormValid || isSubmitting"
         >
           <span v-if="isSubmitting">
@@ -273,6 +309,7 @@ import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
 import { useSiswaStore } from '@/stores/siswa'
+import { useThemeStore } from '@/stores/theme'
 
 // Define props and emits
 const props = defineProps({
@@ -295,6 +332,10 @@ const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const siswaStore = useSiswaStore()
+const themeStore = useThemeStore()
+
+// Dark mode
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 // State variables
 const isSubmitting = ref(false)

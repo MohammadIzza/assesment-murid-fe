@@ -177,3 +177,65 @@ body, div, span, p, h1, h2, h3, h4, h5, h6, button, input, select, textarea {
   border-color: #374151;
   color: var(--color-text-primary);
 }
+
+/* Perbaikan untuk visibility filter dan tombol */
+.dark select,
+.dark input[type="text"],
+.dark input[type="search"] {
+  background-color: var(--color-input-bg);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  z-index: 20;
+}
+
+.dark select:disabled {
+  background-color: rgba(31, 41, 55, 0.7);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Perbaiki warna button di dark mode */
+.dark .bg-green-600 {
+  background-color: #059669 !important;
+}
+
+.dark .bg-green-600:hover {
+  background-color: #047857 !important;
+}
+
+.dark .bg-blue-600 {
+  background-color: #2563EB !important;
+}
+
+.dark .bg-blue-600:hover {
+  background-color: #1D4ED8 !important;
+}
+
+/* Perbaikan untuk form radio buttons di dark mode */
+.dark .form-radio {
+  color: #3B82F6;
+  background-color: #1F2937;
+}
+
+/* Container untuk area content */
+.container {
+  position: relative;
+  z-index: 10; /* Meningkatkan z-index untuk memastikan konten selalu di atas */
+}
+
+/* Memastikan tombol selalu terlihat */
+button {
+  position: relative;
+  z-index: 20;
+}
+
+/* Memastikan dropdown dan input field selalu terlihat */
+select, input {
+  position: relative;
+  z-index: 20;
+}
+
+/* Untuk memastikan modal selalu di atas */
+.fixed {
+  z-index: 50;
+}
