@@ -531,8 +531,8 @@
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
-      </div>
 
         <!-- Empty State -->
         <div v-if="filteredGuruList.length === 0 && !guruStore.isLoading" class="text-center py-12">
@@ -612,12 +612,12 @@
                     </svg>
                   </button>
                 </nav>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>

@@ -20,41 +20,41 @@
 
       <!-- Statistik Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-lg border border-blue-200 p-6 flex flex-col items-center">
+        <div class="bg-white rounded-xl shadow-lg border border-blue-200 p-3 flex flex-col items-center">
           <div class="p-3 bg-blue-100 rounded-lg mb-2">
             <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
             </svg>
           </div>
-          <div class="text-sm font-medium text-gray-500">Total Kelas</div>
-          <div class="text-3xl font-bold text-gray-900">{{ dashboardData.totalKelas || '0' }}</div>
+          <div class="text-xs font-medium text-gray-500">Total Kelas</div>
+          <div class="text-xl font-bold text-gray-900">{{ dashboardData.totalKelas || '0' }}</div>
         </div>
-        <div class="bg-white rounded-xl shadow-lg border border-indigo-200 p-6 flex flex-col items-center">
+        <div class="bg-white rounded-xl shadow-lg border border-indigo-200 p-3 flex flex-col items-center">
           <div class="p-3 bg-indigo-100 rounded-lg mb-2">
             <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <div class="text-sm font-medium text-gray-500">Assessment</div>
-          <div class="text-3xl font-bold text-gray-900">{{ dashboardData.totalAssessment || '0' }}</div>
+          <div class="text-xs font-medium text-gray-500">Assessment</div>
+          <div class="text-xl font-bold text-gray-900">{{ dashboardData.totalAssessment || '0' }}</div>
         </div>
-        <div class="bg-white rounded-xl shadow-lg border border-red-200 p-6 flex flex-col items-center">
+        <div class="bg-white rounded-xl shadow-lg border border-red-200 p-3 flex flex-col items-center">
           <div class="p-3 bg-red-100 rounded-lg mb-2">
             <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div class="text-sm font-medium text-gray-500">Belum Dinilai</div>
-          <div class="text-3xl font-bold text-gray-900">{{ dashboardData.belumDinilai || '0' }}</div>
+          <div class="text-xs font-medium text-gray-500">Belum Dinilai</div>
+          <div class="text-xl font-bold text-gray-900">{{ dashboardData.belumDinilai || '0' }}</div>
         </div>
-        <div class="bg-white rounded-xl shadow-lg border border-purple-200 p-6 flex flex-col items-center">
+        <div class="bg-white rounded-xl shadow-lg border border-purple-200 p-3 flex flex-col items-center">
           <div class="p-3 bg-purple-100 rounded-lg mb-2">
             <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
-          <div class="text-sm font-medium text-gray-500">Siswa</div>
-          <div class="text-3xl font-bold text-gray-900">{{ dashboardData.totalSiswa || '0' }}</div>
+          <div class="text-xs font-medium text-gray-500">Siswa</div>
+          <div class="text-xl font-bold text-gray-900">{{ dashboardData.totalSiswa || '0' }}</div>
         </div>
       </div>
 
@@ -64,7 +64,7 @@
           <h3 class="text-lg font-semibold text-gray-900">Daftar Assessment</h3>
           <button 
             @click="refreshData" 
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

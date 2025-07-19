@@ -18,79 +18,91 @@
 
       <!-- Filter & Action Section -->
       <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 p-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-          <!-- Search -->
-          <input 
-            v-model="searchQuery"
-            type="text" 
-            placeholder="Cari assessment..." 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
-          />
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <!-- Kelas Filter -->
           <select 
             v-model="selectedKelas" 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
+            @change="onKelasChange"
           >
-            <option value="">Semua Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
-              {{ kelas.nama_kelas }}
-            </option>
+            <option value="" disabled selected class="text-gray-400">Pilih Kelas</option>
+            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas" class="text-sm px-2 py-1 text-left">{{ kelas.nama_kelas }}</option>
           </select>
           <!-- Dimensi Filter -->
           <select 
             v-model="selectedDimensi" 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
             @change="onDimensiChange"
           >
-            <option value="">Semua Dimensi</option>
-            <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
-              {{ dimensi.nama_dimensi }}
-            </option>
+            <option value="" disabled selected class="text-gray-400">Pilih Dimensi</option>
+            <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi" class="text-sm px-2 py-1 text-left">{{ dimensi.nama_dimensi }}</option>
           </select>
           <!-- Elemen Filter -->
           <select 
             v-model="selectedElemen" 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
             @change="onElemenChange"
             :disabled="!selectedDimensi"
           >
-            <option value="">Semua Elemen</option>
-            <option v-for="elemen in elemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
-              {{ elemen.nama_elemen }}
-            </option>
+            <option value="" disabled selected class="text-gray-400">Pilih Elemen</option>
+            <option v-for="elemen in filteredElemen" :key="elemen.id_elemen" :value="elemen.id_elemen" class="text-sm px-2 py-1 text-left">{{ elemen.nama_elemen }}</option>
           </select>
           <!-- Sub Elemen Filter -->
           <select 
             v-model="selectedSubElemen" 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
             @change="onSubElemenChange"
             :disabled="!selectedElemen"
           >
-            <option value="">Semua Sub Elemen</option>
-            <option v-for="subElemen in subElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
-              {{ subElemen.nama_sub_elemen }}
+            <option value="" disabled selected class="text-gray-400">Pilih Sub Elemen</option>
+            <option v-for="subElemen in filteredSubElemen" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen" class="text-sm px-2 py-1 text-left">{{ subElemen.nama_sub_elemen }}</option>
+          </select>
+          <!-- Capaian Filter -->  
+          <select
+            v-model="selectedCapaian"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
+            :disabled="!selectedSubElemen || capaianList.length === 0"
+            @change="onCapaianChange"
+          >
+            <option value="" disabled selected class="text-gray-400">Pilih Capaian</option>
+            <option
+              v-for="capaian in capaianList"
+              :key="capaian.id_capaian"
+              :value="capaian.id_capaian"
+              class="text-sm px-2 py-1 text-left whitespace-normal break-words max-w-xs"
+            >
+              {{ capaian.deskripsi }}
             </option>
           </select>
         </div>
+        <!-- Tombol dan search tetap -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <button 
-            @click="resetFilters" 
-            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-          >
-            Reset Filter
-          </button>
-          <button 
-            @click="openCreateModal" 
-            class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Buat Assessment
-          </button>
+          <input 
+            v-model="searchQuery"
+            type="text"   
+            placeholder="Cari assessment..." 
+            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+          />
+          <div class="flex gap-2 mt-2 md:mt-0">
+            <button 
+              @click="resetFilters" 
+              class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+            >
+              Reset Filter
+            </button>
+            <button 
+              :disabled="!isAllFilterSelected"
+              @click="buatAssessment"
+              class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Buat Assessment
+            </button>
+          </div>
         </div>
-      </div>
-
+  </div>
       <!-- Loading Indicator -->
       <div v-if="loading" class="flex justify-center my-10">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -126,7 +138,8 @@
           <div class="p-5 border-b border-gray-100 flex justify-between items-start">
             <div>
               <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                Assessment #{{ assessment.id_assessment }}
+                <span v-if="assessment.id_assessment">Assessment #{{ assessment.id_assessment }}</span>
+                <span v-else>Assessment ID Tidak Tersedia</span>
               </span>
               <h3 class="text-lg font-semibold mt-2 text-gray-900">
                 {{ assessment.nama_kelas }} - {{ assessment.nama_dimensi }}
@@ -185,6 +198,7 @@
         </div>
       </div>
     </div>
+    
     <!-- Assessment Form Modal -->
     <assessment-form-modal
       v-if="showModal"
@@ -193,6 +207,55 @@
       @close="closeModal"
       @save="saveAssessment"
     />
+    <!-- Tabel Dinamis Siswa & Penilaian -->
+    <div v-if="siswaList.length > 0" class="mx-4 sm:mx-6 lg:mx-8 bg-white rounded-xl shadow border border-gray-200 p-4 mb-8 mx-auto">
+      <div class="font-semibold text-base mb-4">Daftar Siswa di Kelas Ini</div>
+      <div class="overflow-x-auto rounded-xl">
+        <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+          <thead>
+            <tr>
+              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :rowspan="selectedDimensi ? 3 : 1">Nama</th>
+              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :rowspan="selectedDimensi ? 3 : 1">Kelas</th>
+              <th v-if="selectedDimensi" class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :colspan="selectedElemen ? (selectedSubElemen ? 1 : 2) : 3">
+                DIMENSI<br><span class="font-normal text-xs">{{ getNamaDimensi(selectedDimensi) }}</span>
+              </th>
+            </tr>
+            <tr v-if="selectedElemen">
+              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :colspan="selectedSubElemen ? 1 : 2">
+                ELEMEN<br><span class="font-normal text-xs">{{ getNamaElemen(selectedElemen) }}</span>
+              </th>
+            </tr>
+            <tr v-if="selectedSubElemen">
+              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200">
+                SUB ELEMEN<br><span class="font-normal text-xs">{{ getNamaSubElemen(selectedSubElemen) }}</span>
+              </th>
+            </tr>
+            <tr v-if="selectedCapaian" class="bg-gray-50">
+              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200">
+                CAPAIAN<br><span class="font-normal text-xs">{{ getNamaCapaian(selectedCapaian) }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(siswa, idx) in siswaList" :key="siswa.id_siswa" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0']">
+              <td class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">{{ siswa.nama }}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">{{ getNamaKelas(siswa.id_kelas) }}</td>
+              <td v-if="selectedDimensi && selectedElemen && selectedSubElemen" class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">
+                <div class="flex gap-3 justify-center">
+                  <label v-for="opt in ['MB','SB','BSH','SAB']" :key="opt" class="inline-flex items-center gap-1">
+                    <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600" />
+                    <span>{{ opt }}</span>
+                  </label>
+                </div>
+              </td>
+              <td v-if="selectedCapaian" class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">
+                {{ getNamaCapaian(selectedCapaian) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -206,6 +269,8 @@ import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
 import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue'
 import { useThemeStore } from '@/stores/theme'
+import { useRouter } from 'vue-router'
+import axios from '@/plugins/axios'
 
 // Initialize stores
 const assessmentStore = useAssesmentStore()
@@ -215,6 +280,7 @@ const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
+const router = useRouter()
 
 // State variables
 const loading = ref(true)
@@ -223,20 +289,21 @@ const selectedKelas = ref('')
 const selectedDimensi = ref('')
 const selectedElemen = ref('')
 const selectedSubElemen = ref('')
+const selectedCapaian = ref('')
 const filterStatus = ref('')
 const showModal = ref(false)
 const isEditMode = ref(false)
 const selectedAssessment = ref(null)
-
-// Lists for dropdowns
+const siswaList = ref([])
+const nilaiSiswa = ref({})
+const kelasList = ref([])
+const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
 
 // Computed properties
 const assessmentList = computed(() => assessmentStore.getAssessmentList)
-const kelasList = computed(() => kelasStore.getKelasList)
-const dimensiList = computed(() => dimensiStore.getDimensiList)
 const isDarkMode = computed(() => themeStore.isDarkMode)
 
 const filteredAssessmentList = computed(() => {
@@ -292,22 +359,190 @@ const filteredAssessmentList = computed(() => {
   return filtered
 })
 
-// Methods
+const filteredElemen = computed(() =>
+  elemenList.value.filter(e => e.id_dimensi == selectedDimensi.value)
+)
+
+const filteredSubElemen = computed(() =>
+  subElemenList.value.filter(se => se.id_elemen == selectedElemen.value)
+)
+
+const filteredCapaian = computed(() =>
+  capaianList.value.filter(c => c.id_sub_elemen == selectedSubElemen.value)
+)
+
+const isAllFilterSelected = computed(() =>
+  selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value
+)
+
+// Helper functions for fetching names
+const getNamaKelas = (id) => {
+  const kelas = kelasList.value.find(k => k.id_kelas == id)
+  return kelas ? kelas.nama_kelas : 'N/A'
+}
+
+const getNamaDimensi = (id) => {
+  const dimensi = dimensiList.value.find(d => d.id_dimensi == id)
+  return dimensi ? dimensi.nama_dimensi : 'N/A'
+}
+
+const getNamaElemen = (id) => {
+  const elemen = elemenList.value.find(e => e.id_elemen == id)
+  return elemen ? elemen.nama_elemen : 'N/A'
+}
+
+const getNamaSubElemen = (id) => {
+  const subElemen = subElemenList.value.find(se => se.id_sub_elemen == id)
+  return subElemen ? subElemen.nama_sub_elemen : 'N/A'
+}
+
+const getNamaCapaian = (id) => {
+  const capaian = capaianList.value.find(c => c.id_capaian == id)
+  return capaian ? capaian.deskripsi : 'N/A'
+}
+
+// Fetch data methods
+const fetchKelasList = async () => {
+  try {
+    const res = await axios.get('/list/kelas')
+    kelasList.value = res.data.success ? res.data.data : []
+  } catch (error) {
+    console.error('Error fetching kelas list:', error)
+    kelasList.value = []
+  }
+}
+
+const fetchDimensiList = async () => {
+  try {
+    const res = await axios.get('/list/dimensi')
+    dimensiList.value = res.data.success ? res.data.data : []
+  } catch (error) {
+    console.error('Error fetching dimensi list:', error)
+    dimensiList.value = []
+  }
+}
+
+const fetchElemenList = async () => {
+  try {
+    const res = await axios.get('/list/elemen')
+    elemenList.value = res.data.success ? res.data.data : []
+  } catch (error) {
+    console.error('Error fetching elemen list:', error)
+    elemenList.value = []
+  }
+}
+
+const fetchSubElemenList = async () => {
+  try {
+    const res = await axios.get('/list/sub_elemen')
+    subElemenList.value = res.data.success ? res.data.data : []
+  } catch (error) {
+    console.error('Error fetching sub elemen list:', error)
+    subElemenList.value = []
+  }
+}
+
+const fetchCapaianList = async (id_fase, id_sub_elemen) => {
+  try {
+    const res = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
+    capaianList.value = res.data.success ? res.data.data : []
+  } catch (error) {
+    console.error('Error fetching capaian list:', error)
+    capaianList.value = []
+  }
+}
+
+const fetchSiswaList = async (id_kelas) => {
+  try {
+    const res = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
+    siswaList.value = res.data.success ? res.data.data.filter(siswa => siswa.id_kelas == id_kelas) : []
+  } catch (error) {
+    console.error('Error fetching siswa list:', error)
+    siswaList.value = []
+  }
+}
+
 const fetchData = async () => {
   loading.value = true
   try {
     await Promise.all([
       assessmentStore.fetchAssessmentList(),
-      kelasStore.fetchKelasList(),
-      dimensiStore.fetchDimensiList()
+      fetchKelasList(),
+      fetchDimensiList(),
+      fetchElemenList(),
+      fetchSubElemenList()
     ])
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching initial data:', error)
   } finally {
     loading.value = false
   }
 }
 
+// Methods for handling dropdown changes
+const onKelasChange = async () => {
+  selectedDimensi.value = ''
+  selectedElemen.value = ''
+  selectedSubElemen.value = ''
+  selectedCapaian.value = ''
+  elemenList.value = []
+  subElemenList.value = []
+  capaianList.value = []
+  siswaList.value = []
+  if (selectedKelas.value) {
+    await fetchSiswaList(selectedKelas.value)
+  }
+}
+
+const onDimensiChange = async () => {
+  selectedElemen.value = ''
+  selectedSubElemen.value = ''
+  selectedCapaian.value = ''
+  elemenList.value = []
+  subElemenList.value = []
+  capaianList.value = []
+  if (selectedDimensi.value) {
+    try {
+      await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
+      elemenList.value = elemenStore.getElemenList
+    } catch (error) {
+      console.error('Error fetching elemen list:', error)
+    }
+  }
+}
+
+const onElemenChange = async () => {
+  selectedSubElemen.value = ''
+  selectedCapaian.value = ''
+  subElemenList.value = []
+  capaianList.value = []
+  if (selectedElemen.value) {
+    try {
+      await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
+      subElemenList.value = subElemenStore.getSubElemenList
+    } catch (error) {
+      console.error('Error fetching sub elemen list:', error)
+    }
+  }
+}
+
+const onSubElemenChange = async () => {
+  selectedCapaian.value = ''
+  capaianList.value = []
+  if (selectedSubElemen.value && selectedKelas.value) {
+    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value)
+    const id_fase = kelas ? kelas.id_fase : null
+    if (id_fase) {
+      await fetchCapaianList(id_fase, selectedSubElemen.value)
+    }
+  }
+}
+
+const onCapaianChange = () => {
+  // Add logic here if needed when capaian changes
+}
+
+// Other methods
 const openCreateModal = () => {
   selectedAssessment.value = null
   isEditMode.value = false
@@ -327,15 +562,13 @@ const editAssessment = (assessment) => {
 const saveAssessment = async (formData) => {
   try {
     loading.value = true
-    
     if (isEditMode.value) {
       await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
     } else {
       await assessmentStore.createAssessment(formData)
     }
-    
     closeModal()
-    await fetchData() // Refresh the list
+    await fetchData()
   } catch (error) {
     console.error('Error saving assessment:', error)
   } finally {
@@ -375,78 +608,46 @@ const getStatusText = (status) => {
   return status === 'completed' ? 'Selesai' : 'Belum Selesai'
 }
 
-// Methods to handle dropdown changes
-const onDimensiChange = async () => {
-  // Reset dependent dropdowns
-  selectedElemen.value = ''
-  selectedSubElemen.value = ''
-  elemenList.value = []
-  subElemenList.value = []
-  
-  if (selectedDimensi.value) {
-    try {
-      await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
-      elemenList.value = elemenStore.getElemenList
-    } catch (error) {
-      console.error('Error fetching elemen list:', error)
-    }
-  }
-}
-
-const onElemenChange = async () => {
-  // Reset dependent dropdown
-  selectedSubElemen.value = ''
-  subElemenList.value = []
-  
-  if (selectedElemen.value) {
-    try {
-      await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
-      subElemenList.value = subElemenStore.getSubElemenList
-    } catch (error) {
-      console.error('Error fetching sub elemen list:', error)
-    }
-  }
-}
-
-const onSubElemenChange = async () => {
-  // You can add additional logic here if needed when sub-elemen changes
-  // For example, loading capaian based on the selected sub-elemen
-}
-
-// Reset filters method
 const resetFilters = () => {
   searchQuery.value = ''
   selectedKelas.value = ''
   selectedDimensi.value = ''
   selectedElemen.value = ''
   selectedSubElemen.value = ''
+  selectedCapaian.value = ''
   filterStatus.value = ''
   elemenList.value = []
   subElemenList.value = []
+  capaianList.value = []
+  siswaList.value = []
+}
+
+const buatAssessment = async () => {
+  try {
+    loading.value = true
+    const res = await axios.post('/add/assessment', {
+      id_kelas: selectedKelas.value,
+      id_dimensi: selectedDimensi.value,
+      id_elemen: selectedElemen.value,
+      id_sub_elemen: selectedSubElemen.value
+    })
+    if (res.data.success && res.data.id) {
+      router.push({ name: 'assesment-penilaian', params: { id: res.data.id } })
+    } else {
+      alert('Gagal membuat assessment')
+    }
+  } catch (err) {
+    alert('Gagal membuat assessment: ' + (err.message || err))
+  } finally {
+    loading.value = false
+  }
 }
 
 // Lifecycle hooks
-onMounted(() => {
-  fetchData()
-})
+onMounted(fetchData)
 
 // Watchers
 watch([searchQuery, selectedKelas, selectedDimensi, selectedElemen, selectedSubElemen, filterStatus], () => {
-  // This will run whenever any filter changes
-  // You could add debounce logic here if needed
-})
-
-// Specific watcher for dimensi changes
-watch(selectedDimensi, (newValue) => {
-  if (newValue) {
-    onDimensiChange()
-  }
-})
-
-// Specific watcher for elemen changes  
-watch(selectedElemen, (newValue) => {
-  if (newValue) {
-    onElemenChange()
-  }
+  // Filter changes handled by computed property
 })
 </script>

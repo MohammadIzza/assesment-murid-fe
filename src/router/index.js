@@ -195,6 +195,15 @@ const router = createRouter({
             requiresAuth: true,
             title: 'Assessment Siswa'
           }
+        },
+        {
+          path: 'assesment/:id/penilaian',
+          name: 'assesment-penilaian',
+          component: () => import('@/views/assesment/AssessmentPenilaian.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Penilaian Siswa'
+          }
         }
       ],
     },
