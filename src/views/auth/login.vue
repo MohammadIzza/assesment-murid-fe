@@ -1,23 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
-    <div class="relative z-10 max-w-sm w-full">
-      <!-- Logo/Brand Section -->
-      <div class="text-center mb-6">
-        <div class="mx-auto h-12 w-12 bg-blue-600 rounded-lg shadow-md flex items-center justify-center mb-3">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-1">
+  <div :class="['min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300', {'bg-gray-50': !isDarkMode, 'bg-dark-background': isDarkMode}]">
+    <div class="max-w-md w-full space-y-8">
+      <!-- Logo -->
+      <div class="text-center">
+        <h2 class="text-3xl font-extrabold text-blue-600">
           Assessment Murid
         </h2>
-        <p class="text-gray-600 text-xs">
+        <p :class="['text-xs', {'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode}]">
           Sistem Manajemen Guru
         </p>
       </div>
 
       <!-- Login Card -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+      <div :class="['rounded-xl shadow-lg border p-6', {'bg-white border-gray-200': !isDarkMode, 'bg-dark-surface border-dark-border': isDarkMode}]">
         <div class="text-center mb-6">
           <h3 class="text-xl font-semibold text-gray-900 mb-1">
             Masuk ke Akun Anda
@@ -149,9 +144,10 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -163,6 +159,7 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const authStore = useAuthStore()
+    const themeStore = useThemeStore()
     
     const form = ref({
       email: '',
@@ -180,6 +177,8 @@ export default {
     const toastTitle = ref('')
     const toastMessage = ref('')
     const toastDuration = ref(4000)
+    
+    const isDarkMode = computed(() => themeStore.isDarkMode)
     
     const showNotification = (type, title, message, duration = 1500) => {
       toastType.value = type
@@ -251,9 +250,28 @@ export default {
       toastTitle,
       toastMessage,
       toastDuration,
+      isDarkMode,
       handleLogin,
       closeToast
     }
   }
 }
 </script>
+
+<style scoped>
+.bg-dark-background {
+  background-color: #1a202c;
+}
+
+.bg-dark-surface {
+  background-color: #2d3748;
+}
+
+.border-dark-border {
+  border-color: #4a5568;
+}
+
+.text-dark {
+  color: #cbd5e0;
+}
+</style>

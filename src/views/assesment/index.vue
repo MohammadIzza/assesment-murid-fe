@@ -1,116 +1,19 @@
 <template>
-  <div class="bg-gradient-to-b from-blue-50 to-white min-h-screen pb-10">
-    <!-- Header Section -->
-    <div class="bg-blue-600 text-white p-6 md:px-10">
-      <div class="flex items-center space-x-4 mb-4">
-        <div class="bg-blue-500 p-2 rounded-lg">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-1">Assesment</h1>
-          <p class="text-blue-100 text-sm">Kelola dan buat assesment untuk siswa</p>
-        </div>
+  <!-- Tambahkan class dark mode di bagian container utama -->
+  <div class="transition-colors duration-300">
+    <!-- Header with blue background -->
+    <div :class="[
+      'bg-blue-600 dark:bg-dark-header p-6 flex items-center space-x-4 transition-colors duration-300'
+    ]">
+      <!-- Icon -->
+      <div class="bg-blue-500/30 dark:bg-blue-900/30 p-3 rounded-lg">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
       </div>
-      
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-4">
-        <!-- Filter Controls -->
-        <div class="flex flex-wrap gap-3 mb-4 md:mb-0">
-          <div class="relative w-full sm:w-auto">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Cari assesment..."
-              class="pl-10 pr-4 py-2 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 focus:bg-blue-500 focus:bg-opacity-30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full"
-            />
-            <svg class="w-5 h-5 text-blue-200 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-          
-          <!-- Kelas Dropdown -->
-          <select 
-            v-model="selectedKelas"
-            class="py-2 px-3 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            <option value="">Semua Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
-              {{ kelas.nama_kelas }}
-            </option>
-          </select>
-          
-          <!-- Dimensi Dropdown -->
-          <select 
-            v-model="selectedDimensi"
-            @change="onDimensiChange"
-            class="py-2 px-3 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            <option value="">Semua Dimensi</option>
-            <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
-              {{ dimensi.nama_dimensi }}
-            </option>
-          </select>
-          
-          <!-- Elemen Dropdown -->
-          <select 
-            v-model="selectedElemen"
-            @change="onElemenChange"
-            class="py-2 px-3 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-            :disabled="!selectedDimensi"
-          >
-            <option value="">Semua Elemen</option>
-            <option v-for="elemen in elemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
-              {{ elemen.nama_elemen }}
-            </option>
-          </select>
-          
-          <!-- Sub Elemen Dropdown -->
-          <select 
-            v-model="selectedSubElemen"
-            @change="onSubElemenChange"
-            class="py-2 px-3 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-            :disabled="!selectedElemen"
-          >
-            <option value="">Semua Sub Elemen</option>
-            <option v-for="subElemen in subElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
-              {{ subElemen.nama_sub_elemen }}
-            </option>
-          </select>
-          
-          <!-- Status Dropdown -->
-          <select 
-            v-model="filterStatus"
-            class="py-2 px-3 rounded-lg border border-blue-400 bg-blue-500 bg-opacity-20 text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            <option value="">Semua Status</option>
-            <option value="completed">Selesai</option>
-            <option value="in_progress">Belum Selesai</option>
-          </select>
-        </div>
-        
-        <!-- Action Buttons - Now in a column layout -->
-        <div class="flex flex-col space-y-2">
-          <button 
-            @click="openCreateModal" 
-            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Buat Assessment
-          </button>
-          
-          <button 
-            @click="openEditModal" 
-            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-            Ubah Assessment
-          </button>
-        </div>
+      <div>
+        <h1 class="text-2xl font-bold text-white mb-1">Assesment</h1>
+        <p class="text-blue-100 text-sm">Kelola dan buat assesment untuk siswa</p>
       </div>
     </div>
     
@@ -236,6 +139,7 @@ import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
 import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue'
+import { useThemeStore } from '@/stores/theme'
 
 // Initialize stores
 const assessmentStore = useAssesmentStore()
@@ -244,6 +148,7 @@ const dimensiStore = useDimensiStore()
 const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
+const themeStore = useThemeStore()
 
 // State variables
 const loading = ref(true)
@@ -266,6 +171,7 @@ const capaianList = ref([])
 const assessmentList = computed(() => assessmentStore.getAssessmentList)
 const kelasList = computed(() => kelasStore.getKelasList)
 const dimensiList = computed(() => dimensiStore.getDimensiList)
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 const filteredAssessmentList = computed(() => {
   let filtered = [...assessmentList.value]

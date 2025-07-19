@@ -1,5 +1,6 @@
 <template>
-  <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+  <!-- Pastikan menambahkan class dark mode pada navbar -->
+  <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-4 py-2.5 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo & Brand -->
@@ -153,13 +154,31 @@
             </div>
           </div>
 
-          <!-- Mobile Menu Button - Hover & Click support -->
-          <div class="md:hidden relative group">
+          <!-- Theme Toggle - Around User Profile Dropdown -->
+          <div class="ml-3">
             <button 
-              @click="toggleMobileMenu" 
-              @mouseenter="openMobileMenuOnHover"
-              @mouseleave="closeMobileMenuOnLeave"
-              class="mobile-menu-button p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              @click="toggleTheme"
+              class="p-2 rounded-full transition-colors duration-200"
+              :class="isDarkMode ? 'text-gray-300 hover:text-gray-100 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
+              :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+            >
+              <!-- Sun icon for light mode -->
+              <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <!-- Moon icon for dark mode -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden relative">
+            <button 
+              @click.stop="toggleMobileMenu"
+              class="mobile-menu-button p-2 flex items-center justify-center w-10 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              aria-label="Toggle menu"
             >
               <svg v-if="!isMobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -183,12 +202,12 @@
       leave-to-class="transform -translate-y-full opacity-0"
     >
       <div 
-        v-if="isMobileMenuOpen" 
-        @mouseenter="keepMobileMenuOpen"
-        @mouseleave="closeMobileMenuOnLeave"
-        class="md:hidden bg-white border-t border-gray-200 shadow-lg"
+        v-show="isMobileMenuOpen" 
+        @click.stop
+        class="md:hidden fixed top-16 right-0 left-0 bg-white border-t border-gray-200 shadow-lg z-50"
       >
-        <div class="px-2 pt-2 pb-3 space-y-1">
+        <!-- Menu content -->
+        <div class="px-2 pt-2 pb-3 space-y-1 max-w-7xl mx-auto">
           <!-- Dashboard Mobile -->
           <RouterLink 
             :to="{ name: 'dashboard' }"
@@ -278,7 +297,7 @@
 
           <!-- Logout Mobile -->
           <button 
-            @click="handleLogout"
+            @click.stop="handleLogout"
             class="flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
           >
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -296,13 +315,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme';
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const themeStore = useThemeStore();
 const isMobileMenuOpen = ref(false)
 const hoverTimeout = ref(null)
 const isHoverMode = ref(false)
+const lastClickTime = ref(0)
 
 const isGuruActive = computed(() => {
   return ['guru-list', 'guru-detail', 'guru-add', 'guru-edit', 'guru-import', 'guru-index'].includes(route.name)
@@ -321,51 +343,28 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase()
 })
 
+const activeTheme = computed(() => {
+  if (themeStore.theme === 'auto') {
+    return themeStore.systemIsDark ? 'dark' : 'light';
+  }
+  return themeStore.theme;
+});
+
+// Dark mode related
+const isDarkMode = computed(() => themeStore.isDarkMode);
+const toggleTheme = () => {
+  themeStore.setTheme(isDarkMode.value ? 'light' : 'dark');
+};
+
 // Toggle mobile menu (for click)
 const toggleMobileMenu = () => {
-  if (isHoverMode.value) {
-    // If in hover mode, clicking should close it
-    closeMobileMenu()
-    isHoverMode.value = false
-  } else {
-    // Regular click toggle
-    isMobileMenuOpen.value = !isMobileMenuOpen.value
-    isHoverMode.value = false
-  }
-}
-
-// Open mobile menu on hover (desktop with mobile view)
-const openMobileMenuOnHover = () => {
-  // Clear any existing timeout
-  if (hoverTimeout.value) {
-    clearTimeout(hoverTimeout.value)
-    hoverTimeout.value = null
-  }
+  console.log('Toggle mobile menu clicked')
   
-  // Check if device supports hover (desktop)
-  if (window.matchMedia('(hover: hover)').matches) {
-    isHoverMode.value = true
-    isMobileMenuOpen.value = true
-  }
-}
-
-// Keep mobile menu open when hovering over the menu itself
-const keepMobileMenuOpen = () => {
-  if (hoverTimeout.value) {
-    clearTimeout(hoverTimeout.value)
-    hoverTimeout.value = null
-  }
-}
-
-// Close mobile menu when leaving hover area
-const closeMobileMenuOnLeave = () => {
-  if (isHoverMode.value) {
-    // Add small delay to prevent flickering
-    hoverTimeout.value = setTimeout(() => {
-      isMobileMenuOpen.value = false
-      isHoverMode.value = false
-    }, 100)
-  }
+  // Add this line to prevent multiple rapid clicks from causing issues
+  if (Date.now() - lastClickTime.value < 300) return
+  lastClickTime.value = Date.now()
+  
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
 // Close mobile menu
@@ -378,15 +377,31 @@ const closeMobileMenu = () => {
   }
 }
 
-const handleLogout = () => {
+const handleLogout = (event) => {
+  // Prevent event from bubbling up to parent elements
+  event.stopPropagation()
+  
+  // Confirm logout on mobile to prevent accidental clicks
+  if (window.innerWidth < 768) {
+    if (!confirm('Anda yakin ingin keluar?')) {
+      return
+    }
+  }
+  
   authStore.logout()
   router.push('/login')
 }
 
 // Close mobile menu when clicking outside
 const handleClickOutside = (event) => {
+  // Don't handle the event if it's on the burger button itself
+  if (event.target.closest('.mobile-menu-button')) {
+    return
+  }
+  
+  // Only close if clicked outside navbar and menu is open
   const navbar = document.querySelector('nav')
-  if (navbar && !navbar.contains(event.target)) {
+  if (navbar && !navbar.contains(event.target) && isMobileMenuOpen.value) {
     closeMobileMenu()
   }
 }
@@ -415,11 +430,6 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleEscapeKey)
   window.removeEventListener('resize', handleResize)
-  
-  // Clear timeout on unmount
-  if (hoverTimeout.value) {
-    clearTimeout(hoverTimeout.value)
-  }
 })
 </script>
 

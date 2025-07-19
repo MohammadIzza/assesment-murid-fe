@@ -13,9 +13,12 @@ import App from './App.vue'
 // Import konfigurasi router
 import router from './router'
 // Import file CSS utama
-import './assets/main.css'  // Tambahkan ini
+import './assets/main.css'
+// Import dark mode CSS
+import './assets/dark-mode.css'
 // Import auth store untuk inisialisasi
 import { useAuthStore } from './stores/auth'
+import { useThemeStore } from './stores/theme'
 import Cookies from 'js-cookie';
 
 // Membuat instance aplikasi Vue
@@ -31,6 +34,10 @@ app.use(router)
 // Initialize auth store
 const authStore = useAuthStore()
 authStore.initAuth()
+
+// Initialize theme store
+const themeStore = useThemeStore()
+themeStore.initTheme()
 
 // Memasang aplikasi ke elemen dengan id 'app' di index.html
 app.mount('#app')

@@ -1,16 +1,20 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 transition-colors duration-300">
     <!-- Header with welcome message -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <div :class="['rounded-xl shadow-sm border mb-8 p-6 transition-colors duration-300', {'bg-white border-gray-200': !isDarkMode, 'bg-dark-surface border-dark-border': isDarkMode}]">
       <div class="flex items-center">
-        <div class="p-3 bg-blue-100 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div :class="['p-3 rounded-lg', {'bg-blue-100': !isDarkMode, 'bg-blue-900/30': isDarkMode}]">
+          <svg xmlns="http://www.w3.org/2000/svg" :class="['h-6 w-6', {'text-blue-600': !isDarkMode, 'text-blue-400': isDarkMode}]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="ml-4">
-          <h2 class="text-2xl font-bold text-gray-900">Selamat Datang, {{ userData.nama || dashboardData.userName || '!' }}</h2>
-          <p class="text-gray-600 mt-1">{{ getRoleName(userData.id_role) }}</p>
+          <h2 :class="['text-2xl font-bold', {'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode}]">
+            Selamat Datang, {{ userData.nama || dashboardData.userName || '!' }}
+          </h2>
+          <p :class="['mt-1', {'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode}]">
+            {{ getRoleName(userData.id_role) }}
+          </p>
         </div>
       </div>
       
@@ -143,11 +147,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from '@/plugins/axios'
 import Cookies from 'js-cookie'
 import { parseJWT } from '@/utils/jwt'
 import { getGuruById } from '@/services/api'
+import { useThemeStore } from '@/stores/theme'
+
+// Add theme store
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 
 interface DashboardData {
   userName: string
