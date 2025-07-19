@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-600 p-8 mb-8 text-white">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">

@@ -1,7 +1,7 @@
 <template>
   <!-- Pastikan menambahkan class dark mode pada navbar -->
   <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-4 py-2.5 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-4">
