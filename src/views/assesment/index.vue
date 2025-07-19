@@ -57,23 +57,33 @@
             <option value="" disabled selected class="text-gray-400">Pilih Sub Elemen</option>
             <option v-for="subElemen in filteredSubElemen" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen" class="text-sm px-2 py-1 text-left">{{ subElemen.nama_sub_elemen }}</option>
           </select>
-          <!-- Capaian Filter -->  
-          <select
-            v-model="selectedCapaian"
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
-            :disabled="!selectedSubElemen || capaianList.length === 0"
-            @change="onCapaianChange"
-          >
-            <option value="" disabled selected class="text-gray-400">Pilih Capaian</option>
-            <option
-              v-for="capaian in capaianList"
-              :key="capaian.id_capaian"
-              :value="capaian.id_capaian"
-              class="text-sm px-2 py-1 text-left whitespace-normal break-words max-w-xs"
+          <!-- Capaian Filter -->
+          <!-- <div class="flex flex-col"> -->
+            <!-- <label class="text-xs font-semibold text-gray-600 mb-1">Capaian</label> -->
+            <select
+              v-model="selectedCapaian"
+              class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
+              :disabled="!selectedSubElemen || capaianList.length === 0"
+              @change="onCapaianChange"
             >
-              {{ capaian.deskripsi }}
-            </option>
-          </select>
+              <option value="" disabled selected class="text-gray-400">Pilih Capaian</option>
+              <option
+                v-if="capaianList.length === 0 && selectedSubElemen"
+                disabled
+                class="text-sm px-2 py-1 text-left text-gray-400"
+              >
+                Tidak ada capaian tersedia
+              </option>
+              <option
+                v-for="capaian in filteredCapaian"
+                :key="capaian.id_capaian"
+                :value="capaian.id_capaian"
+                class="text-sm px-2 py-1 text-left whitespace-normal break-words max-w-xs"
+              >
+                {{ capaian.deskripsi }}
+              </option>
+            </select>
+          <!-- </div> -->
         </div>
         <!-- Tombol dan search tetap -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -102,7 +112,7 @@
             </button>
           </div>
         </div>
-  </div>
+      </div>
       <!-- Loading Indicator -->
       <div v-if="loading" class="flex justify-center my-10">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -260,7 +270,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAssesmentStore } from '@/stores/assesment'
 import { useKelasStore } from '@/stores/kelas'
 import { useDimensiStore } from '@/stores/dimensi'
@@ -309,7 +319,6 @@ const isDarkMode = computed(() => themeStore.isDarkMode)
 const filteredAssessmentList = computed(() => {
   let filtered = [...assessmentList.value]
   
-  // Filter by search query
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(assessment => 
@@ -321,35 +330,30 @@ const filteredAssessmentList = computed(() => {
     )
   }
   
-  // Filter by kelas
   if (selectedKelas.value) {
     filtered = filtered.filter(assessment => 
       assessment.id_kelas == selectedKelas.value
     )
   }
   
-  // Filter by dimensi
   if (selectedDimensi.value) {
     filtered = filtered.filter(assessment => 
       assessment.id_dimensi == selectedDimensi.value
     )
   }
   
-  // Filter by elemen
   if (selectedElemen.value) {
     filtered = filtered.filter(assessment => 
       assessment.id_elemen == selectedElemen.value
     )
   }
   
-  // Filter by sub_elemen
   if (selectedSubElemen.value) {
     filtered = filtered.filter(assessment => 
       assessment.id_sub_elemen == selectedSubElemen.value
     )
   }
   
-  // Filter by status
   if (filterStatus.value) {
     filtered = filtered.filter(assessment => 
       assessment.status === filterStatus.value
@@ -404,8 +408,9 @@ const getNamaCapaian = (id) => {
 // Fetch data methods
 const fetchKelasList = async () => {
   try {
-    const res = await axios.get('/list/kelas')
-    kelasList.value = res.data.success ? res.data.data : []
+    await kelasStore.fetchKelasList()
+    kelasList.value = kelasStore.getKelasList || []
+    console.debug('Kelas list fetched:', kelasList.value)
   } catch (error) {
     console.error('Error fetching kelas list:', error)
     kelasList.value = []
@@ -414,8 +419,9 @@ const fetchKelasList = async () => {
 
 const fetchDimensiList = async () => {
   try {
-    const res = await axios.get('/list/dimensi')
-    dimensiList.value = res.data.success ? res.data.data : []
+    await dimensiStore.fetchDimensiList()
+    dimensiList.value = dimensiStore.getDimensiList || []
+    console.debug('Dimensi list fetched:', dimensiList.value)
   } catch (error) {
     console.error('Error fetching dimensi list:', error)
     dimensiList.value = []
@@ -424,8 +430,9 @@ const fetchDimensiList = async () => {
 
 const fetchElemenList = async () => {
   try {
-    const res = await axios.get('/list/elemen')
-    elemenList.value = res.data.success ? res.data.data : []
+    await elemenStore.fetchElemenList()
+    elemenList.value = elemenStore.getElemenList || []
+    console.debug('Elemen list fetched:', elemenList.value)
   } catch (error) {
     console.error('Error fetching elemen list:', error)
     elemenList.value = []
@@ -434,8 +441,9 @@ const fetchElemenList = async () => {
 
 const fetchSubElemenList = async () => {
   try {
-    const res = await axios.get('/list/sub_elemen')
-    subElemenList.value = res.data.success ? res.data.data : []
+    await subElemenStore.fetchSubElemenList()
+    subElemenList.value = subElemenStore.getSubElemenList || []
+    console.debug('Sub Elemen list fetched:', subElemenList.value)
   } catch (error) {
     console.error('Error fetching sub elemen list:', error)
     subElemenList.value = []
@@ -444,10 +452,11 @@ const fetchSubElemenList = async () => {
 
 const fetchCapaianList = async (id_fase, id_sub_elemen) => {
   try {
-    const res = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
-    capaianList.value = res.data.success ? res.data.data : []
+    await capaianStore.fetchCapaianBySubElemen(id_fase, id_sub_elemen)
+    capaianList.value = capaianStore.getCapaianList || []
+    console.debug('Capaian list fetched:', capaianList.value)
   } catch (error) {
-    console.error('Error fetching capaian list:', error)
+    console.error('Error fetching capaian list:', error, { id_fase, id_sub_elemen })
     capaianList.value = []
   }
 }
@@ -456,6 +465,7 @@ const fetchSiswaList = async (id_kelas) => {
   try {
     const res = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
     siswaList.value = res.data.success ? res.data.data.filter(siswa => siswa.id_kelas == id_kelas) : []
+    console.debug('Siswa list fetched:', siswaList.value)
   } catch (error) {
     console.error('Error fetching siswa list:', error)
     siswaList.value = []
@@ -498,13 +508,13 @@ const onDimensiChange = async () => {
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  elemenList.value = []
   subElemenList.value = []
   capaianList.value = []
   if (selectedDimensi.value) {
     try {
       await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
-      elemenList.value = elemenStore.getElemenList
+      elemenList.value = elemenStore.getElemenList || []
+      console.debug('Filtered elemen list:', elemenList.value)
     } catch (error) {
       console.error('Error fetching elemen list:', error)
     }
@@ -514,12 +524,12 @@ const onDimensiChange = async () => {
 const onElemenChange = async () => {
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  subElemenList.value = []
   capaianList.value = []
   if (selectedElemen.value) {
     try {
       await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
-      subElemenList.value = subElemenStore.getSubElemenList
+      subElemenList.value = subElemenStore.getSubElemenList || []
+      console.debug('Filtered sub elemen list:', subElemenList.value)
     } catch (error) {
       console.error('Error fetching sub elemen list:', error)
     }
@@ -534,12 +544,14 @@ const onSubElemenChange = async () => {
     const id_fase = kelas ? kelas.id_fase : null
     if (id_fase) {
       await fetchCapaianList(id_fase, selectedSubElemen.value)
+    } else {
+      console.warn('No id_fase found for selected kelas:', selectedKelas.value)
     }
   }
 }
 
 const onCapaianChange = () => {
-  // Add logic here if needed when capaian changes
+  console.debug('Selected capaian:', selectedCapaian.value)
 }
 
 // Other methods
@@ -629,15 +641,17 @@ const buatAssessment = async () => {
       id_kelas: selectedKelas.value,
       id_dimensi: selectedDimensi.value,
       id_elemen: selectedElemen.value,
-      id_sub_elemen: selectedSubElemen.value
+      id_sub_elemen: selectedSubElemen.value,
+      id_capaian: selectedCapaian.value
     })
     if (res.data.success && res.data.id) {
       router.push({ name: 'assesment-penilaian', params: { id: res.data.id } })
     } else {
-      alert('Gagal membuat assessment')
+      alert('Gagal membuat assessment: Tidak ada ID yang dikembalikan')
     }
   } catch (err) {
-    alert('Gagal membuat assessment: ' + (err.message || err))
+    console.error('Error creating assessment:', err)
+    alert('Gagal membuat assessment: ' + (err.response?.data?.message || err.message || 'Unknown error'))
   } finally {
     loading.value = false
   }
@@ -645,9 +659,4 @@ const buatAssessment = async () => {
 
 // Lifecycle hooks
 onMounted(fetchData)
-
-// Watchers
-watch([searchQuery, selectedKelas, selectedDimensi, selectedElemen, selectedSubElemen, filterStatus], () => {
-  // Filter changes handled by computed property
-})
 </script>
