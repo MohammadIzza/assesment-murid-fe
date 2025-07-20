@@ -257,14 +257,28 @@
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 150px;">{{ getNamaKelas(siswa.id_kelas) }}</td>
-                         <td v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
-               <div class="flex gap-4 justify-center">
-                 <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
-                   <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
-                   <span class="text-base font-medium text-gray-800">{{ opt }}</span>
-                 </label>
-               </div>
-             </td>
+            <td v-if="selectedDimensi" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
+              <!-- Radio buttons ketika semua filter dipilih -->
+              <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="flex gap-4 justify-center">
+                <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
+                  <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
+                  <span class="text-base font-medium text-gray-800">{{ opt }}</span>
+                </label>
+              </div>
+              
+              <!-- Informasi filter yang dipilih -->
+              <div v-else class="text-center">
+                <div v-if="!selectedElemen" class="text-s text-gray-400 italic">
+                  Pilih Elemen untuk melanjutkan
+                </div>
+                <div v-else-if="!selectedSubElemen" class="text-s text-gray-400 italic">
+                  Pilih Sub Elemen untuk melanjutkan
+                </div>
+                <div v-else-if="!selectedCapaian" class="text-s text-gray-400 italic">
+                  Pilih Capaian untuk mulai assessment
+                </div>
+              </div>
+            </td>
           </tr>
         </tbody>
         </table>
@@ -413,8 +427,8 @@ const getNamaCapaian = (id) => {
 const fetchKelasList = async () => {
   try {
     await kelasStore.fetchKelasList()
-    kelasList.value = kelasStore.getKelasList || []
-    console.debug('Kelas list fetched:', kelasList.value)
+    kelasList.value = kelasStore.getSortedKelasList || []
+    console.debug('Kelas list fetched (sorted):', kelasList.value)
   } catch (error) {
     console.error('Error fetching kelas list:', error)
     kelasList.value = []
