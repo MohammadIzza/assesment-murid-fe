@@ -28,6 +28,9 @@ import SiswaList from '@/views/siswa/SiswaList.vue'
 import SiswaEdit from '@/views/siswa/SiswaEdit.vue'
 import SiswaDetail from '@/views/siswa/SiswaDetail.vue'
 
+// Import komponen assessment
+import AssignmentDetail from '@/views/assesment/AssignmentDetail.vue'
+
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -204,6 +207,11 @@ const router = createRouter({
             requiresAuth: true,
             title: 'Penilaian Siswa'
           }
+        },
+        {
+          path: '/assesment/detail',
+          name: 'assesment-detail',
+          component: AssignmentDetail
         }
       ],
     },

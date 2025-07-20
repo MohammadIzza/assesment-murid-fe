@@ -239,7 +239,7 @@ import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
 import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue'
 import { useThemeStore } from '@/stores/theme'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
 
 // Initialize stores
@@ -252,6 +252,7 @@ const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
 const router = useRouter()
+const route = useRoute()
 
 // State variables
 const loading = ref(true)
@@ -752,7 +753,6 @@ const buatAssessmentDanNilai = async () => {
           id_pengampu: pengampuMap.value[siswa.id_kelas],
           id_assessment,
           nilai: nilaiSiswa.value[siswa.id_siswa]
-          // tanggal_input DIHAPUS, biarkan DB mengisi otomatis
         })
       )
     )
@@ -768,5 +768,58 @@ const buatAssessmentDanNilai = async () => {
 }
 
 // Lifecycle hooks
-onMounted(fetchData)
+onMounted(async () => {
+  await fetchData()
+  // Auto-load assessment jika ada id_assessment di query
+  const idAssessment = route.query.id_assessment
+  if (idAssessment) {
+    try {
+      // Fetch detail assessment
+      const res = await axios.get(`/list/assessment?id_assessment=${idAssessment}`)
+      const ass = Array.isArray(res.data.data) ? res.data.data[0] : res.data.data
+      if (ass) {
+        // Fetch capaian untuk dapatkan sub elemen, elemen, dimensi
+        const capaianRes = await axios.get(`/list/capaian`)
+        const capaian = capaianRes.data.data.find(c => c.id_capaian == ass.id_capaian)
+        let subElemen, elemen, dimensi
+        if (capaian) {
+          const subElemenRes = await axios.get(`/list/sub_elemen`)
+          subElemen = subElemenRes.data.data.find(se => se.id_sub_elemen == capaian.id_sub_elemen)
+          if (subElemen) {
+            const elemenRes = await axios.get(`/list/elemen`)
+            elemen = elemenRes.data.data.find(e => e.id_elemen == subElemen.id_elemen)
+            if (elemen) {
+              const dimensiRes = await axios.get(`/list/dimensi`)
+              dimensi = dimensiRes.data.data.find(d => d.id_dimensi == elemen.id_dimensi)
+            }
+          }
+        }
+        // Fetch nilai untuk assessment ini
+        const nilaiRes = await axios.get(`/list/nilai`)
+        const nilaiAssessment = nilaiRes.data.data.filter(n => n.id_assessment == ass.id_assessment)
+        // Ambil semua id_siswa dari nilai
+        const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
+        // Fetch siswa untuk kelas yang ditemukan dari nilai (ambil kelas dari siswa pertama)
+        const siswaRes = await axios.get(`/list/siswa`)
+        const siswaAssessment = siswaRes.data.data.filter(s => siswaIds.includes(s.id_siswa))
+        // Set filter otomatis
+        if (siswaAssessment.length > 0) {
+          selectedKelas.value = siswaAssessment[0].id_kelas
+          await fetchSiswaList(selectedKelas.value)
+        }
+        if (dimensi) selectedDimensi.value = dimensi.id_dimensi
+        if (elemen) selectedElemen.value = elemen.id_elemen
+        if (subElemen) selectedSubElemen.value = subElemen.id_sub_elemen
+        if (capaian) selectedCapaian.value = capaian.id_capaian
+        // Set nilai siswa otomatis
+        nilaiSiswa.value = {}
+        nilaiAssessment.forEach(n => {
+          nilaiSiswa.value[n.id_siswa] = n.nilai
+        })
+      }
+    } catch (err) {
+      console.error('Gagal auto-load assessment:', err)
+    }
+  }
+})
 </script>

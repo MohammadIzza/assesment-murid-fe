@@ -87,7 +87,27 @@
           </svg>
           <span class="text-sm">Belum ada assessment yang tersedia</span>
         </div>
-        <!-- Jika ada data assessment, bisa tambahkan tabel/list di sini -->
+        
+        <div v-else>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="ass in dashboardData.assessments" :key="ass.id_assessment" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col">
+              <div class="font-bold text-lg mb-2">{{ ass.nama_assessment }}</div>
+              <div class="text-sm text-gray-600 mb-1">Kelas: {{ getKelasAssessment(ass) }}</div>
+              <div class="text-sm text-gray-600 mb-1">Dimensi: {{ getRelasiAssessment(ass).dimensi }}</div>
+              <div class="text-sm text-gray-600 mb-1">Elemen: {{ getRelasiAssessment(ass).elemen }}</div>
+              <div class="text-sm text-gray-600 mb-1">Sub Elemen: {{ getRelasiAssessment(ass).subElemen }}</div>
+              <div class="text-sm text-gray-600 mb-1">Capaian: {{ getRelasiAssessment(ass).capaian }}</div>
+              <div class="text-sm text-gray-600 mb-1">Jumlah Siswa: {{ getJumlahSiswaAssessment(ass) }}</div>
+              <div class="text-xs text-gray-400 mt-2">{{ ass.deskripsi }}</div>
+              <router-link
+                :to="{ name: 'assesment-detail', query: { id_assessment: ass.id_assessment } }"
+                class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 text-center"
+              >
+                Lihat Detail
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -251,16 +271,103 @@ const getSchoolName = (schoolId) => {
   return schools[schoolId] || 'Tidak Diketahui'
 }
 
+// Data referensi
+const kelasList = ref([])
+const dimensiList = ref([])
+const elemenList = ref([])
+const subElemenList = ref([])
+const capaianList = ref([])
+const siswaList = ref([])
+const nilaiList = ref([])
+const pengampuList = ref([])
+
+// Helper untuk nama
+const getNamaKelas = id => kelasList.value.find(k => k.id_kelas == id)?.nama_kelas || '-';
+const getNamaDimensi = id => dimensiList.value.find(d => d.id_dimensi == id)?.nama_dimensi || '-';
+const getNamaElemen = id => elemenList.value.find(e => e.id_elemen == id)?.nama_elemen || '-';
+const getNamaSubElemen = id => subElemenList.value.find(se => se.id_sub_elemen == id)?.nama_sub_elemen || '-';
+const getNamaCapaian = id => capaianList.value.find(c => c.id_capaian == id)?.deskripsi || '-';
+const getJumlahSiswa = id_kelas => siswaList.value.filter(s => s.id_kelas == id_kelas).length;
+
+// Helper relasi assessment (dimensi, elemen, sub elemen, capaian)
+const getRelasiAssessment = (ass) => {
+  // 1. Dapatkan capaian
+  const capaian = capaianList.value.find(c => c.id_capaian == ass.id_capaian);
+  // 2. Dapatkan sub elemen
+  const subElemen = capaian ? subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) : null;
+  // 3. Dapatkan elemen
+  const elemen = subElemen ? elemenList.value.find(e => e.id_elemen == subElemen.id_elemen) : null;
+  // 4. Dapatkan dimensi
+  const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi == elemen.id_dimensi) : null;
+  return {
+    dimensi: dimensi ? dimensi.nama_dimensi : '-',
+    elemen: elemen ? elemen.nama_elemen : '-',
+    subElemen: subElemen ? subElemen.nama_sub_elemen : '-',
+    capaian: capaian ? capaian.deskripsi : '-'
+  }
+}
+
+// Helper untuk jumlah siswa per assessment berdasarkan nilai dan pengampu
+const getJumlahSiswaAssessment = (ass) => {
+  // Dapatkan semua nilai untuk assessment ini
+  const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
+  // Dapatkan semua id_pengampu yang terkait dengan assessment ini
+  const pengampuIds = Array.from(new Set(nilaiAssessment.map(n => n.id_pengampu)))
+  // Dapatkan semua id_kelas dari pengampu terkait
+  const kelasIds = pengampuIds.map(pid => pengampuList.value.find(p => p.id_pengampu == pid)?.id_kelas)
+  // Hitung jumlah siswa unik yang dinilai pada assessment ini
+  const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
+  return siswaIds.length
+}
+
+// Helper untuk kelas assessment berdasarkan nilai dan siswa
+const getKelasAssessment = (ass) => {
+  // Ambil semua nilai untuk assessment ini
+  const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
+  // Ambil semua id_siswa
+  const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
+  // Ambil semua id_kelas dari siswa
+  const kelasIds = Array.from(new Set(
+    siswaIds
+      .map(sid => siswaList.value.find(s => s.id_siswa == sid)?.id_kelas)
+      .filter(Boolean)
+  ))
+  // Ambil nama kelas (jika hanya satu kelas, tampilkan nama, jika lebih dari satu, gabungkan)
+  const kelasNames = kelasIds.map(kid => kelasList.value.find(k => k.id_kelas == kid)?.nama_kelas).filter(Boolean)
+  return kelasNames.length > 0 ? kelasNames.join(', ') : '-'
+}
+
+const fetchReferenceData = async () => {
+  const [kelasRes, dimensiRes, elemenRes, subElemenRes, capaianRes, siswaRes, nilaiRes, pengampuRes] = await Promise.all([
+    axios.get('/list/kelas'),
+    axios.get('/list/dimensi'),
+    axios.get('/list/elemen'),
+    axios.get('/list/sub_elemen'),
+    axios.get('/list/capaian'),
+    axios.get('/list/siswa'),
+    axios.get('/list/nilai'),
+    axios.get('/list/pengampu')
+  ])
+  kelasList.value = kelasRes.data.data || []
+  dimensiList.value = dimensiRes.data.data || []
+  elemenList.value = elemenRes.data.data || []
+  subElemenList.value = subElemenRes.data.data || []
+  capaianList.value = capaianRes.data.data || []
+  siswaList.value = siswaRes.data.data || []
+  nilaiList.value = nilaiRes.data.data || []
+  pengampuList.value = pengampuRes.data.data || []
+}
+
 const refreshData = () => {
   fetchUserData()
   fetchDashboardData()
+  fetchReferenceData()
 }
 
 onMounted(() => {
-  // Pertama ambil data user
   fetchUserData()
-  // Kemudian ambil data dashboard
   fetchDashboardData()
+  fetchReferenceData()
 })
 </script>
 
