@@ -90,16 +90,6 @@
           >
             Reset Filter
           </button>
-          <button 
-              :disabled="!isAllFilterSelected"
-              @click="buatAssessment"
-              class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Buat Assessment
-          </button>
         </div>
       </div>
       </div>
@@ -125,78 +115,6 @@
           </button>
       </div>
       
-      <!-- Assessment List -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Assessment Card -->
-        <div 
-          v-for="(assessment, index) in filteredAssessmentList" 
-          :key="assessment.id_assessment"
-          class="rounded-xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-shadow duration-200 overflow-hidden cursor-pointer"
-          @click="selectAssessment(assessment)"
-        >
-          <!-- Card Header -->
-          <div class="p-5 border-b border-gray-100 flex justify-between items-start">
-            <div>
-              <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                <span v-if="assessment.id_assessment">Assessment #{{ assessment.id_assessment }}</span>
-                <span v-else>Assessment ID Tidak Tersedia</span>
-              </span>
-              <h3 class="text-lg font-semibold mt-2 text-gray-900">
-                {{ assessment.nama_kelas }} - {{ assessment.nama_dimensi }}
-              </h3>
-              <p class="text-sm mt-1 text-gray-500">
-                {{ assessment.nama_elemen }} > {{ assessment.nama_sub_elemen }}
-              </p>
-              <p class="text-sm mt-2 text-gray-600">
-                {{ assessment.kompetensi }}
-              </p>
-            </div>
-            <span 
-              :class="getStatusClass(assessment.status)"
-              class="text-xs font-medium px-2.5 py-0.5 rounded-full"
-            >
-              {{ getStatusText(assessment.status) }}
-            </span>
-          </div>
-          <!-- Card Body -->
-          <div class="p-5">
-            <div class="flex items-center text-sm mb-4 text-gray-500">
-              <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-              <span>{{ formatDate(assessment.tanggal_buat) }}</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-500">
-              <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-              </svg>
-              <span>{{ assessment.total_siswa }} siswa</span>
-            </div>
-            <!-- Progress Bar -->
-            <div class="mt-4">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs font-medium text-gray-500">Kemajuan</span>
-                <span class="text-xs font-medium text-gray-500">{{ assessment.progress }}%</span>
-              </div>
-              <div class="w-full rounded-full h-2 bg-gray-200">
-                <div class="bg-blue-600 h-2 rounded-full" :style="`width: ${assessment.progress}%`"></div>
-              </div>
-            </div>
-          </div>
-          <!-- Card Footer -->
-          <div class="p-4 border-t bg-gray-50 border-gray-100 flex justify-end">
-            <button 
-              @click.stop="editAssessment(assessment)"
-              class="text-sm flex items-center font-medium text-blue-600 hover:text-blue-800"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
-              Ubah Assessment
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     
     <!-- Assessment Form Modal -->
@@ -285,23 +203,26 @@
         </tbody>
         </table>
       </div>
-      
-      <!-- Save Assessment Button -->
+      <!-- Satu tombol untuk create assessment & nilai -->
       <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="mt-6 flex justify-center">
         <button 
-          @click="saveAssessmentResults"
-          :disabled="!canSaveAssessment || assessmentResultsStore.isLoading"
+          @click="buatAssessmentDanNilai"
+          :disabled="!canSaveAssessment || loading"
           class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
         >
-          <svg v-if="assessmentResultsStore.isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          {{ assessmentResultsStore.isLoading ? 'Menyimpan...' : 'Simpan Assessment' }}
+          {{ loading ? 'Menyimpan...' : 'Buat Assessment & Simpan Nilai' }}
         </button>
+      </div>
+      <!-- Notifikasi -->
+      <div v-if="notif" :class="['mt-4 text-center rounded p-2', notifType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
+        {{ notif }}
       </div>
     </div>
   </div>
@@ -351,6 +272,9 @@ const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
+const notif = ref('')
+const notifType = ref('success')
+const pengampuMap = ref({})
 
 // Computed properties
 const assessmentList = computed(() => assessmentStore.getAssessmentList)
@@ -421,14 +345,8 @@ const isAllFilterSelected = computed(() =>
 
 const canSaveAssessment = computed(() => {
   if (!isAllFilterSelected.value) return false
-  
-  // Cek apakah ada nilai yang dipilih
-  const hasValues = siswaList.value.some(siswa => nilaiSiswa.value[siswa.id_siswa])
-  
-  // Cek apakah belum mencapai maksimal session
-  const canAddMore = assessmentResultsStore.canAddMore()
-  
-  return hasValues && canAddMore
+  // Semua siswa wajib diisi nilainya
+  return siswaList.value.length > 0 && siswaList.value.every(siswa => nilaiSiswa.value[siswa.id_siswa])
 })
 
 // Helper functions for fetching names
@@ -555,6 +473,20 @@ const fetchSiswaList = async (id_kelas) => {
   }
 }
 
+const fetchPengampuList = async () => {
+  try {
+    const res = await axios.get('/list/pengampu')
+    if (res.data.success) {
+      pengampuMap.value = {}
+      res.data.data.forEach(p => {
+        pengampuMap.value[p.id_kelas] = p.id_pengampu
+      })
+    }
+  } catch (err) {
+    console.error('Error fetching pengampu:', err)
+  }
+}
+
 const fetchData = async () => {
   loading.value = true
   try {
@@ -563,7 +495,8 @@ const fetchData = async () => {
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
-      fetchSubElemenList()
+      fetchSubElemenList(),
+      fetchPengampuList() // tambahkan ini
     ])
   } catch (error) {
     console.error('Error fetching initial data:', error)
@@ -778,40 +711,57 @@ const saveAssessmentResults = async () => {
   }
 }
 
-const buatAssessment = async () => {
+const buatAssessmentDanNilai = async () => {
+  notif.value = ''
+  notifType.value = 'success'
+  if (!isAllFilterSelected.value) {
+    notif.value = 'Lengkapi semua filter!'
+    notifType.value = 'error'
+    return
+  }
+  if (!siswaList.value.every(siswa => nilaiSiswa.value[siswa.id_siswa])) {
+    notif.value = 'Semua siswa wajib diisi nilainya!'
+    notifType.value = 'error'
+    return
+  }
   try {
     loading.value = true
-    
-    // Validasi semua filter harus dipilih
-    if (!selectedKelas.value || !selectedDimensi.value || !selectedElemen.value || !selectedSubElemen.value || !selectedCapaian.value) {
-      alert('Harap pilih semua filter terlebih dahulu')
-      return
-    }
-    
-    // Siapkan data yang sesuai dengan endpoint /add/assessment
+    // 1. Buat assessment
+    const idCapaianInt = parseInt(selectedCapaian.value)
     const assessmentData = {
-      id_capaian: selectedCapaian.value,
+      id_capaian: isNaN(idCapaianInt) ? null : idCapaianInt,
       nama_assessment: `${getNamaKelas(selectedKelas.value)} - ${getNamaDimensi(selectedDimensi.value)} - ${getNamaElemen(selectedElemen.value)} - ${getNamaSubElemen(selectedSubElemen.value)}`,
       deskripsi: `Assessment untuk ${getNamaKelas(selectedKelas.value)} pada ${getNamaDimensi(selectedDimensi.value)}`,
       bobot: 1
     }
-    
-    console.log('Creating assessment with data:', assessmentData)
-    
-    const res = await axios.post('/add/assessment', assessmentData)
-    
-    if (res.data.success && res.data.id) {
-      console.log('Assessment created successfully:', res.data)
-      alert('Assessment berhasil dibuat dengan ID: ' + res.data.id)
-      // Reset form setelah berhasil
-      resetFilters()
-    } else {
-      alert('Gagal membuat assessment: Tidak ada ID yang dikembalikan')
+    // Validasi payload
+    if (!assessmentData.id_capaian || !assessmentData.nama_assessment || !assessmentData.deskripsi || !assessmentData.bobot) {
+      notif.value = 'Data assessment tidak lengkap!'
+      notifType.value = 'error'
+      loading.value = false
+      return
     }
+    const res = await axios.post('/add/assessment', assessmentData)
+    if (!res.data.success || !res.data.id) throw new Error('Gagal membuat assessment')
+    const id_assessment = res.data.id
+    // 2. Simpan nilai siswa
+    await Promise.all(
+      siswaList.value.map(siswa =>
+        axios.post('/add/nilai', {
+          id_siswa: siswa.id_siswa,
+          id_pengampu: pengampuMap.value[siswa.id_kelas],
+          id_assessment,
+          nilai: nilaiSiswa.value[siswa.id_siswa]
+          // tanggal_input DIHAPUS, biarkan DB mengisi otomatis
+        })
+      )
+    )
+    notif.value = 'Assessment dan nilai siswa berhasil disimpan!'
+    notifType.value = 'success'
+    resetFilters()
   } catch (err) {
-    console.error('Error creating assessment:', err)
-    console.error('Error response:', err.response?.data)
-    alert('Gagal membuat assessment: ' + (err.response?.data?.message || err.message || 'Unknown error'))
+    notif.value = 'Gagal menyimpan assessment/nilai: ' + (err.response?.data?.message || err.message)
+    notifType.value = 'error'
   } finally {
     loading.value = false
   }

@@ -13,8 +13,8 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 // Add request interceptor untuk menambahkan token otentikasi
 axios.interceptors.request.use(
   (config) => {
-    // Get token from cookie
-    const token = Cookies.get('token');
+    // Get token from cookie (support 'auth' or 'auth_token')
+    const token = Cookies.get('auth') || Cookies.get('auth_token');
     
     // If token exists, add to headers
     if (token) {
