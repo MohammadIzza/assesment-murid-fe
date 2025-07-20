@@ -7,84 +7,74 @@
           <div class="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <div>
+        </svg>
+      </div>
+      <div>
             <h1 class="text-2xl font-bold text-white mb-2">Assessment</h1>
             <p class="text-blue-100 text-base">Kelola dan buat assessment untuk siswa</p>
           </div>
         </div>
-      </div>
-
+    </div>
+    
       <!-- Filter & Action Section -->
       <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-          <!-- Kelas Filter -->
-          <select 
-            v-model="selectedKelas" 
+        <!-- Kelas Filter -->
+        <select 
+          v-model="selectedKelas" 
             class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
             @change="onKelasChange"
           >
             <option value="" disabled selected class="text-gray-400">Pilih Kelas</option>
             <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas" class="text-sm px-2 py-1 text-left">{{ kelas.nama_kelas }}</option>
-          </select>
-          <!-- Dimensi Filter -->
-          <select 
-            v-model="selectedDimensi" 
+        </select>
+        <!-- Dimensi Filter -->
+        <select 
+          v-model="selectedDimensi" 
             class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-            @change="onDimensiChange"
-          >
+          @change="onDimensiChange"
+        >
             <option value="" disabled selected class="text-gray-400">Pilih Dimensi</option>
             <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi" class="text-sm px-2 py-1 text-left">{{ dimensi.nama_dimensi }}</option>
-          </select>
-          <!-- Elemen Filter -->
-          <select 
-            v-model="selectedElemen" 
+        </select>
+        <!-- Elemen Filter -->
+        <select 
+          v-model="selectedElemen" 
             class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-            @change="onElemenChange"
-            :disabled="!selectedDimensi"
-          >
+          @change="onElemenChange"
+          :disabled="!selectedDimensi"
+        >
             <option value="" disabled selected class="text-gray-400">Pilih Elemen</option>
             <option v-for="elemen in filteredElemen" :key="elemen.id_elemen" :value="elemen.id_elemen" class="text-sm px-2 py-1 text-left">{{ elemen.nama_elemen }}</option>
-          </select>
-          <!-- Sub Elemen Filter -->
-          <select 
-            v-model="selectedSubElemen" 
+        </select>
+        <!-- Sub Elemen Filter -->
+        <select 
+          v-model="selectedSubElemen" 
             class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-            @change="onSubElemenChange"
-            :disabled="!selectedElemen"
-          >
+          @change="onSubElemenChange"
+          :disabled="!selectedElemen"
+        >
             <option value="" disabled selected class="text-gray-400">Pilih Sub Elemen</option>
             <option v-for="subElemen in filteredSubElemen" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen" class="text-sm px-2 py-1 text-left">{{ subElemen.nama_sub_elemen }}</option>
           </select>
-          <!-- Capaian Filter -->
-          <!-- <div class="flex flex-col"> -->
-            <!-- <label class="text-xs font-semibold text-gray-600 mb-1">Capaian</label> -->
-            <select
-              v-model="selectedCapaian"
-              class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
-              :disabled="!selectedSubElemen || capaianList.length === 0"
-              @change="onCapaianChange"
+          <!-- Dropdown Filter Capaian -->
+          <select
+            v-model="selectedCapaian"
+            :disabled="!selectedSubElemen || capaianList.length === 0"
+            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
+          >
+            <option value="" disabled selected>Pilih Capaian</option>
+            <option
+              v-for="capaian in capaianList"
+              :key="capaian.id_capaian"
+              :value="capaian.id_capaian"
             >
-              <option value="" disabled selected class="text-gray-400">Pilih Capaian</option>
-              <option
-                v-if="capaianList.length === 0 && selectedSubElemen"
-                disabled
-                class="text-sm px-2 py-1 text-left text-gray-400"
-              >
-                Tidak ada capaian tersedia
-              </option>
-              <option
-                v-for="capaian in filteredCapaian"
-                :key="capaian.id_capaian"
-                :value="capaian.id_capaian"
-                class="text-sm px-2 py-1 text-left whitespace-normal break-words max-w-xs"
-              >
-                {{ capaian.deskripsi }}
-              </option>
-            </select>
-          <!-- </div> -->
-        </div>
+              {{ capaian.deskripsi }}
+            </option>
+          </select>
+          <!-- Debug visual sementara -->
+          <!-- <div style="font-size:12px;color:#888;">CapaianList: {{ capaianList }}</div> -->
+      </div>
         <!-- Tombol dan search tetap -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <input 
@@ -94,47 +84,47 @@
             class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
           />
           <div class="flex gap-2 mt-2 md:mt-0">
-            <button 
-              @click="resetFilters" 
+          <button 
+            @click="resetFilters" 
               class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-            >
-              Reset Filter
-            </button>
-            <button 
+          >
+            Reset Filter
+          </button>
+          <button 
               :disabled="!isAllFilterSelected"
               @click="buatAssessment"
               class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Buat Assessment
-            </button>
-          </div>
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Buat Assessment
+          </button>
         </div>
+      </div>
       </div>
       <!-- Loading Indicator -->
       <div v-if="loading" class="flex justify-center my-10">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-
+      
       <!-- Empty State -->
       <div v-else-if="assessmentList.length === 0" class="bg-white rounded-xl shadow-lg border border-gray-200 p-10 text-center flex flex-col items-center justify-center">
         <div class="rounded-full p-4 mb-4 bg-blue-100">
           <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-          </svg>
-        </div>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
         <h3 class="text-lg font-medium mb-1 text-gray-900">Belum ada assessment</h3>
         <p class="mb-4 text-gray-500">Klik tombol "Buat Assessment" untuk membuat assessment baru</p>
-        <button 
-          @click="openCreateModal" 
+          <button 
+            @click="openCreateModal" 
           class="text-white font-medium py-2 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 transition-all duration-200"
-        >
-          Buat Assessment Sekarang
-        </button>
+          >
+            Buat Assessment Sekarang
+          </button>
       </div>
-
+      
       <!-- Assessment List -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Assessment Card -->
@@ -259,11 +249,23 @@
             <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 150px;">{{ getNamaKelas(siswa.id_kelas) }}</td>
             <td v-if="selectedDimensi" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
               <!-- Radio buttons ketika semua filter dipilih -->
-              <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="flex gap-4 justify-center">
-                <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
-                  <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
-                  <span class="text-base font-medium text-gray-800">{{ opt }}</span>
-                </label>
+              <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="flex flex-col gap-2">
+                <div class="flex gap-4 justify-center">
+                  <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
+                    <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
+                    <span class="text-base font-medium text-gray-800">{{ opt }}</span>
+                  </label>
+                </div>
+                
+                <!-- Progress indicator -->
+                <div class="text-xs text-gray-500 mt-2">
+                  Session: {{ assessmentResultsStore.getProgress.current }}/{{ assessmentResultsStore.getProgress.max }}
+                </div>
+                
+                <!-- Modus display jika ada -->
+                <div v-if="assessmentResultsStore.getModus" class="text-xs text-green-600 font-medium">
+                  Modus: {{ assessmentResultsStore.getModus.nilai }} ({{ assessmentResultsStore.getModus.count }}/{{ assessmentResultsStore.getModus.total }})
+                </div>
               </div>
               
               <!-- Informasi filter yang dipilih -->
@@ -283,6 +285,24 @@
         </tbody>
         </table>
       </div>
+      
+      <!-- Save Assessment Button -->
+      <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="mt-6 flex justify-center">
+        <button 
+          @click="saveAssessmentResults"
+          :disabled="!canSaveAssessment || assessmentResultsStore.isLoading"
+          class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+        >
+          <svg v-if="assessmentResultsStore.isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          {{ assessmentResultsStore.isLoading ? 'Menyimpan...' : 'Simpan Assessment' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -290,6 +310,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAssesmentStore } from '@/stores/assesment'
+import { useAssessmentResultsStore } from '@/stores/assessmentResults'
 import { useKelasStore } from '@/stores/kelas'
 import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
@@ -302,6 +323,7 @@ import axios from '@/plugins/axios'
 
 // Initialize stores
 const assessmentStore = useAssesmentStore()
+const assessmentResultsStore = useAssessmentResultsStore()
 const kelasStore = useKelasStore()
 const dimensiStore = useDimensiStore()
 const elemenStore = useElemenStore()
@@ -397,6 +419,18 @@ const isAllFilterSelected = computed(() =>
   selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value && selectedCapaian.value
 )
 
+const canSaveAssessment = computed(() => {
+  if (!isAllFilterSelected.value) return false
+  
+  // Cek apakah ada nilai yang dipilih
+  const hasValues = siswaList.value.some(siswa => nilaiSiswa.value[siswa.id_siswa])
+  
+  // Cek apakah belum mencapai maksimal session
+  const canAddMore = assessmentResultsStore.canAddMore()
+  
+  return hasValues && canAddMore
+})
+
 // Helper functions for fetching names
 const getNamaKelas = (id) => {
   const kelas = kelasList.value.find(k => k.id_kelas == id)
@@ -421,6 +455,26 @@ const getNamaSubElemen = (id) => {
 const getNamaCapaian = (id) => {
   const capaian = capaianList.value.find(c => c.id_capaian == id)
   return capaian ? capaian.deskripsi : 'N/A'
+}
+
+// Mapping kelas ke id_fase
+function getIdFaseFromKelas(namaKelas) {
+  // Mapping romawi ke id_fase
+  if (/\bI\b|\bII\b|\bIII\b|\bIV\b|\bV\b|\bVI\b|\bVII\b|\bVIII\b|\bIX\b|\bX\b|\bXI\b|\bXII\b/i.test(namaKelas)) {
+    if (/\bI\b/i.test(namaKelas)) return 2; // Fase A (Kelas 1)
+    if (/\bII\b/i.test(namaKelas)) return 2; // Fase A (Kelas 2)
+    if (/\bIII\b/i.test(namaKelas)) return 3; // Fase B (Kelas 3)
+    if (/\bIV\b/i.test(namaKelas)) return 3; // Fase B (Kelas 4)
+    if (/\bV\b/i.test(namaKelas)) return 4; // Fase C (Kelas 5)
+    if (/\bVI\b/i.test(namaKelas)) return 4; // Fase C (Kelas 6)
+    if (/\bVII\b/i.test(namaKelas)) return 5; // Fase D (Kelas 7)
+    if (/\bVIII\b/i.test(namaKelas)) return 5; // Fase D (Kelas 8)
+    if (/\bIX\b/i.test(namaKelas)) return 5; // Fase D (Kelas 9)
+    if (/\bX\b/i.test(namaKelas)) return 6; // Fase E (Kelas 10)
+    if (/\bXI\b/i.test(namaKelas)) return 7; // Fase F (Kelas 11)
+    if (/\bXII\b/i.test(namaKelas)) return 7; // Fase F (Kelas 12)
+  }
+  return null;
 }
 
 // Fetch data methods
@@ -470,9 +524,20 @@ const fetchSubElemenList = async () => {
 
 const fetchCapaianList = async (id_fase, id_sub_elemen) => {
   try {
-    await capaianStore.fetchCapaianBySubElemen(id_fase, id_sub_elemen)
-    capaianList.value = capaianStore.getCapaianList || []
-    console.debug('Capaian list fetched:', capaianList.value)
+    console.debug('Fetching capaian with params:', { id_fase, id_sub_elemen })
+    
+    // Gunakan endpoint filter capaian yang sudah berfungsi
+    const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
+    
+    console.debug('Capaian API response:', response.data)
+    
+    if (response.data.success) {
+      capaianList.value = response.data.data || []
+      console.debug('Capaian list fetched:', capaianList.value)
+    } else {
+      console.warn('No capaian data returned from API')
+      capaianList.value = []
+    }
   } catch (error) {
     console.error('Error fetching capaian list:', error, { id_fase, id_sub_elemen })
     capaianList.value = []
@@ -555,21 +620,39 @@ const onElemenChange = async () => {
 }
 
 const onSubElemenChange = async () => {
-  selectedCapaian.value = ''
-  capaianList.value = []
+  selectedCapaian.value = '';
+  capaianList.value = [];
   if (selectedSubElemen.value && selectedKelas.value) {
-    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value)
-    const id_fase = kelas ? kelas.id_fase : null
+    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+    const id_fase = getIdFaseFromKelas(kelas?.nama_kelas || '');
     if (id_fase) {
-      await fetchCapaianList(id_fase, selectedSubElemen.value)
+      await fetchCapaianList(id_fase, selectedSubElemen.value);
     } else {
-      console.warn('No id_fase found for selected kelas:', selectedKelas.value)
+      console.warn('Tidak bisa menentukan id_fase dari kelas:', kelas?.nama_kelas);
     }
   }
-}
+};
 
-const onCapaianChange = () => {
+const onCapaianChange = async () => {
   console.debug('Selected capaian:', selectedCapaian.value)
+  
+  // Load assessment results jika semua filter sudah dipilih
+  if (selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value && selectedCapaian.value) {
+    const filters = {
+      id_kelas: selectedKelas.value,
+      id_dimensi: selectedDimensi.value,
+      id_elemen: selectedElemen.value,
+      id_sub_elemen: selectedSubElemen.value,
+      id_capaian: selectedCapaian.value,
+      nama_kelas: getNamaKelas(selectedKelas.value),
+      nama_dimensi: getNamaDimensi(selectedDimensi.value),
+      nama_elemen: getNamaElemen(selectedElemen.value),
+      nama_sub_elemen: getNamaSubElemen(selectedSubElemen.value),
+      nama_capaian: getNamaCapaian(selectedCapaian.value)
+    }
+    
+    await assessmentResultsStore.loadAssessmentResults(filters)
+  }
 }
 
 // Other methods
@@ -652,23 +735,82 @@ const resetFilters = () => {
   siswaList.value = []
 }
 
-const buatAssessment = async () => {
+const saveAssessmentResults = async () => {
   try {
-    loading.value = true
-    const res = await axios.post('/add/assessment', {
+    // Siapkan data untuk disimpan
+    const filters = {
       id_kelas: selectedKelas.value,
       id_dimensi: selectedDimensi.value,
       id_elemen: selectedElemen.value,
       id_sub_elemen: selectedSubElemen.value,
-      id_capaian: selectedCapaian.value
-    })
+      id_capaian: selectedCapaian.value,
+      nama_kelas: getNamaKelas(selectedKelas.value),
+      nama_dimensi: getNamaDimensi(selectedDimensi.value),
+      nama_elemen: getNamaElemen(selectedElemen.value),
+      nama_sub_elemen: getNamaSubElemen(selectedSubElemen.value),
+      nama_capaian: getNamaCapaian(selectedCapaian.value)
+    }
+    
+    const data = {
+      siswaList: siswaList.value,
+      nilaiSiswa: nilaiSiswa.value,
+      filters: filters
+    }
+    
+    // Simpan assessment results
+    const result = await assessmentResultsStore.saveAssessmentResult(data)
+    
+    // Reset nilai form
+    nilaiSiswa.value = {}
+    
+    // Tampilkan pesan sukses
+    alert(`Assessment berhasil disimpan! Session ${assessmentResultsStore.getProgress.current}/${assessmentResultsStore.getProgress.max}`)
+    
+    // Jika sudah mencapai maksimal, tampilkan modus
+    if (!assessmentResultsStore.canAddMore()) {
+      const modus = assessmentResultsStore.getModus
+      alert(`Assessment selesai! Modus: ${modus.nilai} (${modus.count}/${modus.total})`)
+    }
+    
+  } catch (error) {
+    console.error('Error saving assessment results:', error)
+    alert('Gagal menyimpan assessment: ' + (error.message || 'Unknown error'))
+  }
+}
+
+const buatAssessment = async () => {
+  try {
+    loading.value = true
+    
+    // Validasi semua filter harus dipilih
+    if (!selectedKelas.value || !selectedDimensi.value || !selectedElemen.value || !selectedSubElemen.value || !selectedCapaian.value) {
+      alert('Harap pilih semua filter terlebih dahulu')
+      return
+    }
+    
+    // Siapkan data yang sesuai dengan endpoint /add/assessment
+    const assessmentData = {
+      id_capaian: selectedCapaian.value,
+      nama_assessment: `${getNamaKelas(selectedKelas.value)} - ${getNamaDimensi(selectedDimensi.value)} - ${getNamaElemen(selectedElemen.value)} - ${getNamaSubElemen(selectedSubElemen.value)}`,
+      deskripsi: `Assessment untuk ${getNamaKelas(selectedKelas.value)} pada ${getNamaDimensi(selectedDimensi.value)}`,
+      bobot: 1
+    }
+    
+    console.log('Creating assessment with data:', assessmentData)
+    
+    const res = await axios.post('/add/assessment', assessmentData)
+    
     if (res.data.success && res.data.id) {
-      router.push({ name: 'assesment-penilaian', params: { id: res.data.id } })
+      console.log('Assessment created successfully:', res.data)
+      alert('Assessment berhasil dibuat dengan ID: ' + res.data.id)
+      // Reset form setelah berhasil
+      resetFilters()
     } else {
       alert('Gagal membuat assessment: Tidak ada ID yang dikembalikan')
     }
   } catch (err) {
     console.error('Error creating assessment:', err)
+    console.error('Error response:', err.response?.data)
     alert('Gagal membuat assessment: ' + (err.response?.data?.message || err.message || 'Unknown error'))
   } finally {
     loading.value = false
