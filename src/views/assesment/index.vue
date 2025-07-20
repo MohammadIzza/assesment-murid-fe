@@ -93,6 +93,10 @@
         </div>
       </div>
       </div>
+      <!-- Toast notification below filter -->
+      <div v-if="showToast" class="w-full max-w-2xl mx-auto mb-4 text-center">
+        <span class="italic text-gray-700 text-base font-medium">{{ toastMessage }}</span>
+      </div>
       <!-- Loading Indicator -->
       <div v-if="loading" class="flex justify-center my-10">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -276,6 +280,25 @@ const capaianList = ref([])
 const notif = ref('')
 const notifType = ref('success')
 const pengampuMap = ref({})
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastType = ref('success')
+let toastTimeout = null
+
+function showSuccessToast(msg) {
+  toastMessage.value = msg
+  toastType.value = 'success'
+  showToast.value = true
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { showToast.value = false }, 2000)
+}
+function showErrorToast(msg) {
+  toastMessage.value = msg
+  toastType.value = 'error'
+  showToast.value = true
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { showToast.value = false }, 2000)
+}
 
 // Computed properties
 const assessmentList = computed(() => assessmentStore.getAssessmentList)
@@ -716,11 +739,13 @@ const buatAssessmentDanNilai = async () => {
   notif.value = ''
   notifType.value = 'success'
   if (!isAllFilterSelected.value) {
+    showErrorToast('Lengkapi semua filter!')
     notif.value = 'Lengkapi semua filter!'
     notifType.value = 'error'
     return
   }
   if (!siswaList.value.every(siswa => nilaiSiswa.value[siswa.id_siswa])) {
+    showErrorToast('Semua siswa wajib diisi nilainya!')
     notif.value = 'Semua siswa wajib diisi nilainya!'
     notifType.value = 'error'
     return
@@ -737,6 +762,7 @@ const buatAssessmentDanNilai = async () => {
     }
     // Validasi payload
     if (!assessmentData.id_capaian || !assessmentData.nama_assessment || !assessmentData.deskripsi || !assessmentData.bobot) {
+      showErrorToast('Data assessment tidak lengkap!')
       notif.value = 'Data assessment tidak lengkap!'
       notifType.value = 'error'
       loading.value = false
@@ -756,10 +782,12 @@ const buatAssessmentDanNilai = async () => {
         })
       )
     )
-    notif.value = 'Assessment dan nilai siswa berhasil disimpan!'
+    showSuccessToast('Assessment dan nilai siswa berhasil disimpan!')
+    // notif.value = 'Assessment dan nilai siswa berhasil disimpan!'
     notifType.value = 'success'
     resetFilters()
   } catch (err) {
+    showErrorToast('Gagal menyimpan assessment/nilai: ' + (err.response?.data?.message || err.message))
     notif.value = 'Gagal menyimpan assessment/nilai: ' + (err.response?.data?.message || err.message)
     notifType.value = 'error'
   } finally {

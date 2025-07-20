@@ -19,7 +19,7 @@
     </div>
     
     <!-- Profile content when data is available -->
-    <div v-else-if="userProfile" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div v-else-if="userProfile" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white shadow rounded-xl border border-gray-100 overflow-hidden">
         <div class="flex items-center gap-4 px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100">
           <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-200 text-blue-700 text-lg font-bold">
