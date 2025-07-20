@@ -218,51 +218,55 @@
       @save="saveAssessment"
     />
     <!-- Tabel Dinamis Siswa & Penilaian -->
-    <div v-if="siswaList.length > 0" class="mx-4 sm:mx-6 lg:mx-8 bg-white rounded-xl shadow border border-gray-200 p-4 mb-8 mx-auto">
-      <div class="font-semibold text-base mb-4">Daftar Siswa di Kelas Ini</div>
-      <div class="overflow-x-auto rounded-xl">
-        <table class="min-w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-          <thead>
-            <tr>
-              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :rowspan="selectedDimensi ? 3 : 1">Nama</th>
-              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :rowspan="selectedDimensi ? 3 : 1">Kelas</th>
-              <th v-if="selectedDimensi" class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :colspan="selectedElemen ? (selectedSubElemen ? 1 : 2) : 3">
-                DIMENSI<br><span class="font-normal text-xs">{{ getNamaDimensi(selectedDimensi) }}</span>
-              </th>
-            </tr>
-            <tr v-if="selectedElemen">
-              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200" :colspan="selectedSubElemen ? 1 : 2">
-                ELEMEN<br><span class="font-normal text-xs">{{ getNamaElemen(selectedElemen) }}</span>
-              </th>
-            </tr>
-            <tr v-if="selectedSubElemen">
-              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200">
-                SUB ELEMEN<br><span class="font-normal text-xs">{{ getNamaSubElemen(selectedSubElemen) }}</span>
-              </th>
-            </tr>
-            <tr v-if="selectedCapaian" class="bg-gray-50">
-              <th class="px-4 py-3 font-bold text-gray-700 uppercase text-center bg-gray-50 border-b border-gray-200">
-                CAPAIAN<br><span class="font-normal text-xs">{{ getNamaCapaian(selectedCapaian) }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(siswa, idx) in siswaList" :key="siswa.id_siswa" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0']">
-              <td class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">{{ siswa.nama }}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">{{ getNamaKelas(siswa.id_kelas) }}</td>
-              <td v-if="selectedDimensi && selectedElemen && selectedSubElemen" class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">
-                <div class="flex gap-3 justify-center">
-                  <label v-for="opt in ['MB','SB','BSH','SAB']" :key="opt" class="inline-flex items-center gap-1">
-                    <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600" />
-                    <span>{{ opt }}</span>
-                  </label>
-                </div>
-              </td>
-              <td v-if="selectedCapaian" class="px-4 py-2 whitespace-nowrap text-gray-900 text-center">
-                {{ getNamaCapaian(selectedCapaian) }}
-              </td>
-            </tr>
-          </tbody>
+    <div v-if="siswaList.length > 0" class="mx-4 sm:mx-6 lg:mx-8 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8 transition-all duration-300 hover:shadow-xl">
+    <div class="font-semibold text-lg mb-6 flex items-center gap-2 text-gray-800">
+      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      Daftar Siswa di Kelas Ini
+    </div>
+    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+      <table class="min-w-full text-sm border-separate border-spacing-0 rounded-2xl overflow-hidden">
+        <thead class="bg-gradient-to-r from-blue-100 to-blue-50 sticky top-0 z-10">
+          <tr>
+            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Nama</th>
+            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Kelas</th>
+            <th v-if="selectedDimensi" class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200 relative" :style="{ 'min-width': selectedDimensi && (selectedElemen || selectedSubElemen || selectedCapaian) ? '600px' : '200px' }">
+              <div class="flex flex-col items-center">
+                <!-- Dimensi -->
+                <span>DIMENSI</span>
+                <span class="font-normal text-xs text-gray-600">{{ getNamaDimensi(selectedDimensi) }}</span>
+                <!-- Elemen -->
+                <span v-if="selectedElemen" class="mt-2">ELEMEN</span>
+                <span v-if="selectedElemen" class="font-normal text-xs text-gray-600">{{ getNamaElemen(selectedElemen) }}</span>
+                <!-- Sub Elemen -->
+                <span v-if="selectedSubElemen" class="mt-2">SUB ELEMEN</span>
+                <span v-if="selectedSubElemen" class="font-normal text-xs text-gray-600">{{ getNamaSubElemen(selectedSubElemen) }}</span>
+                <!-- Capaian -->
+                <span v-if="selectedCapaian" class="mt-2">CAPAIAN</span>
+                <span v-if="selectedCapaian" class="font-normal text-xs text-gray-600">{{ getNamaCapaian(selectedCapaian) }}</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(siswa, idx) in siswaList" :key="siswa.id_siswa" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'hover:bg-blue-50/50 transition-all duration-200 border-b border-gray-100 last:border-b-0']">
+            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200 relative" style="min-width: 150px;">
+              <span class="inline-flex items-center gap-2">
+                {{ siswa.nama }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 150px;">{{ getNamaKelas(siswa.id_kelas) }}</td>
+                         <td v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
+               <div class="flex gap-4 justify-center">
+                 <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
+                   <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
+                   <span class="text-base font-medium text-gray-800">{{ opt }}</span>
+                 </label>
+               </div>
+             </td>
+          </tr>
+        </tbody>
         </table>
       </div>
     </div>
@@ -376,7 +380,7 @@ const filteredCapaian = computed(() =>
 )
 
 const isAllFilterSelected = computed(() =>
-  selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value
+  selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value && selectedCapaian.value
 )
 
 // Helper functions for fetching names
