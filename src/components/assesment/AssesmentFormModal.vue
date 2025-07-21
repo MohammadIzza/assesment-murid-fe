@@ -39,8 +39,13 @@
                     id="nama_assessment"
                     class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
                     :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                    placeholder="Contoh: Quiz 1, UTS, dsb."
+                    placeholder="Nama akan dibuat otomatis"
+                    :disabled="autoNaming"
                   />
+                  <div class="mt-1 text-xs text-gray-500 flex items-center gap-2">
+                    <input type="checkbox" v-model="autoNaming" id="autoNaming" class="rounded">
+                    <label for="autoNaming">Buat nama otomatis</label>
+                  </div>
                 </div>
                 
                 <!-- Kelas selection -->
@@ -144,22 +149,6 @@
                       {{ capaian.deskripsi }}
                     </option>
                   </select>
-                </div>
-
-                <!-- Kompetensi -->
-                <div class="group col-span-1 md:col-span-2">
-                  <label for="kompetensi" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                    Kompetensi <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    v-model="form.kompetensi"
-                    type="text"
-                    id="kompetensi"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                    placeholder="Masukkan kompetensi yang dinilai"
-                  />
                 </div>
 
                 <!-- Search -->
@@ -298,6 +287,7 @@ import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
+import { useAssesmentStore } from '@/stores/assesment'
 import { useThemeStore } from '@/stores/theme'
 import axios from '@/plugins/axios'
 
@@ -323,6 +313,7 @@ const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
+const assessmentStore = useAssesmentStore()
 
 // Computed properties
 const isDarkMode = computed(() => themeStore.isDarkMode)
@@ -334,16 +325,17 @@ const siswaList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
+const assessmentNumber = ref(1)
+const autoNaming = ref(true)
 
 // Form state
 const form = ref({
-  nama_assessment: props.isEdit && props.selectedAssessment ? props.selectedAssessment.nama_assessment : `Assessment ${new Date().getTime()}`,
+  nama_assessment: '',
   id_kelas: '',
   id_dimensi: '',
   id_elemen: '',
   id_sub_elemen: '',
   id_capaian: '',
-  kompetensi: '',
   nilai: {}
 })
 
@@ -370,10 +362,9 @@ const filteredSubElemenList = computed(() =>
 )
 
 const isFormValid = computed(() => {
-  // Basic form validation for required fields
+  // Basic form validation for required fields - removed kompetensi
   if (!form.value.nama_assessment || !form.value.id_kelas || !form.value.id_dimensi || 
-      !form.value.id_elemen || !form.value.id_sub_elemen || !form.value.id_capaian || 
-      !form.value.kompetensi) {
+      !form.value.id_elemen || !form.value.id_sub_elemen || !form.value.id_capaian) {
     return false
   }
   
@@ -391,9 +382,11 @@ const loadFormData = () => {
       id_elemen: props.selectedAssessment.id_elemen || '',
       id_sub_elemen: props.selectedAssessment.id_sub_elemen || '',
       id_capaian: props.selectedAssessment.id_capaian || '',
-      kompetensi: props.selectedAssessment.kompetensi || '',
       nilai: props.selectedAssessment.nilai || {}
     }
+    
+    // When editing, we use the existing name
+    autoNaming.value = false
     
     // Load dependent data
     if (form.value.id_kelas) {
@@ -444,6 +437,7 @@ const onKelasChange = async () => {
   
   // Fetch siswa list by kelas
   await fetchSiswaByKelas()
+  updateAssessmentName()
 }
 
 const onDimensiChange = async () => {
@@ -462,6 +456,7 @@ const onDimensiChange = async () => {
       console.error('Error loading elemen by dimensi:', error)
     }
   }
+  updateAssessmentName()
 }
 
 const onElemenChange = async () => {
@@ -478,6 +473,7 @@ const onElemenChange = async () => {
       console.error('Error loading sub elemen by elemen:', error)
     }
   }
+  updateAssessmentName()
 }
 
 const onSubElemenChange = async () => {
@@ -507,11 +503,59 @@ const onSubElemenChange = async () => {
       console.warn('Tidak bisa menentukan id_fase dari kelas:', kelas?.nama_kelas)
     }
   }
+  updateAssessmentName()
 }
 
-const onCapaianChange = () => {
-  // Any additional logic when capaian changes
-  console.debug('Selected capaian:', form.value.id_capaian)
+const onCapaianChange = async () => {
+  // When capaian changes, fetch the assessment count for this capaian
+  if (form.value.id_capaian) {
+    try {
+      const response = await axios.get(`/list/assessment?id_capaian=${form.value.id_capaian}`)
+      if (response.data.success) {
+        // Count how many assessments already exist for this capaian
+        const existingAssessments = response.data.data.filter(a => a.id_capaian == form.value.id_capaian)
+        
+        // If editing, don't count the current assessment
+        if (props.isEdit && props.selectedAssessment) {
+          const filteredAssessments = existingAssessments.filter(
+            a => a.id_assessment != props.selectedAssessment.id_assessment
+          )
+          assessmentNumber.value = filteredAssessments.length + 1
+        } else {
+          assessmentNumber.value = existingAssessments.length + 1
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching assessment count:', error)
+      assessmentNumber.value = 1
+    }
+  }
+  updateAssessmentName()
+}
+
+// Update assessment name based on selections
+const updateAssessmentName = () => {
+  if (!autoNaming.value || props.isEdit) return
+  
+  if (form.value.id_capaian) {
+    const capaian = capaianList.value.find(c => c.id_capaian == form.value.id_capaian)
+    const capaianName = capaian ? capaian.deskripsi.substring(0, 40) : ''
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${capaianName}...`
+  } else if (form.value.id_sub_elemen) {
+    const subElemen = subElemenList.value.find(se => se.id_sub_elemen == form.value.id_sub_elemen)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${subElemen?.nama_sub_elemen || ''}`
+  } else if (form.value.id_elemen) {
+    const elemen = elemenList.value.find(e => e.id_elemen == form.value.id_elemen)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${elemen?.nama_elemen || ''}`
+  } else if (form.value.id_dimensi) {
+    const dimensi = dimensiList.value.find(d => d.id_dimensi == form.value.id_dimensi)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${dimensi?.nama_dimensi || ''}`
+  } else if (form.value.id_kelas) {
+    const kelas = kelasList.value.find(k => k.id_kelas == form.value.id_kelas)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${kelas?.nama_kelas || ''}`
+  } else {
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value}`
+  }
 }
 
 // Fetch siswa by kelas
@@ -549,7 +593,7 @@ const submitForm = async () => {
   try {
     isSubmitting.value = true
     
-    // Prepare assessment data
+    // Prepare assessment data - removed kompetensi
     const assessmentData = {
       nama_assessment: form.value.nama_assessment,
       id_kelas: form.value.id_kelas,
@@ -557,7 +601,6 @@ const submitForm = async () => {
       id_elemen: form.value.id_elemen,
       id_sub_elemen: form.value.id_sub_elemen,
       id_capaian: form.value.id_capaian,
-      kompetensi: form.value.kompetensi,
       nilai: form.value.nilai
     }
     
@@ -570,6 +613,13 @@ const submitForm = async () => {
   }
 }
 
+// Watch for changes in autoNaming
+watch(autoNaming, (newValue) => {
+  if (newValue) {
+    updateAssessmentName()
+  }
+})
+
 // Lifecycle hooks
 onMounted(async () => {
   try {
@@ -579,13 +629,13 @@ onMounted(async () => {
       dimensiStore.fetchDimensiList()
     ])
     
-    // Set default assessment name
-    if (!form.value.nama_assessment) {
-      form.value.nama_assessment = `Assessment ${new Date().getTime().toString().slice(-6)}`
-    }
-    
     // If edit mode, load the assessment data
-    loadFormData()
+    if (props.isEdit) {
+      loadFormData()
+    } else {
+      // Set default assessment name
+      updateAssessmentName()
+    }
   } catch (error) {
     console.error('Error loading initial data:', error)
   }
@@ -597,4 +647,17 @@ watch(() => props.selectedAssessment, () => {
     loadFormData()
   }
 })
+
+// Watch for changes in form fields to update assessment name
+watch(() => [
+  form.value.id_kelas,
+  form.value.id_dimensi,
+  form.value.id_elemen,
+  form.value.id_sub_elemen,
+  form.value.id_capaian
+], () => {
+  if (autoNaming.value) {
+    updateAssessmentName()
+  }
+}, { deep: true })
 </script>
