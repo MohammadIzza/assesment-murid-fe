@@ -7,14 +7,14 @@
           <div class="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      </div>
-      <div>
+            </svg>
+          </div>
+          <div>
             <h1 class="text-2xl font-bold text-white mb-2">Assessment</h1>
             <p class="text-blue-100 text-base">Kelola dan buat assessment untuk siswa</p>
           </div>
         </div>
-    </div>
+      </div>
     
       <!-- Filter & Action Section -->
       <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 p-6">
@@ -86,9 +86,18 @@
           <div class="flex gap-2 mt-2 md:mt-0">
           <button 
             @click="resetFilters" 
-              class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
           >
             Reset Filter
+          </button>
+          <button 
+            @click="openCreateModal" 
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Buat Assessment
           </button>
         </div>
       </div>
@@ -122,118 +131,19 @@
     </div>
     
     <!-- Assessment Form Modal -->
-    <assessment-form-modal
+    <AssesmentFormModal
       v-if="showModal"
       :isEdit="isEditMode"
       :selectedAssessment="selectedAssessment"
       @close="closeModal"
       @save="saveAssessment"
     />
-    <!-- Tabel Dinamis Siswa & Penilaian -->
-    <div v-if="siswaList.length > 0" class="mx-4 sm:mx-6 lg:mx-8 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8 transition-all duration-300 hover:shadow-xl">
-    <div class="font-semibold text-lg mb-6 flex items-center gap-2 text-gray-800">
-      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-      Daftar Siswa di Kelas Ini
-    </div>
-    <div class="overflow-x-auto rounded-2xl border border-gray-100">
-      <table class="min-w-full text-sm border-separate border-spacing-0 rounded-2xl overflow-hidden">
-        <thead class="bg-gradient-to-r from-blue-100 to-blue-50 sticky top-0 z-10">
-          <tr>
-            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Nama</th>
-            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Kelas</th>
-            <th v-if="selectedDimensi" class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200 relative" :style="{ 'min-width': selectedDimensi && (selectedElemen || selectedSubElemen || selectedCapaian) ? '600px' : '200px' }">
-              <div class="flex flex-col items-center">
-                <!-- Dimensi -->
-                <span>DIMENSI</span>
-                <span class="font-normal text-xs text-gray-600">{{ getNamaDimensi(selectedDimensi) }}</span>
-                <!-- Elemen -->
-                <span v-if="selectedElemen" class="mt-2">ELEMEN</span>
-                <span v-if="selectedElemen" class="font-normal text-xs text-gray-600">{{ getNamaElemen(selectedElemen) }}</span>
-                <!-- Sub Elemen -->
-                <span v-if="selectedSubElemen" class="mt-2">SUB ELEMEN</span>
-                <span v-if="selectedSubElemen" class="font-normal text-xs text-gray-600">{{ getNamaSubElemen(selectedSubElemen) }}</span>
-                <!-- Capaian -->
-                <span v-if="selectedCapaian" class="mt-2">CAPAIAN</span>
-                <span v-if="selectedCapaian" class="font-normal text-xs text-gray-600">{{ getNamaCapaian(selectedCapaian) }}</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(siswa, idx) in siswaList" :key="siswa.id_siswa" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'hover:bg-blue-50/50 transition-all duration-200 border-b border-gray-100 last:border-b-0']">
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200 relative" style="min-width: 150px;">
-              <span class="inline-flex items-center gap-2">
-                {{ siswa.nama }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 150px;">{{ getNamaKelas(siswa.id_kelas) }}</td>
-            <td v-if="selectedDimensi" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
-              <!-- Radio buttons ketika semua filter dipilih -->
-              <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="flex flex-col gap-2">
-                <div class="flex gap-4 justify-center">
-                  <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
-                    <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
-                    <span class="text-base font-medium text-gray-800">{{ opt }}</span>
-                  </label>
-                </div>
-                
-                <!-- Progress indicator -->
-                <div class="text-xs text-gray-500 mt-2">
-                  Session: {{ assessmentResultsStore.getProgress.current }}/{{ assessmentResultsStore.getProgress.max }}
-                </div>
-                
-                <!-- Modus display jika ada -->
-                <div v-if="assessmentResultsStore.getModus" class="text-xs text-green-600 font-medium">
-                  Modus: {{ assessmentResultsStore.getModus.nilai }} ({{ assessmentResultsStore.getModus.count }}/{{ assessmentResultsStore.getModus.total }})
-                </div>
-              </div>
-              
-              <!-- Informasi filter yang dipilih -->
-              <div v-else class="text-center">
-                <div v-if="!selectedElemen" class="text-s text-gray-400 italic">
-                  Pilih Elemen untuk melanjutkan
-                </div>
-                <div v-else-if="!selectedSubElemen" class="text-s text-gray-400 italic">
-                  Pilih Sub Elemen untuk melanjutkan
-                </div>
-                <div v-else-if="!selectedCapaian" class="text-s text-gray-400 italic">
-                  Pilih Capaian untuk mulai assessment
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-        </table>
-      </div>
-      <!-- Satu tombol untuk create assessment & nilai -->
-      <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="mt-6 flex justify-center">
-        <button 
-          @click="buatAssessmentDanNilai"
-          :disabled="!canSaveAssessment || loading"
-          class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
-        >
-          <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          {{ loading ? 'Menyimpan...' : 'Buat Assessment & Simpan Nilai' }}
-        </button>
-      </div>
-      <!-- Notifikasi -->
-      <div v-if="notif" :class="['mt-4 text-center rounded p-2', notifType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
-        {{ notif }}
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
+import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue';
 import { useAssesmentStore } from '@/stores/assesment'
 import { useAssessmentResultsStore } from '@/stores/assessmentResults'
 import { useKelasStore } from '@/stores/kelas'
@@ -241,7 +151,6 @@ import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
-import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
