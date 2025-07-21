@@ -16,15 +16,15 @@
     </div>
   
     <!-- Filter & Action Section -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
       <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
         <!-- Kelas Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
           <select 
             v-model="selectedKelas" 
             @change="onKelasChange"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
             <option value="">Pilih Kelas</option>
             <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
@@ -35,11 +35,11 @@
         
         <!-- Dimensi Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Dimensi</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
           <select 
             v-model="selectedDimensi"
             @change="onDimensiChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedKelas"
           >
             <option value="">Pilih Dimensi</option>
@@ -51,11 +51,11 @@
         
         <!-- Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Elemen</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
           <select 
             v-model="selectedElemen"
             @change="onElemenChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedDimensi"
           >
             <option value="">Pilih Elemen</option>
@@ -67,11 +67,11 @@
         
         <!-- Sub Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Sub Elemen</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
           <select 
             v-model="selectedSubElemen"
             @change="onSubElemenChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedElemen"
           >
             <option value="">Pilih Sub Elemen</option>
@@ -83,11 +83,11 @@
         
         <!-- Capaian Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Capaian</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
           <select 
             v-model="selectedCapaian"
             @change="onCapaianChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedSubElemen || capaianList.length === 0"
           >
             <option value="">Pilih Capaian</option>
@@ -101,13 +101,13 @@
         <div class="flex gap-2">
           <button 
             @click="resetFilters" 
-            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 w-full"
+            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 w-full"
           >
             Reset
           </button>
           <button 
             @click="openCreateModal" 
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 justify-center w-full"
+            class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 flex items-center gap-2 justify-center w-full"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -119,8 +119,8 @@
     </div>
 
     <!-- Buku Penilaian - Muncul ketika kelas dipilih -->
-    <div v-if="selectedKelas" class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
-      <div class="p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+    <div v-if="selectedKelas" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+      <div class="p-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-800 text-white">
         <h2 class="text-xl font-bold">Buku Penilaian: {{ getNamaKelas(selectedKelas) }}</h2>
         <p class="text-blue-100">{{ filterDescription }}</p>
       </div>
@@ -130,25 +130,26 @@
         <table class="w-full min-w-full">
           <!-- Header -->
           <thead>
-            <tr class="bg-blue-50">
-              <th class="px-6 py-4 border-b-2 border-blue-200 bg-blue-100 sticky left-0 z-10">
+            <tr class="bg-blue-50 dark:bg-gray-700">
+              <th class="px-6 py-4 border-b-2 border-blue-200 dark:border-blue-900 bg-blue-100 dark:bg-gray-800 sticky left-0 z-10">
                 <div class="w-48">
-                  <div class="font-bold text-blue-900">SKL</div>
-                  <div class="font-bold text-blue-900">NO KD</div>
-                  <div class="font-bold text-blue-900">KOMPETENSI</div>
+                  <div class="font-bold text-blue-900 dark:text-blue-200">SKL</div>
+                  <div class="font-bold text-blue-900 dark:text-blue-200">NO KD</div>
+                  <div class="font-bold text-blue-900 dark:text-blue-200">KOMPETENSI</div>
                 </div>
               </th>
               <th 
                 v-for="(siswa, index) in siswaList" 
                 :key="siswa.id_siswa" 
-                class="px-4 py-3 font-medium text-gray-700 border-b-2 border-blue-200 whitespace-nowrap text-center"
+                class="px-4 py-3 font-medium border-b-2 border-blue-200 dark:border-gray-600 whitespace-nowrap text-center dark:text-gray-200"
+                :class="{'text-gray-700': !themeStore.isDarkMode}"
               >
                 <div class="w-20">{{ siswa.nama }}</div>
               </th>
-              <th class="px-4 py-3 font-medium text-gray-700 border-b-2 border-blue-200 whitespace-nowrap text-center bg-blue-100">
+              <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-200 border-b-2 border-blue-200 dark:border-blue-900 whitespace-nowrap text-center bg-blue-100 dark:bg-gray-800">
                 <div class="w-16">RATA-RATA</div>
               </th>
-              <th class="px-4 py-3 font-medium text-gray-700 border-b-2 border-blue-200 whitespace-nowrap text-center bg-blue-100">
+              <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-200 border-b-2 border-blue-200 dark:border-blue-900 whitespace-nowrap text-center bg-blue-100 dark:bg-gray-800">
                 <div class="w-16">STATUS</div>
               </th>
             </tr>
@@ -158,7 +159,7 @@
           <tbody>
             <template v-for="(dimensi, dimIndex) in filteredDimensiList" :key="dimensi.id_dimensi">
               <!-- Dimensi Row -->
-              <tr class="bg-green-500 text-white">
+              <tr class="bg-green-500 dark:bg-green-800 text-white">
                 <td colspan="100%" class="px-6 py-3 font-bold sticky left-0">
                   {{ dimensi.nama_dimensi }}
                 </td>
@@ -167,20 +168,23 @@
               <!-- Elemen & Sub Elemen Rows -->
               <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
                 <!-- Elemen Row (optional) -->
-                <tr class="bg-emerald-100">
-                  <td colspan="100%" class="px-6 py-2 font-medium text-emerald-800 sticky left-0">
+                <tr class="bg-emerald-100 dark:bg-emerald-900/40">
+                  <td colspan="100%" class="px-6 py-2 font-medium text-emerald-800 dark:text-emerald-200 sticky left-0">
                     {{ elemen.nama_elemen }}
                   </td>
                 </tr>
                 
                 <!-- Capaian Rows -->
                 <template v-for="(capaian, capIndex) in getCapaianForElemen(elemen.id_elemen)" :key="capaian.id_capaian">
-                  <tr :class="{'bg-blue-50': capIndex % 2 === 0}">
+                  <tr :class="{
+                    'bg-blue-50 dark:bg-gray-800': capIndex % 2 === 0,
+                    'bg-white dark:bg-gray-900': capIndex % 2 !== 0
+                  }">
                     <!-- Kompetensi -->
-                    <td class="px-6 py-4 border-b border-gray-200 sticky left-0 bg-inherit">
+                    <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky left-0 bg-inherit">
                       <div class="font-medium">
-                        <div class="text-gray-800">{{ capIndex + 1 }}</div>
-                        <div class="text-gray-900">{{ truncateText(capaian.deskripsi, 100) }}</div>
+                        <div class="text-gray-800 dark:text-gray-300">{{ capIndex + 1 }}</div>
+                        <div class="text-gray-900 dark:text-gray-200">{{ truncateText(capaian.deskripsi, 100) }}</div>
                       </div>
                     </td>
                     
@@ -188,7 +192,7 @@
                     <td 
                       v-for="siswa in siswaList" 
                       :key="`${capaian.id_capaian}-${siswa.id_siswa}`"
-                      class="px-2 py-2 border-b border-gray-200 text-center"
+                      class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
                     >
                       <div class="inline-flex items-center justify-center w-10 h-10 rounded-full"
                         :class="getNilaiClass(getNilaiSiswa(capaian.id_capaian, siswa.id_siswa))">
@@ -197,15 +201,17 @@
                     </td>
                     
                     <!-- Rata-rata -->
-                    <td class="px-2 py-2 border-b border-gray-200 text-center font-medium bg-blue-50">
+                    <td class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center font-medium bg-blue-50 dark:bg-gray-800">
                       {{ calculateRataRata(capaian.id_capaian).toFixed(1) }}
                     </td>
                     
                     <!-- Status -->
-                    <td class="px-2 py-2 border-b border-gray-200 text-center font-medium bg-blue-50">
+                    <td class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center font-medium bg-blue-50 dark:bg-gray-800">
                       <span 
-                        :class="{'text-green-600 bg-green-50 border-green-100': calculateRataRata(capaian.id_capaian) >= 3,
-                                'text-orange-600 bg-orange-50 border-orange-100': calculateRataRata(capaian.id_capaian) < 3}"
+                        :class="{
+                          'text-green-600 bg-green-50 border-green-100 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800': calculateRataRata(capaian.id_capaian) >= 3,
+                          'text-orange-600 bg-orange-50 border-orange-100 dark:text-orange-400 dark:bg-orange-900/30 dark:border-orange-800': calculateRataRata(capaian.id_capaian) < 3
+                        }"
                         class="px-2 py-1 rounded-full text-xs border"
                       >
                         {{ calculateRataRata(capaian.id_capaian) >= 3 ? 'Tuntas' : 'Belum Tuntas' }}
@@ -213,15 +219,12 @@
                     </td>
                   </tr>
                 </template>
-                
-                <!-- Sub Elemen Rows (if needed) -->
-                <!-- Similar structure as above -->
               </template>
             </template>
             
             <!-- Empty state -->
             <tr v-if="filteredDimensiList.length === 0">
-              <td colspan="100%" class="px-6 py-10 text-center text-gray-500">
+              <td colspan="100%" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
                 {{ selectedDimensi ? 'Tidak ada data capaian yang tersedia.' : 'Pilih dimensi untuk melihat data capaian.' }}
               </td>
             </tr>
@@ -243,47 +246,47 @@
       <div 
         v-for="assessment in filteredAssessmentList" 
         :key="assessment.id_assessment" 
-        class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-300"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-shadow duration-300"
       >
-        <h3 class="text-lg font-bold text-gray-800 mb-4">{{ assessment.nama_assessment }}</h3>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{{ assessment.nama_assessment }}</h3>
         <div class="space-y-2 mb-6">
           <div class="flex items-start">
-            <span class="text-gray-500 w-24 flex-shrink-0">Kelas:</span>
-            <span class="text-gray-800 font-medium">{{ getNamaKelas(assessment.id_kelas) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Kelas:</span>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaKelas(assessment.id_kelas) }}</span>
           </div>
           <div class="flex items-start">
-            <span class="text-gray-500 w-24 flex-shrink-0">Dimensi:</span>
-            <span class="text-gray-800 font-medium">{{ getNamaDimensi(assessment.id_dimensi) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Dimensi:</span>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaDimensi(assessment.id_dimensi) }}</span>
           </div>
           <div class="flex items-start">
-            <span class="text-gray-500 w-24 flex-shrink-0">Elemen:</span>
-            <span class="text-gray-800 font-medium">{{ getNamaElemen(assessment.id_elemen) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Elemen:</span>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaElemen(assessment.id_elemen) }}</span>
           </div>
           <div class="flex items-start">
-            <span class="text-gray-500 w-24 flex-shrink-0">Sub Elemen:</span>
-            <span class="text-gray-800 font-medium">{{ getNamaSubElemen(assessment.id_sub_elemen) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Sub Elemen:</span>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaSubElemen(assessment.id_sub_elemen) }}</span>
           </div>
           <div class="flex items-start">
-            <span class="text-gray-500 w-24 flex-shrink-0">Capaian:</span>
-            <span class="text-gray-800 font-medium">{{ truncateText(getNamaCapaian(assessment.id_capaian), 100) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Capaian:</span>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ truncateText(getNamaCapaian(assessment.id_capaian), 100) }}</span>
           </div>
         </div>
         <div class="flex space-x-3">
           <router-link
             :to="{ name: 'assesment-detail', query: { id_assessment: assessment.id_assessment } }"
-            class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200"
+            class="px-3 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
           >
             Detail
           </router-link>
           <button
             @click="editAssessment(assessment)"
-            class="px-3 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors duration-200"
+            class="px-3 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors duration-200"
           >
             Ubah
           </button>
           <button
             @click="deleteAssessment(assessment.id_assessment)"
-            class="px-3 py-2 border border-red-500 text-red-500 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors duration-200"
+            class="px-3 py-2 border border-red-500 dark:border-red-400 text-red-500 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
           >
             Hapus
           </button>
@@ -545,27 +548,27 @@ const getNilaiSiswa = (id_capaian, id_siswa) => {
 }
 
 const getNilaiClass = (nilai) => {
-  if (!nilai) return 'bg-gray-100 text-gray-400'
+  if (!nilai) return 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400'
   
   switch (nilai) {
     case '1':
     case 1:
     case 'MB':
-      return 'bg-red-100 text-red-700'
+      return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
     case '2':
     case 2:
     case 'SB':
-      return 'bg-yellow-100 text-yellow-700'
+      return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300'
     case '3':
     case 3:
     case 'BSH':
-      return 'bg-blue-100 text-blue-700'
+      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
     case '4':
     case 4:
     case 'SAB':
-      return 'bg-green-100 text-green-700'
+      return 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
     default:
-      return 'bg-gray-100 text-gray-500'
+      return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
   }
 }
 
