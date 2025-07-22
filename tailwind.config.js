@@ -44,6 +44,31 @@ export default {
       boxShadow: {
         'dark-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
         'dark': '0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.6)',
+      },
+      // Add animation keyframes
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg) scale(1)', opacity: 0.6 },
+          '25%': { transform: 'translateY(-30px) rotate(90deg) scale(1.1)', opacity: 0.8 },
+          '50%': { transform: 'translateY(-60px) rotate(180deg) scale(0.9)', opacity: 0.5 },
+          '75%': { transform: 'translateY(-30px) rotate(270deg) scale(1.05)', opacity: 0.7 }
+        },
+        glow: {
+          '0%, 100%': { textShadow: '0 0 10px rgba(147, 197, 253, 0.5)' },
+          '50%': { textShadow: '0 0 20px rgba(147, 197, 253, 0.8), 0 0 30px rgba(59, 130, 246, 0.6)' }
+        },
+        particleFloat: {
+          '0%': { transform: 'translateY(100vh) translateX(0)', opacity: 0 },
+          '10%': { opacity: 1 },
+          '90%': { opacity: 1 },
+          '100%': { transform: 'translateY(-100px) translateX(50px)', opacity: 0 }
+        }
+      },
+      // Add animations
+      animation: {
+        float: 'float 20s infinite ease-in-out',
+        glow: 'glow 2s ease-in-out infinite alternate',
+        particleFloat: 'particleFloat 15s infinite linear'
       }
     },
   },

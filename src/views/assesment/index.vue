@@ -146,12 +146,6 @@
               >
                 <div class="w-20">{{ siswa.nama }}</div>
               </th>
-              <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-200 border-b-2 border-blue-200 dark:border-blue-900 whitespace-nowrap text-center bg-blue-100 dark:bg-gray-800">
-                <div class="w-16">RATA-RATA</div>
-              </th>
-              <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-200 border-b-2 border-blue-200 dark:border-blue-900 whitespace-nowrap text-center bg-blue-100 dark:bg-gray-800">
-                <div class="w-16">STATUS</div>
-              </th>
             </tr>
           </thead>
           
@@ -198,24 +192,6 @@
                         :class="getNilaiClass(getNilaiSiswa(capaian.id_capaian, siswa.id_siswa))">
                         {{ getNilaiSiswa(capaian.id_capaian, siswa.id_siswa) || '-' }}
                       </div>
-                    </td>
-                    
-                    <!-- Rata-rata -->
-                    <td class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center font-medium bg-blue-50 dark:bg-gray-800">
-                      {{ calculateRataRata(capaian.id_capaian).toFixed(1) }}
-                    </td>
-                    
-                    <!-- Status -->
-                    <td class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center font-medium bg-blue-50 dark:bg-gray-800">
-                      <span 
-                        :class="{
-                          'text-green-600 bg-green-50 border-green-100 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800': calculateRataRata(capaian.id_capaian) >= 3,
-                          'text-orange-600 bg-orange-50 border-orange-100 dark:text-orange-400 dark:bg-orange-900/30 dark:border-orange-800': calculateRataRata(capaian.id_capaian) < 3
-                        }"
-                        class="px-2 py-1 rounded-full text-xs border"
-                      >
-                        {{ calculateRataRata(capaian.id_capaian) >= 3 ? 'Tuntas' : 'Belum Tuntas' }}
-                      </span>
                     </td>
                   </tr>
                 </template>
@@ -573,28 +549,31 @@ const getNilaiClass = (nilai) => {
 }
 
 const calculateRataRata = (id_capaian) => {
-  if (!nilaiSiswa.value[id_capaian]) return 0
+  if (!nilaiSiswa.value[id_capaian]) return 0;
   
-  const nilai = Object.values(nilaiSiswa.value[id_capaian])
-  const validNilai = nilai.filter(n => n !== null && n !== undefined)
+  const nilai = Object.values(nilaiSiswa.value[id_capaian]);
+  // Only consider actual values (not null, undefined, or empty strings)
+  const validNilai = nilai.filter(n => n !== null && n !== undefined && n !== '');
   
-  if (validNilai.length === 0) return 0
+  // If no valid values, return 0
+  if (validNilai.length === 0) return 0;
   
-  // Convert string values to numbers if needed
+  // Convert string values to numbers
   const numericValues = validNilai.map(n => {
     if (typeof n === 'string') {
-      if (n === 'MB') return 1
-      if (n === 'SB') return 2
-      if (n === 'BSH') return 3
-      if (n === 'SAB') return 4
-      return parseFloat(n) || 0
+      if (n === 'MB') return 1;
+      if (n === 'SB') return 2;
+      if (n === 'BSH') return 3;
+      if (n === 'SAB') return 4;
+      return parseFloat(n) || 0;
     }
-    return n || 0
-  })
+    return n || 0;
+  });
   
-  const sum = numericValues.reduce((total, num) => total + num, 0)
-  return sum / numericValues.length
-}
+  // Calculate average
+  const sum = numericValues.reduce((total, num) => total + num, 0);
+  return sum / numericValues.length;
+};
 
 // Fetch data functions
 const fetchKelasList = async () => {
@@ -662,35 +641,66 @@ const fetchSiswaByKelas = async (id_kelas) => {
 }
 
 const fetchNilaiSiswa = async () => {
-  if (!selectedKelas.value) return
+  // Clear existing data first
+  nilaiSiswa.value = {};
+  
+  if (!selectedKelas.value) return;
   
   try {
-    // Fetch all assessments for this kelas
-    const response = await axios.get(`/list/assessment?id_kelas=${selectedKelas.value}`)
+    // Step 1: Fetch all assessments for this kelas
+    const responseAssessments = await axios.get(`/list/assessment?id_kelas=${selectedKelas.value}`);
     
-    if (response.data.success) {
-      const assessments = response.data.data || []
-      const nilaiData = {}
-      
-      // Process assessment data
-      assessments.forEach(assessment => {
-        if (!assessment.nilai) return
-        
-        // Initialize capaian entry if needed
-        if (!nilaiData[assessment.id_capaian]) {
-          nilaiData[assessment.id_capaian] = {}
-        }
-        
-        // Add student scores to the data structure
-        Object.entries(assessment.nilai).forEach(([id_siswa, nilai]) => {
-          nilaiData[assessment.id_capaian][id_siswa] = nilai
-        })
-      })
-      
-      nilaiSiswa.value = nilaiData
+    if (!responseAssessments.data.success) {
+      console.error('Failed to fetch assessments');
+      return;
     }
+    
+    const assessments = responseAssessments.data.data || [];
+    const assessmentIds = assessments.map(a => a.id_assessment);
+    
+    if (assessmentIds.length === 0) {
+      return;
+    }
+    
+    // Step 2: Fetch all nilai (scores) for these assessments
+    const responseNilai = await axios.get(`/list/nilai?id_kelas=${selectedKelas.value}`);
+    
+    if (!responseNilai.data.success) {
+      console.error('Failed to fetch nilai data');
+      return;
+    }
+    
+    const nilaiList = responseNilai.data.data || [];
+    const nilaiData = {};
+    
+    // Step 3: Structure data by capaian and student
+    assessments.forEach(assessment => {
+      // Get the capaian_id for this assessment
+      const id_capaian = assessment.id_capaian;
+      
+      // Initialize capaian entry if needed
+      if (!nilaiData[id_capaian]) {
+        nilaiData[id_capaian] = {};
+      }
+      
+      // Find all scores for this assessment
+      const scoresForAssessment = nilaiList.filter(n => 
+        n.id_assessment === assessment.id_assessment
+      );
+      
+      // Map scores to students
+      scoresForAssessment.forEach(nilai => {
+        if (nilai.nilai !== null && nilai.nilai !== undefined && nilai.nilai !== '') {
+          nilaiData[id_capaian][nilai.id_siswa] = nilai.nilai;
+        }
+      });
+    });
+    
+    nilaiSiswa.value = nilaiData;
+    
   } catch (error) {
-    console.error('Error fetching nilai siswa:', error)
+    console.error('Error fetching nilai siswa:', error);
+    nilaiSiswa.value = {}; // Reset on error
   }
 }
 
@@ -886,6 +896,14 @@ const saveAssessment = async (formData) => {
     loading.value = false
   }
 }
+
+// Add this helper function to check if there are any actual values
+const hasAnyValues = (id_capaian) => {
+  if (!nilaiSiswa.value[id_capaian]) return false;
+  
+  const values = Object.values(nilaiSiswa.value[id_capaian]);
+  return values.some(v => v !== null && v !== undefined && v !== '');
+};
 
 // Watch for changes in filters to update data
 watch(selectedKelas, () => {
