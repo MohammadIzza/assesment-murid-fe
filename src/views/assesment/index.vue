@@ -124,28 +124,27 @@
         <p class="text-blue-100">{{ filterDescription }}</p>
       </div>
       
-      <!-- Tabel Penilaian Baru - Format Sesuai Screenshot -->
+      <!-- Tabel Penilaian dengan Styling yang Ditingkatkan -->
       <div class="overflow-x-auto">
         <table class="w-full min-w-full border-collapse">
           <!-- Header -->
           <thead>
-            <tr class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-12">No</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">SKL</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16">No KD</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kompetensi</th>
+            <tr class="bg-gray-800 text-white border-b border-gray-600">
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">SKL</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">No KD</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">KOMPETENSI</th>
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
-                <th :colspan="7" class="text-center border-l border-gray-200 dark:border-gray-600">
-                  <div class="px-2 py-3 text-xs font-medium text-gray-700 dark:text-gray-200">
+                <th :colspan="7" class="text-center border-l border-gray-700">
+                  <div class="px-2 py-3 text-xs font-semibold">
                     {{ siswa.nama }}
                   </div>
-                  <div class="flex border-t border-gray-200 dark:border-gray-600">
-                    <div v-for="n in 6" :key="n" class="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-300 w-8 text-center border-r last:border-r-0 border-gray-200 dark:border-gray-600">
+                  <div class="flex border-t border-gray-700">
+                    <div v-for="n in 6" :key="n" class="px-2 py-1 text-xs font-semibold w-8 text-center border-r last:border-r-0 border-gray-700">
                       {{ n }}
                     </div>
-                    <div class="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-300 w-8 text-center bg-gray-100 dark:bg-gray-600">
+                    <div class="px-2 py-1 text-xs font-semibold w-12 text-center bg-gray-700">
                       NA
                     </div>
                   </div>
@@ -158,31 +157,42 @@
           <tbody>
             <template v-for="(dimensi, dimIndex) in filteredDimensiList" :key="dimensi.id_dimensi">
               <!-- Dimensi row - spans entire table -->
-              <tr class="bg-blue-50 dark:bg-blue-900/20">
-                <td :colspan="4 + siswaList.length * 7" class="px-4 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300">
+              <tr class="bg-green-700 text-white">
+                <td :colspan="3 + siswaList.length * 7" class="px-4 py-2 text-base font-bold">
                   {{ dimensi.nama_dimensi }}
                 </td>
               </tr>
               
               <!-- For each elemen in this dimensi -->
               <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
+                <!-- Elemen row -->
+                <tr class="bg-gray-100 dark:bg-gray-800">
+                  <!-- Show the SKL letter (A, B) only once per elemen -->
+                  <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-medium text-gray-800 dark:text-gray-300">
+                    {{ String.fromCharCode(65 + dimIndex) }}
+                  </td>
+                  <!-- Colspan over the No KD and Kompetensi -->
+                  <td :colspan="2" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
+                    {{ elemen.nama_elemen }}
+                  </td>
+                  
+                  <!-- Empty cells for student columns -->
+                  <td :colspan="siswaList.length * 7" class="border border-gray-300 dark:border-gray-700"></td>
+                </tr>
+                
                 <!-- Get all capaian for this elemen -->
                 <template v-for="(capaian, capIndex) in getCapaianForElemen(elemen.id_elemen)" :key="capaian.id_capaian">
-                  <tr :class="{'bg-gray-50 dark:bg-gray-800/50': capIndex % 2 === 0}">
-                    <!-- Numbering -->
-                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ String.fromCharCode(65 + dimIndex) }}
-                    </td>
-                    <!-- SKL -->
-                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ elemen.nama_elemen }}
-                    </td>
+                  <tr :class="{'bg-white dark:bg-gray-900': capIndex % 2 === 0, 'bg-gray-50 dark:bg-gray-800/50': capIndex % 2 !== 0}">
+                    <!-- Empty cell for SKL letter since it's already shown in elemen row -->
+                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3"></td>
+                    
                     <!-- No KD -->
-                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300 text-center">
+                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300 text-center">
                       {{ capIndex + 1 }}
                     </td>
+                    
                     <!-- Kompetensi -->
-                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
                       {{ capaian.deskripsi }}
                     </td>
                     
@@ -191,40 +201,46 @@
                       <!-- Assessment values (1-6) -->
                       <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
                           @click="editNilai(capaian, siswa, n)"
-                          class="border w-8 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <div :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
-                             class="m-1 py-1 px-2 text-xs font-medium rounded">
-                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) || '-' }}
+                          class="border border-gray-300 dark:border-gray-700 w-10 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
+                              :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
+                              class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) }}
                         </div>
+                        <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
                       </td>
                       
                       <!-- NA column (modus) -->
-                      <td class="border w-8 bg-gray-50 dark:bg-gray-700 text-center">
-                        <div :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
-                             class="m-1 py-1 px-2 text-xs font-medium rounded">
-                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) || '-' }}
+                      <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-700/80 text-center">
+                        <div v-if="getModusNilai(capaian.id_capaian, siswa.id_siswa)" 
+                              :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
+                              class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) }}
                         </div>
+                        <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
                       </td>
                     </template>
                   </tr>
                 </template>
                 
                 <!-- Add average row for this elemen if there are capaian -->
-                <tr v-if="getCapaianForElemen(elemen.id_elemen).length > 0" class="bg-gray-100 dark:bg-gray-700/50">
-                  <td colspan="4" class="border px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <tr v-if="getCapaianForElemen(elemen.id_elemen).length > 0" class="bg-gray-200 dark:bg-gray-700/70">
+                  <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
                     Rata-Rata Per Komponen SKL
                   </td>
                   
                   <!-- Average for each student -->
                   <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
-                    <td colspan="6" class="border text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <td colspan="6" class="border border-gray-300 dark:border-gray-700 text-center text-sm font-medium text-gray-800 dark:text-gray-300 py-3">
                       {{ calculateAvgForElemenAndSiswa(elemen.id_elemen, siswa.id_siswa).toFixed(1) }}
                     </td>
-                    <td class="border w-8 bg-gray-50 dark:bg-gray-600 text-center">
-                      <div :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
-                           class="m-1 py-1 px-2 text-xs font-medium rounded">
-                        {{ getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa) || '-' }}
+                    <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-600 text-center">
+                      <div v-if="getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa)" 
+                          :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
+                          class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                        {{ getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa) }}
                       </div>
+                      <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
                     </td>
                   </template>
                 </tr>
@@ -233,7 +249,7 @@
             
             <!-- Empty state -->
             <tr v-if="filteredDimensiList.length === 0">
-              <td :colspan="4 + siswaList.length * 7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              <td :colspan="3 + siswaList.length * 7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                 Tidak ada data penilaian yang sesuai dengan filter. Silakan ubah filter atau tambahkan assessment baru.
               </td>
             </tr>
