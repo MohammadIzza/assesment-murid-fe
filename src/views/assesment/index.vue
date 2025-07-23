@@ -314,7 +314,8 @@ const searchQuery = ref('')
 const showModal = ref(false)
 const isEditMode = ref(false)
 const selectedAssessment = ref(null)
-const kelasList = ref([])
+// GANTI: kelasList pakai computed agar reactive ke store
+const kelasList = computed(() => kelasStore.getKelasList)
 const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
@@ -715,7 +716,7 @@ const getCapaianForSubElemen = (id_sub_elemen) => {
 const fetchKelasList = async () => {
   try {
     await kelasStore.fetchKelasList()
-    kelasList.value = kelasStore.getKelasList || []
+    // HAPUS: kelasList.value = kelasStore.getKelasList || []
   } catch (error) {
     console.error('Error fetching kelas list:', error)
   }
