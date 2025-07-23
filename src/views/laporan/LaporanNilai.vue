@@ -423,7 +423,7 @@
         <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
           <button @click="printRapor" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
             </svg>
             Cetak Rapor
           </button>
@@ -480,7 +480,6 @@ const totalMaksimal = ref(0);
 const totalSiswa = ref(0);
 const tingkatKetuntasan = ref('0%');
 
-// Nilai distribution for charts
 const mbPercentage = ref(0);
 const sbPercentage = ref(0);
 const bshPercentage = ref(0);
@@ -661,6 +660,43 @@ const calculateAverageForCapaian = (id_capaian) => {
   return sum / values.length;
 };
 
+const calculateModusForCapaian = (id_capaian) => {
+  if (!selectedSiswa.value || !id_capaian) return 0;
+  
+  // Get all assessments for this capaian
+  const assessmentsForCapaian = assessmentList.value.filter(a => 
+    a.id_capaian == id_capaian && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
+  );
+  
+  if (assessmentsForCapaian.length === 0) return 0;
+  
+  // Extract values and convert to numeric values
+  const values = assessmentsForCapaian.map(a => {
+    const val = a.nilai[selectedSiswa.value.id_siswa];
+    if (typeof val === 'number') return val;
+    if (val === 'MB') return 1;
+    if (val === 'SB') return 2;
+    if (val === 'BSH') return 3;
+    if (val === 'SAB') return 4;
+    return 0;
+  });
+  
+  // Calculate mode (most frequent value)
+  const counts = {};
+  let maxCount = 0;
+  let modus = 0;
+  
+  values.forEach(val => {
+    counts[val] = (counts[val] || 0) + 1;
+    if (counts[val] > maxCount) {
+      maxCount = counts[val];
+      modus = val;
+    }
+  });
+  
+  return modus;
+};
+
 const getSiswaStatus = (siswa) => {
   // Calculate average of all capaian for this student
   const allCapaian = capaianList.value;
@@ -747,8 +783,41 @@ const updateDistributionChart = () => {
 };
 
 // Event handlers
-const selectSiswa = (siswa) => {
+const selectSiswa = async (siswa) => {
   selectedSiswa.value = siswa;
+  
+  // Fetch nilai data specifically for this student
+  try {
+    const nilaiResponse = await axios.get(`/filter/siswa/${siswa.id_siswa}/nilai`);
+    
+    if (nilaiResponse.data.success && nilaiResponse.data.data) {
+      const nilaiData = nilaiResponse.data.data;
+      
+      // Update assessmentList with the student's nilai data
+      assessmentList.value = assessmentList.value.map(assessment => {
+        const nilaiForAssessment = nilaiData.filter(nilai => 
+          nilai.id_assessment === assessment.id_assessment
+        );
+        
+        if (nilaiForAssessment.length > 0) {
+          const nilai = {};
+          nilaiForAssessment.forEach(n => {
+            nilai[n.id_siswa] = n.nilai;
+          });
+          
+          return {
+            ...assessment,
+            nilai: {...(assessment.nilai || {}), ...nilai}
+          };
+        }
+        
+        return assessment;
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching student nilai data:', error);
+  }
+  
   updateDistributionChart();
   prepareCapaianList();
 };
@@ -870,6 +939,41 @@ const fetchAssessmentData = async () => {
     if (response.data.success) {
       assessmentList.value = response.data.data || [];
       totalAssessments.value = assessmentList.value.length;
+      
+      // Fetch nilai data for the selected student if available
+      if (selectedSiswa.value) {
+        try {
+          // Use the endpoint /filter/siswa/{id}/nilai as shown in the endpoint documentation
+          const nilaiResponse = await axios.get(`/filter/siswa/${selectedSiswa.value.id_siswa}/nilai`);
+          
+          if (nilaiResponse.data.success && nilaiResponse.data.data) {
+            // Map the nilai data to the assessment objects
+            const nilaiData = nilaiResponse.data.data;
+            
+            assessmentList.value = assessmentList.value.map(assessment => {
+              const nilaiForAssessment = nilaiData.filter(nilai => 
+                nilai.id_assessment === assessment.id_assessment
+              );
+              
+              if (nilaiForAssessment.length > 0) {
+                const nilai = {};
+                nilaiForAssessment.forEach(n => {
+                  nilai[n.id_siswa] = n.nilai;
+                });
+                
+                return {
+                  ...assessment,
+                  nilai: {...(assessment.nilai || {}), ...nilai}
+                };
+              }
+              
+              return assessment;
+            });
+          }
+        } catch (nilaiError) {
+          console.error('Error fetching nilai data:', nilaiError);
+        }
+      }
       
       // Calculate sudahDinilai and totalMaksimal
       let assessed = 0;
