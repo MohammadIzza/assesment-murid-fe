@@ -130,9 +130,10 @@
           <!-- Header -->
           <thead>
             <tr class="bg-gray-800 text-white border-b border-gray-600">
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">SKL</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">No KD</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">KOMPETENSI</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">Dimensi</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">Elemen</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">SKL</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Kompetensi</th>
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
@@ -141,12 +142,8 @@
                     {{ siswa.nama }}
                   </div>
                   <div class="flex border-t border-gray-700">
-                    <div v-for="n in 6" :key="n" class="px-2 py-1 text-xs font-semibold w-8 text-center border-r last:border-r-0 border-gray-700">
-                      {{ n }}
-                    </div>
-                    <div class="px-2 py-1 text-xs font-semibold w-12 text-center bg-gray-700">
-                      NA
-                    </div>
+                    <div v-for="n in 6" :key="n" class="flex-1 px-1 py-2 text-xs border-r last:border-r-0 border-gray-700">{{ n }}</div>
+                    <div class="flex-1 px-1 py-2 text-xs font-semibold bg-gray-700">M</div>
                   </div>
                 </th>
               </template>
@@ -155,24 +152,26 @@
           
           <!-- Body -->
           <tbody>
+            <!-- For each dimensi -->
             <template v-for="(dimensi, dimIndex) in filteredDimensiList" :key="dimensi.id_dimensi">
-              <!-- Dimensi row - spans entire table -->
-              <tr class="bg-green-700 text-white">
-                <td :colspan="3 + siswaList.length * 7" class="px-4 py-2 text-base font-bold">
+              <!-- Dimensi header row with colored background -->
+              <tr class="bg-green-600 dark:bg-green-800 text-white">
+                <td colspan="100%" class="px-4 py-3 font-semibold">
                   {{ dimensi.nama_dimensi }}
                 </td>
               </tr>
               
               <!-- For each elemen in this dimensi -->
               <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
-                <!-- Elemen row -->
-                <tr class="bg-gray-100 dark:bg-gray-800">
-                  <!-- Show the SKL letter (A, B) only once per elemen -->
-                  <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-medium text-gray-800 dark:text-gray-300">
-                    {{ String.fromCharCode(65 + dimIndex) }}
+                <!-- Elemen Header Row -->
+                <tr class="bg-gray-100 dark:bg-gray-700">
+                  <!-- Elemen identifier (A, B, C, etc.) -->
+                  <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-lg font-bold text-green-700 dark:text-green-300">
+                    {{ String.fromCharCode(65 + elemIndex) }}
                   </td>
-                  <!-- Colspan over the No KD and Kompetensi -->
-                  <td :colspan="2" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
+                  
+                  <!-- Elemen Name -->
+                  <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
                     {{ elemen.nama_elemen }}
                   </td>
                   
@@ -180,54 +179,65 @@
                   <td :colspan="siswaList.length * 7" class="border border-gray-300 dark:border-gray-700"></td>
                 </tr>
                 
-                <!-- Get all capaian for this elemen -->
-                <template v-for="(capaian, capIndex) in getCapaianForElemen(elemen.id_elemen)" :key="capaian.id_capaian">
-                  <tr :class="{'bg-white dark:bg-gray-900': capIndex % 2 === 0, 'bg-gray-50 dark:bg-gray-800/50': capIndex % 2 !== 0}">
-                    <!-- Empty cell for SKL letter since it's already shown in elemen row -->
-                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3"></td>
-                    
-                    <!-- No KD -->
-                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300 text-center">
-                      {{ capIndex + 1 }}
-                    </td>
-                    
-                    <!-- Kompetensi -->
-                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
-                      {{ capaian.deskripsi }}
-                    </td>
-                    
-                    <!-- Student assessment cells -->
-                    <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
-                      <!-- Assessment values (1-6) -->
-                      <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
-                          @click="editNilai(capaian, siswa, n)"
-                          class="border border-gray-300 dark:border-gray-700 w-10 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
-                              :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
-                              class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
-                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) }}
-                        </div>
-                        <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                <!-- Sub-Elemen (SKL) and Capaian (Kompetensi) Rows -->
+                <template v-for="(subElemen, subIndex) in getSubElemenForElemen(elemen.id_elemen)" :key="subElemen.id_sub_elemen">
+                  <!-- For each capaian in this sub-elemen -->
+                  <template v-for="(capaian, capIndex) in getCapaianForSubElemen(subElemen.id_sub_elemen)" :key="capaian.id_capaian">
+                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750">
+                      <!-- Empty cell for elemen identifier column -->
+                      <td class="border border-gray-300 dark:border-gray-700"></td>
+                      
+                      <!-- SKL Number (incrementing counter) -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-300">
+                        {{ subIndex + 1 }}
                       </td>
                       
-                      <!-- NA column (modus) -->
-                      <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-700/80 text-center">
-                        <div v-if="getModusNilai(capaian.id_capaian, siswa.id_siswa)" 
-                              :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
-                              class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
-                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) }}
-                        </div>
-                        <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                      <!-- SKL Name -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
+                        {{ subElemen.nama_sub_elemen }}
                       </td>
-                    </template>
-                  </tr>
+                      
+                      <!-- Kompetensi Description -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
+                        {{ capaian.deskripsi }}
+                      </td>
+                      
+                      <!-- Student assessment cells -->
+                      <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
+                        <!-- Assessment values (1-6) -->
+                        <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
+                            @click="editNilai(capaian, siswa, n)"
+                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30">
+                          <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
+                               :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
+                               class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) }}
+                          </div>
+                          <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                        </td>
+                        
+                        <!-- Modus value -->
+                        <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-600 text-center">
+                          <div v-if="getModusNilai(capaian.id_capaian, siswa.id_siswa)" 
+                               :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
+                               class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) }}
+                          </div>
+                          <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
                 </template>
                 
-                <!-- Add average row for this elemen if there are capaian -->
-                <tr v-if="getCapaianForElemen(elemen.id_elemen).length > 0" class="bg-gray-200 dark:bg-gray-700/70">
+                <!-- Average Row for each Elemen -->
+                <tr class="bg-blue-50 dark:bg-blue-900/20 border-t-2 border-blue-200 dark:border-blue-800">
                   <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
-                    Rata-Rata Per Komponen SKL
+                    Rata-Rata Per Elemen
                   </td>
+                  
+                  <!-- Empty cell for capaian column -->
+                  <td class="border border-gray-300 dark:border-gray-700"></td>
                   
                   <!-- Average for each student -->
                   <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
@@ -236,8 +246,8 @@
                     </td>
                     <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-600 text-center">
                       <div v-if="getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa)" 
-                          :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
-                          class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                           :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
+                           class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
                         {{ getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa) }}
                       </div>
                       <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
@@ -249,7 +259,7 @@
             
             <!-- Empty state -->
             <tr v-if="filteredDimensiList.length === 0">
-              <td :colspan="3 + siswaList.length * 7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              <td colspan="100%" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                 Tidak ada data penilaian yang sesuai dengan filter. Silakan ubah filter atau tambahkan assessment baru.
               </td>
             </tr>
@@ -463,44 +473,35 @@ const getElemenForDimensi = (id_dimensi) => {
 }
 
 const getCapaianForElemen = (id_elemen) => {
-  if (!id_elemen) return []
+  if (!id_elemen || !selectedKelas.value) return [];
   
-  // We need to find all capaian related to this elemen through sub_elemen
-  const relevantSubElems = subElemenList.value.filter(se => se.id_elemen == id_elemen)
+  // Get all sub-elemens for this elemen
+  const relevantSubElems = getSubElemenForElemen(id_elemen);
+  if (relevantSubElems.length === 0) return [];
   
-  if (selectedSubElemen.value) {
-    const filteredSubElems = relevantSubElems.filter(se => se.id_sub_elemen == selectedSubElemen.value)
-    
-    // If no matching sub_elems, return empty
-    if (filteredSubElems.length === 0) return []
-    
-    // Get capaian for these sub_elems
-    let filtered = []
-    
-    filteredSubElems.forEach(se => {
-      const capaianForSubElem = capaianList.value.filter(c => c.id_sub_elemen == se.id_sub_elemen)
-      filtered = [...filtered, ...capaianForSubElem]
-    })
-    
-    if (selectedCapaian.value) {
-      filtered = filtered.filter(c => c.id_capaian == selectedCapaian.value)
-    }
-    
-    return filtered
-  }
+  // Get the fase from the selected kelas
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return [];
   
-  // If no sub_elemen filter, get all capaian for all sub_elemens of this elemen
-  let allCapaian = []
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return [];
+  
+  // Get all capaian for all sub-elemens of this elemen, filtered by fase
+  let allCapaian = [];
   relevantSubElems.forEach(se => {
-    const capaianForSubElem = capaianList.value.filter(c => c.id_sub_elemen == se.id_sub_elemen)
-    allCapaian = [...allCapaian, ...capaianForSubElem]
-  })
+    const capaianForSubElem = capaianList.value.filter(c => 
+      c.id_sub_elemen == se.id_sub_elemen && 
+      c.id_fase == id_fase
+    );
+    allCapaian = [...allCapaian, ...capaianForSubElem];
+  });
   
+  // Additional filter if a specific capaian is selected
   if (selectedCapaian.value) {
-    allCapaian = allCapaian.filter(c => c.id_capaian == selectedCapaian.value)
+    allCapaian = allCapaian.filter(c => c.id_capaian == selectedCapaian.value);
   }
   
-  return allCapaian
+  return allCapaian;
 }
 
 // Functions for new assessment table
@@ -557,10 +558,15 @@ const getElemenModusForSiswa = (id_elemen, id_siswa) => {
   let modus = null;
   
   modeValues.forEach(value => {
-    counts[value] = (counts[value] || 0) + 1;
-    if (counts[value] > maxCount) {
-      maxCount = counts[value];
-      modus = value;
+    // Convert string numeric values to actual numbers
+    const normalizedValue = typeof value === 'string' && !isNaN(Number(value)) 
+      ? Number(value) 
+      : value;
+      
+    counts[normalizedValue] = (counts[normalizedValue] || 0) + 1;
+    if (counts[normalizedValue] > maxCount) {
+      maxCount = counts[normalizedValue];
+      modus = normalizedValue;
     }
   });
   
@@ -649,8 +655,8 @@ const editNilai = (capaian, siswa, assessmentNumber) => {
     selectedAssessment.value = {
       nama_assessment: `Assessment ${assessmentNumber} - ${capaian.deskripsi.substring(0, 30)}...`,
       id_kelas: siswa.id_kelas,
-      id_dimensi: getElementForCapaian(capaian).id_dimensi,
-      id_elemen: getSubElementForCapaian(capaian).id_elemen,
+      id_dimensi: getElemenForCapaian(capaian).id_dimensi, // Changed from getElementForCapaian
+      id_elemen: getSubElemenForCapaian(capaian).id_elemen, // Changed from getSubElementForCapaian
       id_sub_elemen: capaian.id_sub_elemen,
       id_capaian: capaian.id_capaian,
       nilai: {},
@@ -662,18 +668,47 @@ const editNilai = (capaian, siswa, assessmentNumber) => {
   showModal.value = true;
 }
 
-// Helper to get elemen for capaian
-const getElementForCapaian = (capaian) => {
+// Change this function name to match what's used in the template
+const getSubElemenForCapaian = (capaian) => {
+  if (!capaian || capaian.id_sub_elemen === undefined) return {};
+  return subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) || {};
+}
+
+// Also rename this function for consistency
+const getElemenForCapaian = (capaian) => {
+  if (!capaian || capaian.id_sub_elemen === undefined) return {};
+  
   const subElement = subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen);
-  if (!subElement) return {};
+  if (!subElement || !subElement.id_elemen) return {};
   
   const element = elemenList.value.find(e => e.id_elemen == subElement.id_elemen);
   return element || {};
 }
 
-// Helper to get sub_elemen for capaian
-const getSubElementForCapaian = (capaian) => {
-  return subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) || {};
+// Add these functions to support the hierarchy display
+
+// Get Sub Elemen for an Elemen
+const getSubElemenForElemen = (id_elemen) => {
+  if (!id_elemen) return [];
+  return subElemenList.value.filter(se => se.id_elemen == id_elemen);
+}
+
+// Get Capaian for a Sub Elemen, filtered by the current fase
+const getCapaianForSubElemen = (id_sub_elemen) => {
+  if (!id_sub_elemen || !selectedKelas.value) return [];
+  
+  // Get the fase from the selected kelas
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return [];
+  
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return [];
+  
+  // Filter capaian by both sub_elemen and fase
+  return capaianList.value.filter(c => 
+    c.id_sub_elemen == id_sub_elemen && 
+    c.id_fase == id_fase
+  );
 }
 
 // Fetch data functions
@@ -835,25 +870,35 @@ function getIdFaseFromKelas(namaKelas) {
 }
 
 const fetchAllCapaianForKelas = async () => {
-  if (!selectedKelas.value) return
+  if (!selectedKelas.value) return;
   
-  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value)
-  if (!kelas) return
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return;
   
-  const id_fase = getIdFaseFromKelas(kelas.nama_kelas)
-  if (!id_fase) return
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return;
   
   try {
-    // Fetch all capaian for this fase
-    const response = await axios.get(`/list/capaian?id_fase=${id_fase}`)
-    if (response.data.success) {
-      capaianList.value = response.data.data || []
+    // If sub_elemen is selected, fetch capaian for that specific sub_elemen and fase
+    if (selectedSubElemen.value) {
+      const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
+      if (response.data.success) {
+        capaianList.value = response.data.data || [];
+      } else {
+        capaianList.value = [];
+      }
     } else {
-      capaianList.value = []
+      // Fetch all capaian for this fase
+      const response = await axios.get(`/list/capaian?id_fase=${id_fase}`);
+      if (response.data.success) {
+        capaianList.value = response.data.data.filter(c => c.id_fase == id_fase) || [];
+      } else {
+        capaianList.value = [];
+      }
     }
   } catch (error) {
-    console.error('Error fetching capaian list:', error)
-    capaianList.value = []
+    console.error('Error fetching capaian list:', error);
+    capaianList.value = [];
   }
 }
 
@@ -906,14 +951,29 @@ const onElemenChange = () => {
 
 const onSubElemenChange = async () => {
   // Reset capaian
-  selectedCapaian.value = ''
+  selectedCapaian.value = '';
   
   if (selectedSubElemen.value && selectedKelas.value) {
-    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value)
+    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
     if (kelas) {
-      const id_fase = getIdFaseFromKelas(kelas.nama_kelas)
+      const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
       if (id_fase) {
-        await fetchCapaianList(id_fase, selectedSubElemen.value)
+        try {
+          // Fetch capaian filtered by both fase and sub_elemen
+          const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
+          
+          if (response.data.success) {
+            capaianList.value = response.data.data || [];
+          } else {
+            capaianList.value = [];
+            console.warn('No capaian data returned from API');
+          }
+        } catch (error) {
+          console.error('Error fetching capaian list:', error);
+          capaianList.value = [];
+        }
+      } else {
+        capaianList.value = [];
       }
     }
   }
@@ -1027,15 +1087,26 @@ const hasAnyValues = (id_capaian) => {
   return values.some(v => v !== null && v !== undefined && v !== '');
 };
 
-// Watch for changes in filters to update data
-watch(selectedKelas, () => {
-  if (selectedKelas.value) {
-    onKelasChange()
-  }
-})
-
-// On component mount
+// Initialize data on component mount
 onMounted(async () => {
-  await fetchData()
-})
+  await fetchData();
+});
+
+// Add to the script section with other helper functions
+const getElemenLetter = (index) => {
+  return String.fromCharCode(65 + index); // A, B, C, ...
+}
+
+// Update or add to your script section
+const getSiswaStatus = (avgValue) => {
+  if (avgValue >= 3) return "Tuntas";
+  return "Belum Tuntas";
+}
+
+const getSiswaStatusClass = (avgValue) => {
+  if (avgValue >= 3) {
+    return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded-lg text-xs font-medium";
+  }
+  return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-lg text-xs font-medium";
+}
 </script>
