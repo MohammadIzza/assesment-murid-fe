@@ -3,11 +3,6 @@
     <!-- Header Section -->
     <div class="bg-blue-700 px-8 py-6 rounded-xl mb-8">
       <div class="flex items-center gap-4">
-        <div class="p-3 bg-blue-600 rounded-xl">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        </div>
         <div>
           <h1 class="text-2xl font-bold text-white mb-2">Assessment</h1>
           <p class="text-blue-100 text-base">Kelola dan buat assessment untuk siswa</p>
@@ -40,7 +35,6 @@
             v-model="selectedDimensi"
             @change="onDimensiChange" 
             class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-            :disabled="!selectedKelas"
           >
             <option value="">Pilih Dimensi</option>
             <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
@@ -55,8 +49,8 @@
           <select 
             v-model="selectedElemen"
             @change="onElemenChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedDimensi"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
             <option value="">Pilih Elemen</option>
             <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
@@ -71,8 +65,8 @@
           <select 
             v-model="selectedSubElemen"
             @change="onSubElemenChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
             :disabled="!selectedElemen"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
             <option value="">Pilih Sub Elemen</option>
             <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
@@ -87,8 +81,8 @@
           <select 
             v-model="selectedCapaian"
             @change="onCapaianChange" 
+            :disabled="!selectedSubElemen"
             class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-            :disabled="!selectedSubElemen || capaianList.length === 0"
           >
             <option value="">Pilih Capaian</option>
             <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
@@ -100,14 +94,8 @@
         <!-- Action Buttons -->
         <div class="flex gap-2">
           <button 
-            @click="resetFilters" 
-            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 w-full"
-          >
-            Reset
-          </button>
-          <button 
-            @click="openCreateModal" 
-            class="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 flex items-center gap-2 justify-center w-full"
+            @click="openCreateModal"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -118,6 +106,17 @@
       </div>
     </div>
 
+    <!-- Message when no class is selected -->
+    <div v-if="!selectedKelas" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-10 text-center">
+      <div class="text-gray-400 mb-4">
+        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihlah Kelas terlebih dahulu!</h3>
+      <p class="text-gray-500 dark:text-gray-400">Anda harus memilih kelas untuk melihat dan mengelola penilaian siswa.</p>
+    </div>
+
     <!-- Buku Penilaian - Muncul ketika kelas dipilih -->
     <div v-if="selectedKelas" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
       <div class="p-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-800 text-white">
@@ -125,83 +124,117 @@
         <p class="text-blue-100">{{ filterDescription }}</p>
       </div>
       
-      <!-- Tabel Penilaian -->
+      <!-- Tabel Penilaian Baru - Format Sesuai Screenshot -->
       <div class="overflow-x-auto">
-        <table class="w-full min-w-full">
+        <table class="w-full min-w-full border-collapse">
           <!-- Header -->
           <thead>
-            <tr class="bg-blue-50 dark:bg-gray-700">
-              <th class="px-6 py-4 border-b-2 border-blue-200 dark:border-blue-900 bg-blue-100 dark:bg-gray-800 sticky left-0 z-10">
-                <div class="w-48">
-                  <div class="font-bold text-blue-900 dark:text-blue-200">SKL</div>
-                  <div class="font-bold text-blue-900 dark:text-blue-200">NO KD</div>
-                  <div class="font-bold text-blue-900 dark:text-blue-200">KOMPETENSI</div>
-                </div>
-              </th>
-              <th 
-                v-for="(siswa, index) in siswaList" 
-                :key="siswa.id_siswa" 
-                class="px-4 py-3 font-medium border-b-2 border-blue-200 dark:border-gray-600 whitespace-nowrap text-center dark:text-gray-200"
-                :class="{'text-gray-700': !themeStore.isDarkMode}"
-              >
-                <div class="w-20">{{ siswa.nama }}</div>
-              </th>
+            <tr class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-12">No</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">SKL</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16">No KD</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kompetensi</th>
+              
+              <!-- Student headers - Dynamic based on loaded students -->
+              <template v-for="siswa in siswaList" :key="siswa.id_siswa">
+                <th :colspan="7" class="text-center border-l border-gray-200 dark:border-gray-600">
+                  <div class="px-2 py-3 text-xs font-medium text-gray-700 dark:text-gray-200">
+                    {{ siswa.nama }}
+                  </div>
+                  <div class="flex border-t border-gray-200 dark:border-gray-600">
+                    <div v-for="n in 6" :key="n" class="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-300 w-8 text-center border-r last:border-r-0 border-gray-200 dark:border-gray-600">
+                      {{ n }}
+                    </div>
+                    <div class="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-300 w-8 text-center bg-gray-100 dark:bg-gray-600">
+                      NA
+                    </div>
+                  </div>
+                </th>
+              </template>
             </tr>
           </thead>
           
           <!-- Body -->
           <tbody>
             <template v-for="(dimensi, dimIndex) in filteredDimensiList" :key="dimensi.id_dimensi">
-              <!-- Dimensi Row -->
-              <tr class="bg-green-500 dark:bg-green-800 text-white">
-                <td colspan="100%" class="px-6 py-3 font-bold sticky left-0">
+              <!-- Dimensi row - spans entire table -->
+              <tr class="bg-blue-50 dark:bg-blue-900/20">
+                <td :colspan="4 + siswaList.length * 7" class="px-4 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300">
                   {{ dimensi.nama_dimensi }}
                 </td>
               </tr>
               
-              <!-- Elemen & Sub Elemen Rows -->
+              <!-- For each elemen in this dimensi -->
               <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
-                <!-- Elemen Row (optional) -->
-                <tr class="bg-emerald-100 dark:bg-emerald-900/40">
-                  <td colspan="100%" class="px-6 py-2 font-medium text-emerald-800 dark:text-emerald-200 sticky left-0">
-                    {{ elemen.nama_elemen }}
-                  </td>
-                </tr>
-                
-                <!-- Capaian Rows -->
+                <!-- Get all capaian for this elemen -->
                 <template v-for="(capaian, capIndex) in getCapaianForElemen(elemen.id_elemen)" :key="capaian.id_capaian">
-                  <tr :class="{
-                    'bg-blue-50 dark:bg-gray-800': capIndex % 2 === 0,
-                    'bg-white dark:bg-gray-900': capIndex % 2 !== 0
-                  }">
+                  <tr :class="{'bg-gray-50 dark:bg-gray-800/50': capIndex % 2 === 0}">
+                    <!-- Numbering -->
+                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                      {{ String.fromCharCode(65 + dimIndex) }}
+                    </td>
+                    <!-- SKL -->
+                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                      {{ elemen.nama_elemen }}
+                    </td>
+                    <!-- No KD -->
+                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300 text-center">
+                      {{ capIndex + 1 }}
+                    </td>
                     <!-- Kompetensi -->
-                    <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky left-0 bg-inherit">
-                      <div class="font-medium">
-                        <div class="text-gray-800 dark:text-gray-300">{{ capIndex + 1 }}</div>
-                        <div class="text-gray-900 dark:text-gray-200">{{ truncateText(capaian.deskripsi, 100) }}</div>
-                      </div>
+                    <td class="border px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                      {{ capaian.deskripsi }}
                     </td>
                     
-                    <!-- Nilai per Siswa -->
-                    <td 
-                      v-for="siswa in siswaList" 
-                      :key="`${capaian.id_capaian}-${siswa.id_siswa}`"
-                      class="px-2 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                    >
-                      <div class="inline-flex items-center justify-center w-10 h-10 rounded-full"
-                        :class="getNilaiClass(getNilaiSiswa(capaian.id_capaian, siswa.id_siswa))">
-                        {{ getNilaiSiswa(capaian.id_capaian, siswa.id_siswa) || '-' }}
-                      </div>
-                    </td>
+                    <!-- Student assessment cells -->
+                    <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
+                      <!-- Assessment values (1-6) -->
+                      <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
+                          @click="editNilai(capaian, siswa, n)"
+                          class="border w-8 text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <div :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
+                             class="m-1 py-1 px-2 text-xs font-medium rounded">
+                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) || '-' }}
+                        </div>
+                      </td>
+                      
+                      <!-- NA column (modus) -->
+                      <td class="border w-8 bg-gray-50 dark:bg-gray-700 text-center">
+                        <div :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
+                             class="m-1 py-1 px-2 text-xs font-medium rounded">
+                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) || '-' }}
+                        </div>
+                      </td>
+                    </template>
                   </tr>
                 </template>
+                
+                <!-- Add average row for this elemen if there are capaian -->
+                <tr v-if="getCapaianForElemen(elemen.id_elemen).length > 0" class="bg-gray-100 dark:bg-gray-700/50">
+                  <td colspan="4" class="border px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Rata-Rata Per Komponen SKL
+                  </td>
+                  
+                  <!-- Average for each student -->
+                  <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
+                    <td colspan="6" class="border text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ calculateAvgForElemenAndSiswa(elemen.id_elemen, siswa.id_siswa).toFixed(1) }}
+                    </td>
+                    <td class="border w-8 bg-gray-50 dark:bg-gray-600 text-center">
+                      <div :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
+                           class="m-1 py-1 px-2 text-xs font-medium rounded">
+                        {{ getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa) || '-' }}
+                      </div>
+                    </td>
+                  </template>
+                </tr>
               </template>
             </template>
             
             <!-- Empty state -->
             <tr v-if="filteredDimensiList.length === 0">
-              <td colspan="100%" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
-                {{ selectedDimensi ? 'Tidak ada data capaian yang tersedia.' : 'Pilih dimensi untuk melihat data capaian.' }}
+              <td :colspan="4 + siswaList.length * 7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                Tidak ada data penilaian yang sesuai dengan filter. Silakan ubah filter atau tambahkan assessment baru.
               </td>
             </tr>
           </tbody>
@@ -215,79 +248,6 @@
             class="italic text-base font-medium">
         {{ toastMessage }}
       </span>
-    </div>
-
-    <!-- Assessment List Section (keep it for reference) -->
-    <div v-if="!selectedKelas && filteredAssessmentList.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div 
-        v-for="assessment in filteredAssessmentList" 
-        :key="assessment.id_assessment" 
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-shadow duration-300"
-      >
-        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{{ assessment.nama_assessment }}</h3>
-        <div class="space-y-2 mb-6">
-          <div class="flex items-start">
-            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Kelas:</span>
-            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaKelas(assessment.id_kelas) }}</span>
-          </div>
-          <div class="flex items-start">
-            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Dimensi:</span>
-            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaDimensi(assessment.id_dimensi) }}</span>
-          </div>
-          <div class="flex items-start">
-            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Elemen:</span>
-            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaElemen(assessment.id_elemen) }}</span>
-          </div>
-          <div class="flex items-start">
-            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Sub Elemen:</span>
-            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ getNamaSubElemen(assessment.id_sub_elemen) }}</span>
-          </div>
-          <div class="flex items-start">
-            <span class="text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">Capaian:</span>
-            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ truncateText(getNamaCapaian(assessment.id_capaian), 100) }}</span>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <router-link
-            :to="{ name: 'assesment-detail', query: { id_assessment: assessment.id_assessment } }"
-            class="px-3 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
-          >
-            Detail
-          </router-link>
-          <button
-            @click="editAssessment(assessment)"
-            class="px-3 py-2 bg-amber-500 dark:bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors duration-200"
-          >
-            Ubah
-          </button>
-          <button
-            @click="deleteAssessment(assessment.id_assessment)"
-            class="px-3 py-2 border border-red-500 dark:border-red-400 text-red-500 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
-          >
-            Hapus
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- No results -->
-    <div v-if="!selectedKelas && !loading && filteredAssessmentList.length === 0" class="text-center py-10">
-      <div class="text-gray-400 mb-4">
-        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      </div>
-      <h3 class="text-lg font-medium text-gray-700 mb-1">Belum ada assessment</h3>
-      <p class="text-gray-500 mb-6">Silakan buat assessment baru untuk mulai menilai siswa.</p>
-      <button 
-        @click="openCreateModal" 
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 inline-flex items-center gap-2"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Buat Assessment
-      </button>
     </div>
 
     <!-- Keep the modal component -->
@@ -339,6 +299,16 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const toastType = ref('success')
 let toastTimeout = null
+
+// New data structure for storing assessment values
+const assessmentValues = ref({}) // {id_capaian: {id_siswa: {assessmentNumber: nilai}}}
+
+// Track current editing assessment
+const currentEditingAssessment = ref({
+  capaian: null,
+  siswa: null,
+  assessmentNumber: null
+})
 
 // Filter selections
 const selectedKelas = ref('')
@@ -517,10 +487,98 @@ const getCapaianForElemen = (id_elemen) => {
   return allCapaian
 }
 
-const getNilaiSiswa = (id_capaian, id_siswa) => {
-  // Check if we have assessment data for this combination
-  if (!nilaiSiswa.value[id_capaian]) return null
-  return nilaiSiswa.value[id_capaian][id_siswa] || null
+// Functions for new assessment table
+const getNilaiForAssessment = (id_capaian, id_siswa, assessmentNumber) => {
+  if (!assessmentValues.value[id_capaian] || 
+      !assessmentValues.value[id_capaian][id_siswa] ||
+      !assessmentValues.value[id_capaian][id_siswa][assessmentNumber]) {
+    return null;
+  }
+  return assessmentValues.value[id_capaian][id_siswa][assessmentNumber];
+}
+
+const getModusNilai = (id_capaian, id_siswa) => {
+  if (!assessmentValues.value[id_capaian] || !assessmentValues.value[id_capaian][id_siswa]) {
+    return null;
+  }
+  
+  // Get all values for this capaian and student
+  const values = Object.values(assessmentValues.value[id_capaian][id_siswa]).filter(Boolean);
+  
+  if (values.length === 0) return null;
+  
+  // Calculate mode (most frequent value)
+  const counts = {};
+  let maxCount = 0;
+  let modus = null;
+  
+  values.forEach(value => {
+    counts[value] = (counts[value] || 0) + 1;
+    if (counts[value] > maxCount) {
+      maxCount = counts[value];
+      modus = value;
+    }
+  });
+  
+  return modus;
+}
+
+const getElemenModusForSiswa = (id_elemen, id_siswa) => {
+  // Get all capaian for this elemen
+  const capaians = getCapaianForElemen(id_elemen);
+  if (capaians.length === 0) return null;
+  
+  // Get mode values for each capaian
+  const modeValues = capaians
+    .map(capaian => getModusNilai(capaian.id_capaian, id_siswa))
+    .filter(Boolean);
+  
+  if (modeValues.length === 0) return null;
+  
+  // Calculate mode of mode values
+  const counts = {};
+  let maxCount = 0;
+  let modus = null;
+  
+  modeValues.forEach(value => {
+    counts[value] = (counts[value] || 0) + 1;
+    if (counts[value] > maxCount) {
+      maxCount = counts[value];
+      modus = value;
+    }
+  });
+  
+  return modus;
+}
+
+const calculateAvgForElemenAndSiswa = (id_elemen, id_siswa) => {
+  const capaians = getCapaianForElemen(id_elemen);
+  if (capaians.length === 0) return 0;
+  
+  let total = 0;
+  let count = 0;
+  
+  capaians.forEach(capaian => {
+    const modeValue = getModusNilai(capaian.id_capaian, id_siswa);
+    if (modeValue) {
+      let numericValue = 0;
+      
+      if (typeof modeValue === 'string') {
+        if (modeValue === 'MB') numericValue = 1;
+        else if (modeValue === 'SB') numericValue = 2;
+        else if (modeValue === 'BSH') numericValue = 3;
+        else if (modeValue === 'SAB') numericValue = 4;
+        else numericValue = parseFloat(modeValue) || 0;
+      } else {
+        numericValue = modeValue || 0;
+      }
+      
+      total += numericValue;
+      count++;
+    }
+  });
+  
+  return count > 0 ? total / count : 0;
 }
 
 const getNilaiClass = (nilai) => {
@@ -548,32 +606,59 @@ const getNilaiClass = (nilai) => {
   }
 }
 
-const calculateRataRata = (id_capaian) => {
-  if (!nilaiSiswa.value[id_capaian]) return 0;
+// Edit assessment value function
+const editNilai = (capaian, siswa, assessmentNumber) => {
+  currentEditingAssessment.value = {
+    capaian,
+    siswa,
+    assessmentNumber
+  };
   
-  const nilai = Object.values(nilaiSiswa.value[id_capaian]);
-  // Only consider actual values (not null, undefined, or empty strings)
-  const validNilai = nilai.filter(n => n !== null && n !== undefined && n !== '');
+  // Find existing assessment for this combination
+  const existingAssessment = assessmentStore.getAssessmentList.find(a => 
+    a.id_capaian == capaian.id_capaian && 
+    a.id_kelas == siswa.id_kelas &&
+    a.assessmentNumber == assessmentNumber
+  );
   
-  // If no valid values, return 0
-  if (validNilai.length === 0) return 0;
+  if (existingAssessment) {
+    // Edit existing assessment
+    selectedAssessment.value = { 
+      ...existingAssessment,
+      nilai: { ...existingAssessment.nilai } // Clone to avoid reference issues
+    };
+    isEditMode.value = true;
+  } else {
+    // Create new assessment
+    selectedAssessment.value = {
+      nama_assessment: `Assessment ${assessmentNumber} - ${capaian.deskripsi.substring(0, 30)}...`,
+      id_kelas: siswa.id_kelas,
+      id_dimensi: getElementForCapaian(capaian).id_dimensi,
+      id_elemen: getSubElementForCapaian(capaian).id_elemen,
+      id_sub_elemen: capaian.id_sub_elemen,
+      id_capaian: capaian.id_capaian,
+      nilai: {},
+      assessmentNumber
+    };
+    isEditMode.value = false;
+  }
   
-  // Convert string values to numbers
-  const numericValues = validNilai.map(n => {
-    if (typeof n === 'string') {
-      if (n === 'MB') return 1;
-      if (n === 'SB') return 2;
-      if (n === 'BSH') return 3;
-      if (n === 'SAB') return 4;
-      return parseFloat(n) || 0;
-    }
-    return n || 0;
-  });
+  showModal.value = true;
+}
+
+// Helper to get elemen for capaian
+const getElementForCapaian = (capaian) => {
+  const subElement = subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen);
+  if (!subElement) return {};
   
-  // Calculate average
-  const sum = numericValues.reduce((total, num) => total + num, 0);
-  return sum / numericValues.length;
-};
+  const element = elemenList.value.find(e => e.id_elemen == subElement.id_elemen);
+  return element || {};
+}
+
+// Helper to get sub_elemen for capaian
+const getSubElementForCapaian = (capaian) => {
+  return subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) || {};
+}
 
 // Fetch data functions
 const fetchKelasList = async () => {
@@ -643,6 +728,7 @@ const fetchSiswaByKelas = async (id_kelas) => {
 const fetchNilaiSiswa = async () => {
   // Clear existing data first
   nilaiSiswa.value = {};
+  assessmentValues.value = {};
   
   if (!selectedKelas.value) return;
   
@@ -671,36 +757,45 @@ const fetchNilaiSiswa = async () => {
     }
     
     const nilaiList = responseNilai.data.data || [];
-    const nilaiData = {};
     
-    // Step 3: Structure data by capaian and student
+    // Step 3: Organize data by capaian, student, and assessment number
     assessments.forEach(assessment => {
-      // Get the capaian_id for this assessment
       const id_capaian = assessment.id_capaian;
+      const assessmentNumber = assessment.assessmentNumber || 1; // Default to 1 if not specified
       
-      // Initialize capaian entry if needed
-      if (!nilaiData[id_capaian]) {
-        nilaiData[id_capaian] = {};
+      // Initialize assessment values structure
+      if (!assessmentValues.value[id_capaian]) {
+        assessmentValues.value[id_capaian] = {};
       }
       
-      // Find all scores for this assessment
-      const scoresForAssessment = nilaiList.filter(n => 
-        n.id_assessment === assessment.id_assessment
-      );
+      // Find scores for this assessment
+      const scoresForAssessment = nilaiList.filter(n => n.id_assessment === assessment.id_assessment);
       
-      // Map scores to students
+      // Map scores to students and assessment numbers
       scoresForAssessment.forEach(nilai => {
         if (nilai.nilai !== null && nilai.nilai !== undefined && nilai.nilai !== '') {
-          nilaiData[id_capaian][nilai.id_siswa] = nilai.nilai;
+          if (!assessmentValues.value[id_capaian][nilai.id_siswa]) {
+            assessmentValues.value[id_capaian][nilai.id_siswa] = {};
+          }
+          assessmentValues.value[id_capaian][nilai.id_siswa][assessmentNumber] = nilai.nilai;
         }
       });
     });
     
-    nilaiSiswa.value = nilaiData;
+    // Also maintain the existing nilaiSiswa structure for backward compatibility
+    Object.keys(assessmentValues.value).forEach(id_capaian => {
+      nilaiSiswa.value[id_capaian] = {};
+      
+      Object.keys(assessmentValues.value[id_capaian]).forEach(id_siswa => {
+        // Use the mode value as the representative value
+        nilaiSiswa.value[id_capaian][id_siswa] = getModusNilai(id_capaian, id_siswa);
+      });
+    });
     
   } catch (error) {
     console.error('Error fetching nilai siswa:', error);
     nilaiSiswa.value = {}; // Reset on error
+    assessmentValues.value = {};
   }
 }
 
@@ -850,6 +945,11 @@ const openCreateModal = () => {
 
 const closeModal = () => {
   showModal.value = false
+  currentEditingAssessment.value = {
+    capaian: null,
+    siswa: null,
+    assessmentNumber: null
+  }
 }
 
 const editAssessment = (assessment) => {
@@ -876,6 +976,12 @@ const deleteAssessment = async (id) => {
 const saveAssessment = async (formData) => {
   try {
     loading.value = true
+    
+    // If we're editing a specific cell, update the assessmentNumber
+    if (currentEditingAssessment.value.capaian) {
+      formData.assessmentNumber = currentEditingAssessment.value.assessmentNumber;
+    }
+    
     if (isEditMode.value) {
       await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
       showSuccessToast('Assessment berhasil diperbarui')
