@@ -1,6 +1,7 @@
 <!-- filepath: g:\KERJAAN\Om Nusa\assesment-murid-fe\src\views\laporan\LaporanNilai.vue -->
 <template>
-  <div class="pb-20">
+    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
     <div class="bg-blue-700 dark:bg-blue-900 px-8 py-6 rounded-xl mb-8">
       <div class="flex items-center gap-4">
@@ -429,6 +430,7 @@
           </button>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
