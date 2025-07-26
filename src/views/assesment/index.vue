@@ -509,11 +509,12 @@ const getCapaianForElemen = (id_elemen) => {
 
 // Functions for new assessment table
 const getNilaiForAssessment = (id_capaian, id_siswa, assessmentNumber) => {
-  if (!assessmentValues.value[id_capaian] || 
+  if (!assessmentValues.value[id_capaian] ||
       !assessmentValues.value[id_capaian][id_siswa] ||
       !assessmentValues.value[id_capaian][id_siswa][assessmentNumber]) {
     return null;
   }
+  
   return assessmentValues.value[id_capaian][id_siswa][assessmentNumber];
 }
 
@@ -527,20 +528,45 @@ const getModusNilai = (id_capaian, id_siswa) => {
   
   if (values.length === 0) return null;
   
+  // Convert values to numeric for proper comparison
+  const numericValues = values.map(val => {
+    if (typeof val === 'number') return val;
+    if (val === 'MB') return 1;
+    if (val === 'SB') return 2;
+    if (val === 'BSH') return 3;
+    if (val === 'SAB') return 4;
+    if (typeof val === 'string' && !isNaN(Number(val))) {
+      return Number(val);
+    }
+    return 0;
+  });
+  
   // Calculate mode (most frequent value)
   const counts = {};
   let maxCount = 0;
-  let modus = null;
   
-  values.forEach(value => {
+  numericValues.forEach(value => {
     counts[value] = (counts[value] || 0) + 1;
     if (counts[value] > maxCount) {
       maxCount = counts[value];
-      modus = value;
     }
   });
   
-  return modus;
+  // Find all values with the maximum count
+  const modesWithMaxCount = Object.keys(counts)
+    .filter(key => counts[key] === maxCount)
+    .map(key => Number(key));
+  
+  // If there are multiple modes with the same count, take the highest value
+  const finalModus = Math.max(...modesWithMaxCount);
+  
+  // Convert back to original format
+  if (finalModus === 1) return 'MB';
+  if (finalModus === 2) return 'SB';
+  if (finalModus === 3) return 'BSH';
+  if (finalModus === 4) return 'SAB';
+  
+  return finalModus;
 }
 
 const getElemenModusForSiswa = (id_elemen, id_siswa) => {
@@ -639,35 +665,21 @@ const editNilai = (capaian, siswa, assessmentNumber) => {
     assessmentNumber
   };
   
-  // Find existing assessment for this combination
-  const existingAssessment = assessmentStore.getAssessmentList.find(a => 
-    a.id_capaian == capaian.id_capaian && 
-    a.id_kelas == siswa.id_kelas &&
-    a.assessmentNumber == assessmentNumber
-  );
+  // Create new assessment for this specific cell
+  selectedAssessment.value = {
+    nama_assessment: `Assessment ${assessmentNumber} - ${capaian.deskripsi.substring(0, 30)}...`,
+    id_kelas: selectedKelas.value,
+    id_dimensi: getElemenForCapaian(capaian).id_dimensi,
+    id_elemen: getSubElemenForCapaian(capaian).id_elemen,
+    id_sub_elemen: capaian.id_sub_elemen,
+    id_capaian: capaian.id_capaian,
+    nilai: {
+      [siswa.id_siswa]: getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, assessmentNumber) || ''
+    },
+    assessmentNumber
+  };
   
-  if (existingAssessment) {
-    // Edit existing assessment
-    selectedAssessment.value = { 
-      ...existingAssessment,
-      nilai: { ...existingAssessment.nilai } // Clone to avoid reference issues
-    };
-    isEditMode.value = true;
-  } else {
-    // Create new assessment
-    selectedAssessment.value = {
-      nama_assessment: `Assessment ${assessmentNumber} - ${capaian.deskripsi.substring(0, 30)}...`,
-      id_kelas: siswa.id_kelas,
-      id_dimensi: getElemenForCapaian(capaian).id_dimensi, // Changed from getElementForCapaian
-      id_elemen: getSubElemenForCapaian(capaian).id_elemen, // Changed from getSubElementForCapaian
-      id_sub_elemen: capaian.id_sub_elemen,
-      id_capaian: capaian.id_capaian,
-      nilai: {},
-      assessmentNumber
-    };
-    isEditMode.value = false;
-  }
-  
+  isEditMode.value = false;
   showModal.value = true;
 }
 
@@ -787,54 +799,97 @@ const fetchNilaiSiswa = async () => {
   if (!selectedKelas.value) return;
   
   try {
-    // Step 1: Fetch all assessments for this kelas
-    const responseAssessments = await axios.get(`/list/assessment?id_kelas=${selectedKelas.value}`);
+    console.log('Fetching nilai for kelas:', selectedKelas.value);
+    
+    // Step 1: Fetch all assessments
+    const responseAssessments = await axios.get(`/list/assessment`);
     
     if (!responseAssessments.data.success) {
       console.error('Failed to fetch assessments');
       return;
     }
     
-    const assessments = responseAssessments.data.data || [];
-    const assessmentIds = assessments.map(a => a.id_assessment);
+    const allAssessments = responseAssessments.data.data || [];
+    console.log('All assessments:', allAssessments.length);
     
-    if (assessmentIds.length === 0) {
-      return;
-    }
-    
-    // Step 2: Fetch all nilai (scores) for these assessments
-    const responseNilai = await axios.get(`/list/nilai?id_kelas=${selectedKelas.value}`);
+    // Step 2: Fetch all nilai
+    const responseNilai = await axios.get(`/list/nilai`);
     
     if (!responseNilai.data.success) {
       console.error('Failed to fetch nilai data');
       return;
     }
     
-    const nilaiList = responseNilai.data.data || [];
+    const allNilai = responseNilai.data.data || [];
+    console.log('All nilai:', allNilai.length);
     
-    // Step 3: Organize data by capaian, student, and assessment number
-    assessments.forEach(assessment => {
-      const id_capaian = assessment.id_capaian;
-      const assessmentNumber = assessment.assessmentNumber || 1; // Default to 1 if not specified
+    // Step 3: Get current class students
+    const currentStudents = siswaList.value.map(s => s.id_siswa);
+    console.log('Current students:', currentStudents);
+    
+    // Step 4: Create assessment list with nilai data (similar to laporan logic)
+    const assessmentList = allAssessments.map(assessment => {
+      const nilaiForAssessment = allNilai.filter(nilai =>
+        nilai.id_assessment === assessment.id_assessment &&
+        currentStudents.includes(nilai.id_siswa)
+      );
       
-      // Initialize assessment values structure
+      const nilai = {};
+      nilaiForAssessment.forEach(n => {
+        nilai[n.id_siswa] = n.nilai;
+      });
+      
+      return {
+        ...assessment,
+        nilai: nilai
+      };
+    });
+    
+    // Step 5: Process each capaian to get assessment values
+    const capaianIds = [...new Set(assessmentList.map(a => a.id_capaian))];
+    
+    capaianIds.forEach(id_capaian => {
+      // Get all assessments for this capaian that have nilai data
+      const assessmentsForCapaian = assessmentList.filter(a =>
+        a.id_capaian == id_capaian &&
+        a.nilai &&
+        Object.keys(a.nilai).length > 0
+      );
+      
+      // Sort by creation date or ID to maintain order
+      assessmentsForCapaian.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+      
+      console.log(`Processing capaian ${id_capaian} with ${assessmentsForCapaian.length} assessments with nilai`);
+      
+      // Initialize structure for this capaian
       if (!assessmentValues.value[id_capaian]) {
         assessmentValues.value[id_capaian] = {};
       }
       
-      // Find scores for this assessment
-      const scoresForAssessment = nilaiList.filter(n => n.id_assessment === assessment.id_assessment);
-      
-      // Map scores to students and assessment numbers
-      scoresForAssessment.forEach(nilai => {
-        if (nilai.nilai !== null && nilai.nilai !== undefined && nilai.nilai !== '') {
-          if (!assessmentValues.value[id_capaian][nilai.id_siswa]) {
-            assessmentValues.value[id_capaian][nilai.id_siswa] = {};
+      // Process each student for this capaian
+      currentStudents.forEach(id_siswa => {
+        const studentAssessments = assessmentsForCapaian.filter(a =>
+          a.nilai[id_siswa] !== undefined &&
+          a.nilai[id_siswa] !== null &&
+          a.nilai[id_siswa] !== ''
+        );
+        
+        if (studentAssessments.length > 0) {
+          if (!assessmentValues.value[id_capaian][id_siswa]) {
+            assessmentValues.value[id_capaian][id_siswa] = {};
           }
-          assessmentValues.value[id_capaian][nilai.id_siswa][assessmentNumber] = nilai.nilai;
+          
+          // Store up to 6 assessment values
+          studentAssessments.slice(0, 6).forEach((assessment, index) => {
+            const assessmentNumber = index + 1; // 1-based numbering
+            assessmentValues.value[id_capaian][id_siswa][assessmentNumber] = assessment.nilai[id_siswa];
+            console.log(`Stored: Capaian ${id_capaian}, Siswa ${id_siswa}, Assessment ${assessmentNumber} = ${assessment.nilai[id_siswa]}`);
+          });
         }
       });
     });
+    
+    console.log('Final assessment values structure:', assessmentValues.value);
     
     // Also maintain the existing nilaiSiswa structure for backward compatibility
     Object.keys(assessmentValues.value).forEach(id_capaian => {
