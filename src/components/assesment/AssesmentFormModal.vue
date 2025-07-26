@@ -593,21 +593,35 @@ const submitForm = async () => {
   try {
     isSubmitting.value = true
     
-    // Prepare assessment data - removed kompetensi
+    // Prepare assessment data with proper validation and type conversion
     const assessmentData = {
-      nama_assessment: form.value.nama_assessment,
-      id_kelas: form.value.id_kelas,
-      id_dimensi: form.value.id_dimensi,
-      id_elemen: form.value.id_elemen,
-      id_sub_elemen: form.value.id_sub_elemen,
-      id_capaian: form.value.id_capaian,
-      nilai: form.value.nilai
+      nama_assessment: form.value.nama_assessment.trim(),
+      id_kelas: parseInt(form.value.id_kelas),
+      id_dimensi: parseInt(form.value.id_dimensi),
+      id_elemen: parseInt(form.value.id_elemen),
+      id_sub_elemen: parseInt(form.value.id_sub_elemen),
+      id_capaian: parseInt(form.value.id_capaian),
+      nilai: form.value.nilai,
+      deskripsi: 'Assessment otomatis dari form',
+      bobot: 20
     }
+    
+    // Validate required fields
+    if (!assessmentData.nama_assessment) {
+      throw new Error('Nama assessment tidak boleh kosong');
+    }
+    
+    if (!assessmentData.id_capaian || isNaN(assessmentData.id_capaian)) {
+      throw new Error('Capaian harus dipilih');
+    }
+    
+    console.log('Form data being submitted:', assessmentData);
     
     // Emit save event with form data
     emit('save', assessmentData)
   } catch (error) {
     console.error('Error submitting form:', error)
+    // You might want to show an error message to the user here
   } finally {
     isSubmitting.value = false
   }

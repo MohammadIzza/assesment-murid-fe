@@ -297,6 +297,7 @@ import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
 
 // Store initialization
@@ -307,6 +308,7 @@ const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
+const authStore = useAuthStore()
 
 // State variables
 const loading = ref(false)
@@ -1059,13 +1061,76 @@ const saveAssessment = async (formData) => {
       formData.assessmentNumber = currentEditingAssessment.value.assessmentNumber;
     }
     
+    let id_assessment = null; // Initialize id_assessment
+
     if (isEditMode.value) {
       await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
+      id_assessment = selectedAssessment.value.id_assessment
       showSuccessToast('Assessment berhasil diperbarui')
     } else {
-      await assessmentStore.createAssessment(formData)
-      showSuccessToast('Assessment baru berhasil dibuat')
+      // Prepare assessment data with proper validation
+      const assessmentPayload = {
+        id_capaian: parseInt(formData.id_capaian),
+        nama_assessment: formData.nama_assessment || `Assessment ${Date.now()}`,
+        deskripsi: formData.deskripsi || 'Assessment otomatis',
+        bobot: parseInt(formData.bobot) || 20
+      };
+
+      console.log('Sending assessment data:', assessmentPayload);
+      
+      // Fix: Use correct endpoint with leading slash
+      const res = await axios.post('/add/assessment', assessmentPayload);
+      
+      if (!res.data.success) {
+        throw new Error(res.data.message || 'Gagal membuat assessment');
+      }
+      
+      id_assessment = res.data.id;
+      showSuccessToast('Assessment baru berhasil dibuat');
     }
+
+    // Get current user ID from auth store
+    const currentUserId = authStore.user?.id_guru || 1;
+
+    // Process nilai submission with better error handling
+    if (id_assessment && formData.nilai) {
+      const nilaiPromises = [];
+      
+      for (const [id_siswa, nilai] of Object.entries(formData.nilai)) {
+        if (nilai && nilai.trim() !== '') {
+          const nilaiPayload = {
+            id_siswa: parseInt(id_siswa),
+            id_pengampu: currentUserId,
+            id_assessment: parseInt(id_assessment),
+            nilai: nilai.toString(),
+            tanggal_input: new Date().toISOString().slice(0, 10)
+          };
+          
+          console.log('Sending nilai data:', nilaiPayload);
+          
+          // Fix: Use correct endpoint that matches backend
+          nilaiPromises.push(
+            axios.post('/add/nilai', nilaiPayload)
+              .catch(err => {
+                console.error(`Error saving nilai for student ${id_siswa}:`, err);
+                throw new Error(`Gagal menyimpan nilai untuk siswa ${id_siswa}: ${err.response?.data?.message || err.message}`);
+              })
+          );
+        }
+      }
+      
+      // Execute all nilai submissions in parallel
+      if (nilaiPromises.length > 0) {
+        try {
+          await Promise.all(nilaiPromises);
+          console.log(`Successfully saved ${nilaiPromises.length} nilai records`);
+        } catch (error) {
+          console.error('Error in batch nilai submission:', error);
+          throw error;
+        }
+      }
+    }
+    
     closeModal()
     await fetchData()
     // Also refresh nilai data if we're looking at a class
@@ -1073,8 +1138,40 @@ const saveAssessment = async (formData) => {
       await fetchNilaiSiswa()
     }
   } catch (error) {
-    console.error('Error saving assessment:', error)
-    showErrorToast('Gagal menyimpan assessment: ' + (error.message || 'Unknown error'))
+    console.error('Error saving assessment:', error);
+    
+    let errorMessage = 'Gagal menyimpan assessment';
+    
+    if (error.response) {
+      // Server responded with error status
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      switch (status) {
+        case 401:
+          errorMessage = 'Sesi login telah berakhir. Silakan login kembali.';
+          break;
+        case 403:
+          errorMessage = 'Anda tidak memiliki izin untuk melakukan operasi ini.';
+          break;
+        case 400:
+          errorMessage = `Data tidak valid: ${data.message || 'Periksa kembali input Anda'}`;
+          break;
+        case 500:
+          errorMessage = 'Terjadi kesalahan server. Silakan coba lagi nanti.';
+          break;
+        default:
+          errorMessage = data.message || `Error ${status}: ${error.message}`;
+      }
+    } else if (error.request) {
+      // Network error
+      errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+    } else {
+      // Other error
+      errorMessage = error.message || 'Terjadi kesalahan tidak terduga';
+    }
+    
+    showErrorToast(errorMessage);
   } finally {
     loading.value = false
   }
