@@ -87,21 +87,39 @@
           </svg>
           <span class="text-sm">Belum ada assessment yang tersedia</span>
         </div>
-        
         <div v-else>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="ass in dashboardData.assessments" :key="ass.id_assessment" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col">
-              <div class="font-bold text-lg mb-2">{{ ass.nama_assessment }}</div>
-              <div class="text-sm text-gray-600 mb-1">Kelas: {{ getKelasAssessment(ass) }}</div>
-              <div class="text-sm text-gray-600 mb-1">Dimensi: {{ getRelasiAssessment(ass).dimensi }}</div>
-              <div class="text-sm text-gray-600 mb-1">Elemen: {{ getRelasiAssessment(ass).elemen }}</div>
-              <div class="text-sm text-gray-600 mb-1">Sub Elemen: {{ getRelasiAssessment(ass).subElemen }}</div>
-              <div class="text-sm text-gray-600 mb-1">Capaian: {{ getRelasiAssessment(ass).capaian }}</div>
-              <div class="text-sm text-gray-600 mb-1">Jumlah Siswa: {{ getJumlahSiswaAssessment(ass) }}</div>
-              <div class="text-xs text-gray-400 mt-2">{{ ass.deskripsi }}</div>
+          <!-- Horizontal scrollable card container, bertingkat -->
+          <div class="flex flex-row gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50">
+            <div v-for="(ass, idx) in dashboardData.assessments" :key="ass.id_assessment"
+              :class="['min-w-[340px] max-w-xs flex-shrink-0 rounded-2xl shadow-lg border border-gray-200 bg-white p-6 flex flex-col transition-all duration-200 hover:scale-105 hover:shadow-2xl', idx % 2 === 1 ? 'mt-6' : 'mt-0']">
+              <!-- Label/tag dimensi -->
+              <div :class="['inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3', getDimensiLabelClass(ass)]">
+                {{ getRelasiAssessment(ass).dimensi }}
+              </div>
+              <div class="font-bold text-lg mb-2 text-gray-800">{{ ass.nama_assessment }}</div>
+              <div class="flex flex-col gap-1 mb-2">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Kelas</div>
+                <div class="text-base font-bold text-blue-700">{{ getKelasAssessment(ass) }}</div>
+              </div>
+              <div class="flex flex-col gap-1 mb-2">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Elemen</div>
+                <div class="text-sm">{{ getRelasiAssessment(ass).elemen }}</div>
+              </div>
+              <div class="flex flex-col gap-1 mb-2">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sub Elemen</div>
+                <div class="text-sm">{{ getRelasiAssessment(ass).subElemen }}</div>
+              </div>
+              <div class="flex flex-col gap-1 mb-2">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Capaian</div>
+                <div class="text-sm">{{ getRelasiAssessment(ass).capaian }}</div>
+              </div>
+              <div class="flex flex-row items-center justify-between mt-2 mb-1">
+                <div class="text-xs font-semibold text-gray-500">Jumlah Siswa</div>
+                <div class="text-base font-bold text-green-700">{{ getJumlahSiswaAssessment(ass) }}</div>
+              </div>
               <router-link
                 :to="{ name: 'assesment-detail', query: { id_assessment: ass.id_assessment } }"
-                class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 text-center"
+                class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 text-center shadow"
               >
                 Lihat Detail
               </router-link>
@@ -335,6 +353,20 @@ const getKelasAssessment = (ass) => {
   // Ambil nama kelas (jika hanya satu kelas, tampilkan nama, jika lebih dari satu, gabungkan)
   const kelasNames = kelasIds.map(kid => kelasList.value.find(k => k.id_kelas == kid)?.nama_kelas).filter(Boolean)
   return kelasNames.length > 0 ? kelasNames.join(', ') : '-'
+}
+
+// Mapping warna label/tag per dimensi/domain
+const dimensiLabelColorMap = {
+  'Beriman, Bertaqwa kepada Tuhan YME dan Berakhlak Mulia': 'bg-blue-600 text-white',
+  'Inklusif, Berbudaya dan Nasionalis': 'bg-yellow-500 text-white',
+  'Berukhuwah dan Peduli': 'bg-green-600 text-white',
+  'Kreatif dan Terampil': 'bg-purple-600 text-white',
+  'Berkepribadian yang Matang': 'bg-pink-600 text-white',
+  // Tambahkan domain lain jika ada
+}
+function getDimensiLabelClass(ass) {
+  const dimensi = getRelasiAssessment(ass).dimensi
+  return dimensiLabelColorMap[dimensi] || 'bg-gray-400 text-white'
 }
 
 const fetchReferenceData = async () => {
