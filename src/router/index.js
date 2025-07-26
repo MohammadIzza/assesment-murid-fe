@@ -212,7 +212,16 @@ const router = createRouter({
           path: '/assesment/detail',
           name: 'assesment-detail',
           component: AssignmentDetail
-        }
+        },
+        {
+          path: '/laporan',
+          name: 'laporan-nilai',
+          component: () => import('@/views/laporan/LaporanNilai.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Laporan Nilai'
+          }
+        },
       ],
     },
   ],

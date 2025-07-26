@@ -37,5 +37,24 @@ export const useElemenStore = defineStore('elemen', {
         this.loading = false
       }
     }
+    ,
+    async fetchElemenList() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.get('/list/elemen');
+        if (response.data.success) {
+          this.elemenList = response.data.data;
+        } else {
+          throw new Error('Gagal mengambil data elemen');
+        }
+      } catch (error) {
+        console.error('Error fetching elemen list:', error);
+        this.error = error.message || 'Terjadi kesalahan saat mengambil data elemen';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 })

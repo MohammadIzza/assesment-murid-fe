@@ -1,292 +1,270 @@
 <template>
-  <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div class="rounded-xl shadow-xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col"
-      :class="{'bg-blue-600': !isDarkMode, 'bg-dark-header': isDarkMode}">
-      <!-- Modal Header -->
-      <div class="p-4 text-white flex justify-between items-center"
-        :class="{'bg-blue-700': !isDarkMode, 'bg-blue-900': isDarkMode}">
-        <h3 class="text-lg font-semibold">
-          {{ isEdit ? 'Ubah Assessment' : 'Buat Assessment Baru' }}
-        </h3>
-        <button @click="$emit('close')" class="text-white hover:text-blue-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Modal Form Content -->
-      <div class="flex-1 overflow-y-auto">
-        <div class="p-6" :class="{'bg-white': !isDarkMode, 'bg-dark-surface': isDarkMode}">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <!-- Assessment Name -->
-            <div class="group">
-              <label for="nama_assessment" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Nama Assessment <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.nama_assessment"
-                type="text"
-                id="nama_assessment"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                placeholder="Contoh: Quiz 1, UTS, dsb."
-                :disabled="isEdit"
-              />
-            </div>
-            
-            <!-- Kelas selection -->
-            <div class="group">
-              <label for="id_kelas" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Kelas <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.id_kelas"
-                id="id_kelas"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                @change="loadSiswaByKelas"
-                :disabled="isEdit"
-              >
-                <option value="" disabled>Pilih Kelas</option>
-                <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
-                  {{ kelas.nama_kelas }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Dimensi -->
-            <div class="group">
-              <label for="id_dimensi" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Dimensi <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.id_dimensi"
-                id="id_dimensi"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                @change="loadElemen"
-                :disabled="isEdit"
-              >
-                <option value="" disabled>Pilih Dimensi</option>
-                <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
-                  {{ dimensi.nama_dimensi }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Elemen -->
-            <div class="group">
-              <label for="id_elemen" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Elemen <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.id_elemen"
-                id="id_elemen"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                @change="loadSubElemen"
-                :disabled="isEdit || !form.id_dimensi"
-              >
-                <option value="" disabled>Pilih Elemen</option>
-                <option v-for="elemen in elemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
-                  {{ elemen.nama_elemen }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Sub Elemen -->
-            <div class="group">
-              <label for="id_sub_elemen" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Sub Elemen <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.id_sub_elemen"
-                id="id_sub_elemen"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                @change="loadCapaian"
-                :disabled="isEdit || !form.id_elemen"
-              >
-                <option value="" disabled>Pilih Sub Elemen</option>
-                <option v-for="subElemen in subElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
-                  {{ subElemen.nama_sub_elemen }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Capaian -->
-            <div class="group col-span-1 md:col-span-2">
-              <label for="id_capaian" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Capaian <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.id_capaian"
-                id="id_capaian"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                :disabled="isEdit || !form.id_sub_elemen"
-              >
-                <option value="" disabled>Pilih Capaian</option>
-                <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
-                  {{ capaian.deskripsi_capaian }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Kompetensi -->
-            <div class="group col-span-1 md:col-span-2">
-              <label for="kompetensi" class="block text-sm font-medium mb-2"
-                :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
-                Kompetensi <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.kompetensi"
-                type="text"
-                id="kompetensi"
-                class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                placeholder="Masukkan kompetensi yang dinilai"
-                :disabled="isEdit"
-              />
-            </div>
-
-            <!-- Search -->
-            <div class="group col-span-1 md:col-span-2 mt-4">
-              <div class="relative">
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Cari siswa..."
-                  class="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
-                />
-                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-            </div>
+  <div class="fixed inset-0 z-50 overflow-y-auto" 
+    :class="{'bg-gray-900/50': !isDarkMode, 'bg-black/70': isDarkMode}">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="relative w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all"
+        :class="{'bg-white': !isDarkMode, 'bg-gray-800': isDarkMode}">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b"
+          :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold"
+              :class="{'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode}">
+              {{ isEdit ? 'Edit Assessment' : 'Buat Assessment Baru' }}
+            </h3>
+            <button @click="$emit('close')" class="text-gray-400 hover:text-gray-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="px-6 py-4 max-h-[80vh] overflow-y-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Form Fields -->
+            <div class="col-span-1 md:col-span-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nama Assessment -->
+                <div class="group">
+                  <label for="nama_assessment" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Nama Assessment <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.nama_assessment"
+                    type="text"
+                    id="nama_assessment"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    placeholder="Nama akan dibuat otomatis"
+                    :disabled="autoNaming"
+                  />
+                  <div class="mt-1 text-xs text-gray-500 flex items-center gap-2">
+                    <input type="checkbox" v-model="autoNaming" id="autoNaming" class="rounded">
+                    <label for="autoNaming">Buat nama otomatis</label>
+                  </div>
+                </div>
+                
+                <!-- Kelas selection -->
+                <div class="group">
+                  <label for="id_kelas" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Kelas <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    v-model="form.id_kelas"
+                    id="id_kelas"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    @change="onKelasChange"
+                  >
+                    <option value="" disabled>Pilih Kelas</option>
+                    <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+                      {{ kelas.nama_kelas }}
+                    </option>
+                  </select>
+                </div>
 
-          <!-- Students List -->
-          <div class="mt-6 border rounded-xl overflow-hidden"
-            :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
-            <div class="p-4 border-b"
-              :class="{'bg-gray-50 border-gray-200': !isDarkMode, 'bg-gray-800 border-gray-700': isDarkMode}">
-              <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-1 font-medium text-sm"
-                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">#</div>
-                <div class="col-span-5 font-medium text-sm"
-                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">Nama Siswa</div>
-                <div class="col-span-6 font-medium text-sm flex items-center justify-center"
-                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
-                  Nilai
+                <!-- Dimensi -->
+                <div class="group">
+                  <label for="id_dimensi" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Dimensi <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    v-model="form.id_dimensi"
+                    id="id_dimensi"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    @change="onDimensiChange"
+                  >
+                    <option value="" disabled>Pilih Dimensi</option>
+                    <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
+                      {{ dimensi.nama_dimensi }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Elemen -->
+                <div class="group">
+                  <label for="id_elemen" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Elemen <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    v-model="form.id_elemen"
+                    id="id_elemen"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    @change="onElemenChange"
+                    :disabled="!form.id_dimensi"
+                  >
+                    <option value="" disabled>Pilih Elemen</option>
+                    <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
+                      {{ elemen.nama_elemen }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Sub Elemen -->
+                <div class="group">
+                  <label for="id_sub_elemen" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Sub Elemen <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    v-model="form.id_sub_elemen"
+                    id="id_sub_elemen"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    @change="onSubElemenChange"
+                    :disabled="!form.id_elemen"
+                  >
+                    <option value="" disabled>Pilih Sub Elemen</option>
+                    <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
+                      {{ subElemen.nama_sub_elemen }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Capaian -->
+                <div class="group">
+                  <label for="id_capaian" class="block text-sm font-medium mb-2"
+                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    Capaian <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    v-model="form.id_capaian"
+                    id="id_capaian"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
+                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    @change="onCapaianChange"
+                    :disabled="!form.id_sub_elemen || capaianList.length === 0"
+                  >
+                    <option value="" disabled>Pilih Capaian</option>
+                    <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
+                      {{ capaian.deskripsi }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Search -->
+                <div class="group col-span-1 md:col-span-2 mt-4">
+                  <div class="relative">
+                    <input
+                      v-model="searchQuery"
+                      type="text"
+                      placeholder="Cari siswa..."
+                      class="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    />
+                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div class="overflow-y-auto max-h-[400px]">
-              <div 
-                v-for="(siswa, index) in filteredSiswaList" 
-                :key="siswa.id_siswa"
-                class="p-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700"
-                :class="{'border-gray-100': !isDarkMode, 'border-gray-700': isDarkMode}"
-              >
-                <div class="grid grid-cols-12 gap-4 items-center">
+            <!-- Daftar Siswa dan Nilai -->
+            <div class="col-span-1 md:col-span-2 mt-4 border rounded-xl overflow-hidden"
+              :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
+              <div class="overflow-hidden">
+                <div class="p-4 bg-blue-50 dark:bg-blue-900/30 border-b border-blue-100 dark:border-blue-800">
+                  <h3 class="font-medium"
+                    :class="{'text-blue-800': !isDarkMode, 'text-blue-300': isDarkMode}">
+                    Daftar Siswa
+                  </h3>
+                  <p class="text-sm mt-1"
+                    :class="{'text-blue-600': !isDarkMode, 'text-blue-400': isDarkMode}">
+                    * Nilai siswa opsional, dapat diisi nanti
+                  </p>
+                </div>
+                
+                <!-- Table Header -->
+                <div class="grid grid-cols-12 gap-4 p-4 font-medium border-b"
+                  :class="{'border-gray-200 bg-gray-50': !isDarkMode, 'border-gray-700 bg-gray-700': isDarkMode}">
                   <div class="col-span-1"
-                    :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">{{ index + 1 }}</div>
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
+                    #
+                  </div>
                   <div class="col-span-5"
-                    :class="{'text-gray-900': !isDarkMode, 'text-gray-200': isDarkMode}">{{ siswa.nama }}</div>
-                  <div class="col-span-6">
-                    <div class="flex items-center justify-between space-x-2">
-                      <label class="flex items-center">
-                        <input
-                          type="radio"
-                          :name="`nilai_${siswa.id_siswa}`"
-                          :value="'MB'"
-                          v-model="form.nilai[siswa.id_siswa]"
-                          class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span class="ml-2 text-sm"
-                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">MB</span>
-                      </label>
-                      
-                      <label class="flex items-center">
-                        <input
-                          type="radio"
-                          :name="`nilai_${siswa.id_siswa}`"
-                          :value="'SB'"
-                          v-model="form.nilai[siswa.id_siswa]"
-                          class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span class="ml-2 text-sm"
-                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">SB</span>
-                      </label>
-                      
-                      <label class="flex items-center">
-                        <input
-                          type="radio"
-                          :name="`nilai_${siswa.id_siswa}`"
-                          :value="'BSH'"
-                          v-model="form.nilai[siswa.id_siswa]"
-                          class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span class="ml-2 text-sm"
-                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">BSH</span>
-                      </label>
-                      
-                      <label class="flex items-center">
-                        <input
-                          type="radio"
-                          :name="`nilai_${siswa.id_siswa}`"
-                          :value="'SAB'"
-                          v-model="form.nilai[siswa.id_siswa]"
-                          class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span class="ml-2 text-sm"
-                          :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">SAB</span>
-                      </label>
-                    </div>
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
+                    Nama Siswa
+                  </div>
+                  <div class="col-span-6"
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
+                    Nilai
                   </div>
                 </div>
               </div>
               
-              <div v-if="filteredSiswaList.length === 0" class="p-8 text-center"
-                :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
-                {{ form.id_kelas ? 'Tidak ada siswa ditemukan' : 'Pilih kelas untuk melihat daftar siswa' }}
+              <div class="overflow-y-auto max-h-[400px]">
+                <div 
+                  v-for="(siswa, index) in filteredSiswaList" 
+                  :key="siswa.id_siswa"
+                  class="p-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700"
+                  :class="{'border-gray-100': !isDarkMode, 'border-gray-700': isDarkMode}"
+                >
+                  <div class="grid grid-cols-12 gap-4 items-center">
+                    <div class="col-span-1"
+                      :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">{{ index + 1 }}</div>
+                    <div class="col-span-5"
+                      :class="{'text-gray-900': !isDarkMode, 'text-gray-200': isDarkMode}">{{ siswa.nama }}</div>
+                    <div class="col-span-6">
+                      <div class="flex gap-4 flex-wrap">
+                        <label 
+                          v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" 
+                          :key="opt" 
+                          class="inline-flex items-center gap-2 cursor-pointer"
+                          :class="{'hover:text-blue-600': !isDarkMode, 'hover:text-blue-400': isDarkMode}"
+                        >
+                          <input 
+                            type="radio" 
+                            :name="'nilai-' + siswa.id_siswa" 
+                            :value="opt"
+                            v-model="form.nilai[siswa.id_siswa]"
+                            class="w-4 h-4"
+                            :class="{'accent-blue-600': !isDarkMode, 'accent-blue-400': isDarkMode}"
+                          />
+                          <span class="ml-2 text-sm"
+                            :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">{{ opt }}</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-if="filteredSiswaList.length === 0" class="p-8 text-center"
+                  :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
+                  {{ form.id_kelas ? 'Tidak ada siswa ditemukan' : 'Pilih kelas untuk melihat daftar siswa' }}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Modal Footer -->
-      <div class="px-6 py-4 flex justify-end space-x-3"
-        :class="{'bg-gray-50': !isDarkMode, 'bg-gray-800': isDarkMode}">
-        <button 
-          @click="$emit('close')" 
-          class="px-4 py-2 border rounded-lg"
-          :class="{'border-gray-300 text-gray-700 hover:bg-gray-100': !isDarkMode, 'border-gray-600 text-gray-300 hover:bg-gray-700': isDarkMode}"
-        >
-          Batal
-        </button>
-        <button 
-          @click="submitForm"
-          class="px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          :class="[
-            {'bg-blue-600 hover:bg-blue-700': !isDarkMode, 'bg-blue-700 hover:bg-blue-800': isDarkMode},
-            {'opacity-50 cursor-not-allowed': !isFormValid || isSubmitting}
-          ]"
-          :disabled="!isFormValid || isSubmitting"
-        >
-          <span v-if="isSubmitting">
-            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24">
+        
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 flex justify-end space-x-3"
+          :class="{'bg-gray-50': !isDarkMode, 'bg-gray-800': isDarkMode}">
+          <button 
+            @click="$emit('close')" 
+            class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200"
+            :class="{'border-gray-300 text-gray-700 hover:bg-gray-100': !isDarkMode, 'border-gray-600 text-gray-300 hover:bg-gray-700': isDarkMode}"
+          >
+            Batal
+          </button>
+          <button 
+            @click="submitForm" 
+            :disabled="!isFormValid || isSubmitting"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+            :class="{'bg-blue-600 text-white hover:bg-blue-700': !isDarkMode, 'bg-blue-700 text-white hover:bg-blue-600': isDarkMode}"
+          >
+          <span v-if="isSubmitting" class="inline-flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -295,7 +273,8 @@
           <span v-else>
             {{ isEdit ? 'Simpan Perubahan' : 'Simpan' }}
           </span>
-        </button>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -308,10 +287,11 @@ import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
-import { useSiswaStore } from '@/stores/siswa'
+import { useAssesmentStore } from '@/stores/assesment'
 import { useThemeStore } from '@/stores/theme'
+import axios from '@/plugins/axios'
 
-// Define props and emits
+// Props
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -323,18 +303,19 @@ const props = defineProps({
   }
 })
 
+// Emits
 const emit = defineEmits(['close', 'save'])
 
-// Initialize stores
+// Store initialization
 const kelasStore = useKelasStore()
 const dimensiStore = useDimensiStore()
 const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
-const siswaStore = useSiswaStore()
 const themeStore = useThemeStore()
+const assessmentStore = useAssesmentStore()
 
-// Dark mode
+// Computed properties
 const isDarkMode = computed(() => themeStore.isDarkMode)
 
 // State variables
@@ -344,16 +325,17 @@ const siswaList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
+const assessmentNumber = ref(1)
+const autoNaming = ref(true)
 
 // Form state
 const form = ref({
-  nama_assessment: props.isEdit ? '' : `Assessment ${new Date().getTime()}`,
+  nama_assessment: '',
   id_kelas: '',
   id_dimensi: '',
   id_elemen: '',
   id_sub_elemen: '',
   id_capaian: '',
-  kompetensi: '',
   nilai: {}
 })
 
@@ -367,46 +349,85 @@ const filteredSiswaList = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return siswaList.value.filter(siswa => 
     siswa.nama.toLowerCase().includes(query) ||
-    siswa.nisn?.toLowerCase().includes(query)
+    (siswa.nis && siswa.nis.toLowerCase().includes(query))
   )
 })
 
+const filteredElemenList = computed(() => 
+  elemenList.value.filter(e => e.id_dimensi == form.value.id_dimensi)
+)
+
+const filteredSubElemenList = computed(() => 
+  subElemenList.value.filter(se => se.id_elemen == form.value.id_elemen)
+)
+
 const isFormValid = computed(() => {
-  // Basic form validation
+  // Basic form validation for required fields - removed kompetensi
   if (!form.value.nama_assessment || !form.value.id_kelas || !form.value.id_dimensi || 
-      !form.value.id_elemen || !form.value.id_sub_elemen || !form.value.id_capaian || 
-      !form.value.kompetensi) {
+      !form.value.id_elemen || !form.value.id_sub_elemen || !form.value.id_capaian) {
     return false
   }
   
-  // Check if at least one student has a value
-  const hasValues = Object.values(form.value.nilai).some(val => !!val)
-  return hasValues
+  // Make student assessment optional - valid even if not all students have values
+  return true
 })
 
-// Methods
-const loadSiswaByKelas = async () => {
-  if (!form.value.id_kelas) return
-  
-  try {
-    await siswaStore.fetchSiswaByKelas(form.value.id_kelas)
-    siswaList.value = siswaStore.getSiswaList
+// Load initial form data if editing
+const loadFormData = () => {
+  if (props.isEdit && props.selectedAssessment) {
+    form.value = {
+      nama_assessment: props.selectedAssessment.nama_assessment || '',
+      id_kelas: props.selectedAssessment.id_kelas || '',
+      id_dimensi: props.selectedAssessment.id_dimensi || '',
+      id_elemen: props.selectedAssessment.id_elemen || '',
+      id_sub_elemen: props.selectedAssessment.id_sub_elemen || '',
+      id_capaian: props.selectedAssessment.id_capaian || '',
+      nilai: props.selectedAssessment.nilai || {}
+    }
     
-    // Initialize nilai object for all students
-    siswaList.value.forEach(siswa => {
-      if (!form.value.nilai[siswa.id_siswa]) {
-        form.value.nilai[siswa.id_siswa] = null
-      }
-    })
-  } catch (error) {
-    console.error('Error loading students for class:', error)
+    // When editing, we use the existing name
+    autoNaming.value = false
+    
+    // Load dependent data
+    if (form.value.id_kelas) {
+      onKelasChange()
+    }
+    if (form.value.id_dimensi) {
+      onDimensiChange()
+    }
+    if (form.value.id_elemen) {
+      onElemenChange()
+    }
+    if (form.value.id_sub_elemen) {
+      onSubElemenChange()
+    }
   }
 }
 
-const loadElemen = async () => {
-  if (!form.value.id_dimensi) return
-  
+// Mapping kelas ke id_fase - sama seperti di index.vue
+function getIdFaseFromKelas(namaKelas) {
+  // Mapping romawi ke id_fase
+  if (/\bI\b|\bII\b|\bIII\b|\bIV\b|\bV\b|\bVI\b|\bVII\b|\bVIII\b|\bIX\b|\bX\b|\bXI\b|\bXII\b/i.test(namaKelas)) {
+    if (/\bI\b/i.test(namaKelas)) return 2; // Fase A (Kelas 1)
+    if (/\bII\b/i.test(namaKelas)) return 2; // Fase A (Kelas 2)
+    if (/\bIII\b/i.test(namaKelas)) return 3; // Fase B (Kelas 3)
+    if (/\bIV\b/i.test(namaKelas)) return 3; // Fase B (Kelas 4)
+    if (/\bV\b/i.test(namaKelas)) return 4; // Fase C (Kelas 5)
+    if (/\bVI\b/i.test(namaKelas)) return 4; // Fase C (Kelas 6)
+    if (/\bVII\b/i.test(namaKelas)) return 5; // Fase D (Kelas 7)
+    if (/\bVIII\b/i.test(namaKelas)) return 5; // Fase D (Kelas 8)
+    if (/\bIX\b/i.test(namaKelas)) return 5; // Fase D (Kelas 9)
+    if (/\bX\b/i.test(namaKelas)) return 6; // Fase E (Kelas 10)
+    if (/\bXI\b/i.test(namaKelas)) return 7; // Fase F (Kelas 11)
+    if (/\bXII\b/i.test(namaKelas)) return 7; // Fase F (Kelas 12)
+  }
+  return null;
+}
+
+// Event Handlers for filtering - mengadopsi logika dari index.vue
+const onKelasChange = async () => {
   // Reset dependent fields
+  form.value.id_dimensi = ''
   form.value.id_elemen = ''
   form.value.id_sub_elemen = ''
   form.value.id_capaian = ''
@@ -414,72 +435,165 @@ const loadElemen = async () => {
   subElemenList.value = []
   capaianList.value = []
   
-  try {
-    await elemenStore.fetchElemenByDimensi(form.value.id_dimensi)
-    elemenList.value = elemenStore.getElemenList
-  } catch (error) {
-    console.error('Error loading elemen:', error)
-  }
+  // Fetch siswa list by kelas
+  await fetchSiswaByKelas()
+  updateAssessmentName()
 }
 
-const loadSubElemen = async () => {
-  if (!form.value.id_elemen) return
-  
+const onDimensiChange = async () => {
   // Reset dependent fields
+  form.value.id_elemen = ''
   form.value.id_sub_elemen = ''
   form.value.id_capaian = ''
   subElemenList.value = []
   capaianList.value = []
   
-  try {
-    await subElemenStore.fetchSubElemenByElemen(form.value.id_elemen)
-    subElemenList.value = subElemenStore.getSubElemenList
-  } catch (error) {
-    console.error('Error loading sub elemen:', error)
+  if (form.value.id_dimensi) {
+    try {
+      await elemenStore.fetchElemenByDimensi(form.value.id_dimensi)
+      elemenList.value = elemenStore.getElemenList
+    } catch (error) {
+      console.error('Error loading elemen by dimensi:', error)
+    }
   }
+  updateAssessmentName()
 }
 
-const loadCapaian = async () => {
-  if (!form.value.id_sub_elemen) return
-  
-  // Reset dependent field
+const onElemenChange = async () => {
+  // Reset dependent fields
+  form.value.id_sub_elemen = ''
   form.value.id_capaian = ''
   capaianList.value = []
   
-  try {
-    await capaianStore.fetchCapaianBySubElemen(form.value.id_sub_elemen)
-    capaianList.value = capaianStore.getCapaianList
-  } catch (error) {
-    console.error('Error loading capaian:', error)
+  if (form.value.id_elemen) {
+    try {
+      await subElemenStore.fetchSubElemenByElemen(form.value.id_elemen)
+      subElemenList.value = subElemenStore.getSubElemenList
+    } catch (error) {
+      console.error('Error loading sub elemen by elemen:', error)
+    }
   }
+  updateAssessmentName()
 }
 
-const loadFormData = () => {
-  if (props.isEdit && props.selectedAssessment) {
-    form.value.nama_assessment = props.selectedAssessment.nama_assessment || `Assessment ${props.selectedAssessment.id_assessment}`
-    form.value.id_kelas = props.selectedAssessment.id_kelas
-    form.value.id_dimensi = props.selectedAssessment.id_dimensi
-    form.value.id_elemen = props.selectedAssessment.id_elemen
-    form.value.id_sub_elemen = props.selectedAssessment.id_sub_elemen
-    form.value.id_capaian = props.selectedAssessment.id_capaian
-    form.value.kompetensi = props.selectedAssessment.kompetensi
-    form.value.nilai = { ...props.selectedAssessment.nilai }
+const onSubElemenChange = async () => {
+  // Reset dependent fields
+  form.value.id_capaian = ''
+  capaianList.value = []
+  
+  if (form.value.id_sub_elemen && form.value.id_kelas) {
+    const kelas = kelasList.value.find(k => k.id_kelas == form.value.id_kelas)
+    const id_fase = getIdFaseFromKelas(kelas?.nama_kelas || '')
     
-    // Load dependent data
-    loadSiswaByKelas()
-    loadElemen()
-    loadSubElemen()
-    loadCapaian()
+    if (id_fase) {
+      try {
+        const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${form.value.id_sub_elemen}`)
+        
+        if (response.data.success) {
+          capaianList.value = response.data.data || []
+        } else {
+          console.warn('No capaian data returned from API')
+          capaianList.value = []
+        }
+      } catch (error) {
+        console.error('Error fetching capaian list:', error)
+        capaianList.value = []
+      }
+    } else {
+      console.warn('Tidak bisa menentukan id_fase dari kelas:', kelas?.nama_kelas)
+    }
+  }
+  updateAssessmentName()
+}
+
+const onCapaianChange = async () => {
+  // When capaian changes, fetch the assessment count for this capaian
+  if (form.value.id_capaian) {
+    try {
+      const response = await axios.get(`/list/assessment?id_capaian=${form.value.id_capaian}`)
+      if (response.data.success) {
+        // Count how many assessments already exist for this capaian
+        const existingAssessments = response.data.data.filter(a => a.id_capaian == form.value.id_capaian)
+        
+        // If editing, don't count the current assessment
+        if (props.isEdit && props.selectedAssessment) {
+          const filteredAssessments = existingAssessments.filter(
+            a => a.id_assessment != props.selectedAssessment.id_assessment
+          )
+          assessmentNumber.value = filteredAssessments.length + 1
+        } else {
+          assessmentNumber.value = existingAssessments.length + 1
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching assessment count:', error)
+      assessmentNumber.value = 1
+    }
+  }
+  updateAssessmentName()
+}
+
+// Update assessment name based on selections
+const updateAssessmentName = () => {
+  if (!autoNaming.value || props.isEdit) return
+  
+  if (form.value.id_capaian) {
+    const capaian = capaianList.value.find(c => c.id_capaian == form.value.id_capaian)
+    const capaianName = capaian ? capaian.deskripsi.substring(0, 40) : ''
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${capaianName}...`
+  } else if (form.value.id_sub_elemen) {
+    const subElemen = subElemenList.value.find(se => se.id_sub_elemen == form.value.id_sub_elemen)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${subElemen?.nama_sub_elemen || ''}`
+  } else if (form.value.id_elemen) {
+    const elemen = elemenList.value.find(e => e.id_elemen == form.value.id_elemen)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${elemen?.nama_elemen || ''}`
+  } else if (form.value.id_dimensi) {
+    const dimensi = dimensiList.value.find(d => d.id_dimensi == form.value.id_dimensi)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${dimensi?.nama_dimensi || ''}`
+  } else if (form.value.id_kelas) {
+    const kelas = kelasList.value.find(k => k.id_kelas == form.value.id_kelas)
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value} - ${kelas?.nama_kelas || ''}`
+  } else {
+    form.value.nama_assessment = `Assessment ${assessmentNumber.value}`
   }
 }
 
+// Fetch siswa by kelas
+const fetchSiswaByKelas = async () => {
+  if (!form.value.id_kelas) {
+    siswaList.value = []
+    return
+  }
+  
+  try {
+    const response = await axios.get(`/list/siswa?id_kelas=${form.value.id_kelas}`)
+    
+    if (response.data.success) {
+      siswaList.value = response.data.data.filter(siswa => siswa.id_kelas == form.value.id_kelas)
+      
+      // Initialize nilai for new students
+      siswaList.value.forEach(siswa => {
+        if (!form.value.nilai[siswa.id_siswa]) {
+          form.value.nilai[siswa.id_siswa] = null
+        }
+      })
+    } else {
+      siswaList.value = []
+    }
+  } catch (error) {
+    console.error('Error loading students for class:', error)
+    siswaList.value = []
+  }
+}
+
+// Submit form
 const submitForm = async () => {
   if (!isFormValid.value) return
   
   try {
     isSubmitting.value = true
     
-    // Prepare data for submission
+    // Prepare assessment data - removed kompetensi
     const assessmentData = {
       nama_assessment: form.value.nama_assessment,
       id_kelas: form.value.id_kelas,
@@ -487,7 +601,6 @@ const submitForm = async () => {
       id_elemen: form.value.id_elemen,
       id_sub_elemen: form.value.id_sub_elemen,
       id_capaian: form.value.id_capaian,
-      kompetensi: form.value.kompetensi,
       nilai: form.value.nilai
     }
     
@@ -500,6 +613,13 @@ const submitForm = async () => {
   }
 }
 
+// Watch for changes in autoNaming
+watch(autoNaming, (newValue) => {
+  if (newValue) {
+    updateAssessmentName()
+  }
+})
+
 // Lifecycle hooks
 onMounted(async () => {
   try {
@@ -509,18 +629,35 @@ onMounted(async () => {
       dimensiStore.fetchDimensiList()
     ])
     
-    // Set default assessment name
-    if (!form.value.nama_assessment) {
-      form.value.nama_assessment = `Assessment ${new Date().getTime().toString().slice(-6)}`
-    }
-    
     // If edit mode, load the assessment data
-    loadFormData()
+    if (props.isEdit) {
+      loadFormData()
+    } else {
+      // Set default assessment name
+      updateAssessmentName()
+    }
   } catch (error) {
     console.error('Error loading initial data:', error)
   }
 })
 
 // Watchers
-watch(() => props.selectedAssessment, loadFormData)
+watch(() => props.selectedAssessment, () => {
+  if (props.isEdit && props.selectedAssessment) {
+    loadFormData()
+  }
+})
+
+// Watch for changes in form fields to update assessment name
+watch(() => [
+  form.value.id_kelas,
+  form.value.id_dimensi,
+  form.value.id_elemen,
+  form.value.id_sub_elemen,
+  form.value.id_capaian
+], () => {
+  if (autoNaming.value) {
+    updateAssessmentName()
+  }
+}, { deep: true })
 </script>

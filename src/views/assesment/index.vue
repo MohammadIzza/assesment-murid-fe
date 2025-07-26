@@ -1,290 +1,373 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header Section -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-600 p-8 mb-8 text-white">
-        <div class="flex items-center space-x-6">
-          <div class="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      </div>
-      <div>
-            <h1 class="text-2xl font-bold text-white mb-2">Assessment</h1>
-            <p class="text-blue-100 text-base">Kelola dan buat assessment untuk siswa</p>
-          </div>
+  <div class="pb-20">
+    <!-- Header Section -->
+    <div class="bg-blue-700 px-8 py-6 rounded-xl mb-8">
+      <div class="flex items-center gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-white mb-2">Assessment</h1>
+          <p class="text-blue-100 text-base">Kelola dan buat assessment untuk siswa</p>
         </div>
+      </div>
     </div>
-    
-      <!-- Filter & Action Section -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+  
+    <!-- Filter & Action Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
+      <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
         <!-- Kelas Filter -->
-        <select 
-          v-model="selectedKelas" 
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
+          <select 
+            v-model="selectedKelas" 
             @change="onKelasChange"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
-            <option value="" disabled selected class="text-gray-400">Pilih Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas" class="text-sm px-2 py-1 text-left">{{ kelas.nama_kelas }}</option>
-        </select>
-        <!-- Dimensi Filter -->
-        <select 
-          v-model="selectedDimensi" 
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-          @change="onDimensiChange"
-        >
-            <option value="" disabled selected class="text-gray-400">Pilih Dimensi</option>
-            <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi" class="text-sm px-2 py-1 text-left">{{ dimensi.nama_dimensi }}</option>
-        </select>
-        <!-- Elemen Filter -->
-        <select 
-          v-model="selectedElemen" 
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-          @change="onElemenChange"
-          :disabled="!selectedDimensi"
-        >
-            <option value="" disabled selected class="text-gray-400">Pilih Elemen</option>
-            <option v-for="elemen in filteredElemen" :key="elemen.id_elemen" :value="elemen.id_elemen" class="text-sm px-2 py-1 text-left">{{ elemen.nama_elemen }}</option>
-        </select>
-        <!-- Sub Elemen Filter -->
-        <select 
-          v-model="selectedSubElemen" 
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full min-w-[160px]"
-          @change="onSubElemenChange"
-          :disabled="!selectedElemen"
-        >
-            <option value="" disabled selected class="text-gray-400">Pilih Sub Elemen</option>
-            <option v-for="subElemen in filteredSubElemen" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen" class="text-sm px-2 py-1 text-left">{{ subElemen.nama_sub_elemen }}</option>
-          </select>
-          <!-- Dropdown Filter Capaian -->
-          <select
-            v-model="selectedCapaian"
-            :disabled="!selectedSubElemen || capaianList.length === 0"
-            class="px-3 py-2 border rounded-lg shadow-md focus:ring-1 focus:ring-blue-400 border-gray-300 bg-white text-gray-700 text-sm appearance-none focus:outline-none w-full max-w-xs"
-          >
-            <option value="" disabled selected>Pilih Capaian</option>
-            <option
-              v-for="capaian in capaianList"
-              :key="capaian.id_capaian"
-              :value="capaian.id_capaian"
-            >
-              {{ capaian.deskripsi }}
+            <option value="">Pilih Kelas</option>
+            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+              {{ kelas.nama_kelas }}
             </option>
           </select>
-          <!-- Debug visual sementara -->
-          <!-- <div style="font-size:12px;color:#888;">CapaianList: {{ capaianList }}</div> -->
-      </div>
-        <!-- Tombol dan search tetap -->
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <input 
-            v-model="searchQuery"
-            type="text"   
-            placeholder="Cari assessment..." 
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 bg-white text-gray-700"
-          />
-          <div class="flex gap-2 mt-2 md:mt-0">
-          <button 
-            @click="resetFilters" 
-              class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200 border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+        </div>
+        
+        <!-- Dimensi Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
+          <select 
+            v-model="selectedDimensi"
+            @change="onDimensiChange" 
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
-            Reset Filter
+            <option value="">Pilih Dimensi</option>
+            <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
+              {{ dimensi.nama_dimensi }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Elemen Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
+          <select 
+            v-model="selectedElemen"
+            @change="onElemenChange" 
+            :disabled="!selectedDimensi"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+          >
+            <option value="">Pilih Elemen</option>
+            <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
+              {{ elemen.nama_elemen }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Sub Elemen Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
+          <select 
+            v-model="selectedSubElemen"
+            @change="onSubElemenChange" 
+            :disabled="!selectedElemen"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+          >
+            <option value="">Pilih Sub Elemen</option>
+            <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
+              {{ subElemen.nama_sub_elemen }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Capaian Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
+          <select 
+            v-model="selectedCapaian"
+            @change="onCapaianChange" 
+            :disabled="!selectedSubElemen"
+            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+          >
+            <option value="">Pilih Capaian</option>
+            <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
+              {{ truncateText(capaian.deskripsi, 60) }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <button 
+            @click="openCreateModal"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Buat
           </button>
         </div>
       </div>
-      </div>
-      <!-- Toast notification below filter -->
-      <div v-if="showToast" class="w-full max-w-2xl mx-auto mb-4 text-center">
-        <span class="italic text-gray-700 text-base font-medium">{{ toastMessage }}</span>
-      </div>
-      <!-- Loading Indicator -->
-      <div v-if="loading" class="flex justify-center my-10">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-      
-      <!-- Empty State -->
-      <div v-else-if="assessmentList.length === 0" class="bg-white rounded-xl shadow-lg border border-gray-200 p-10 text-center flex flex-col items-center justify-center">
-        <div class="rounded-full p-4 mb-4 bg-blue-100">
-          <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-          </div>
-        <h3 class="text-lg font-medium mb-1 text-gray-900">Belum ada assessment</h3>
-        <p class="mb-4 text-gray-500">Klik tombol "Buat Assessment" untuk membuat assessment baru</p>
-          <button 
-            @click="openCreateModal" 
-          class="text-white font-medium py-2 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 transition-all duration-200"
-          >
-            Buat Assessment Sekarang
-          </button>
-      </div>
-      
     </div>
-    
-    <!-- Assessment Form Modal -->
-    <assessment-form-modal
+
+    <!-- Message when no class is selected -->
+    <div v-if="!selectedKelas" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-10 text-center">
+      <div class="text-gray-400 mb-4">
+        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihlah Kelas terlebih dahulu!</h3>
+      <p class="text-gray-500 dark:text-gray-400">Anda harus memilih kelas untuk melihat dan mengelola penilaian siswa.</p>
+    </div>
+
+    <!-- Buku Penilaian - Muncul ketika kelas dipilih -->
+    <div v-if="selectedKelas" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden">
+      <div class="p-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-800 text-white">
+        <h2 class="text-xl font-bold">Buku Penilaian: {{ getNamaKelas(selectedKelas) }}</h2>
+        <p class="text-blue-100">{{ filterDescription }}</p>
+      </div>
+      
+      <!-- Tabel Penilaian dengan Styling yang Ditingkatkan -->
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-full border-collapse">
+          <!-- Header -->
+          <thead>
+            <tr class="bg-gray-800 text-white border-b border-gray-600">
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">Dimensi</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">Elemen</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">SKL</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Kompetensi</th>
+              
+              <!-- Student headers - Dynamic based on loaded students -->
+              <template v-for="siswa in siswaList" :key="siswa.id_siswa">
+                <th :colspan="7" class="text-center border-l border-gray-700">
+                  <div class="px-2 py-3 text-xs font-semibold">
+                    {{ siswa.nama }}
+                  </div>
+                  <div class="flex border-t border-gray-700">
+                    <div v-for="n in 6" :key="n" class="flex-1 px-1 py-2 text-xs border-r last:border-r-0 border-gray-700">{{ n }}</div>
+                    <div class="flex-1 px-1 py-2 text-xs font-semibold bg-gray-700">M</div>
+                  </div>
+                </th>
+              </template>
+            </tr>
+          </thead>
+          
+          <!-- Body -->
+          <tbody>
+            <!-- For each dimensi -->
+            <template v-for="(dimensi, dimIndex) in filteredDimensiList" :key="dimensi.id_dimensi">
+              <!-- Dimensi header row with colored background -->
+              <tr class="bg-green-600 dark:bg-green-800 text-white">
+                <td colspan="100%" class="px-4 py-3 font-semibold">
+                  {{ dimensi.nama_dimensi }}
+                </td>
+              </tr>
+              
+              <!-- For each elemen in this dimensi -->
+              <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
+                <!-- Elemen Header Row -->
+                <tr class="bg-gray-100 dark:bg-gray-700">
+                  <!-- Elemen identifier (A, B, C, etc.) -->
+                  <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-lg font-bold text-green-700 dark:text-green-300">
+                    {{ String.fromCharCode(65 + elemIndex) }}
+                  </td>
+                  
+                  <!-- Elemen Name -->
+                  <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
+                    {{ elemen.nama_elemen }}
+                  </td>
+                  
+                  <!-- Empty cells for student columns -->
+                  <td :colspan="siswaList.length * 7" class="border border-gray-300 dark:border-gray-700"></td>
+                </tr>
+                
+                <!-- Sub-Elemen (SKL) and Capaian (Kompetensi) Rows -->
+                <template v-for="(subElemen, subIndex) in getSubElemenForElemen(elemen.id_elemen)" :key="subElemen.id_sub_elemen">
+                  <!-- For each capaian in this sub-elemen -->
+                  <template v-for="(capaian, capIndex) in getCapaianForSubElemen(subElemen.id_sub_elemen)" :key="capaian.id_capaian">
+                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750">
+                      <!-- Empty cell for elemen identifier column -->
+                      <td class="border border-gray-300 dark:border-gray-700"></td>
+                      
+                      <!-- SKL Number (incrementing counter) -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-300">
+                        {{ subIndex + 1 }}
+                      </td>
+                      
+                      <!-- SKL Name -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
+                        {{ subElemen.nama_sub_elemen }}
+                      </td>
+                      
+                      <!-- Kompetensi Description -->
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
+                        {{ capaian.deskripsi }}
+                      </td>
+                      
+                      <!-- Student assessment cells -->
+                      <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
+                        <!-- Assessment values (1-6) -->
+                        <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
+                            @click="editNilai(capaian, siswa, n)"
+                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30">
+                          <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
+                               :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
+                               class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n) }}
+                          </div>
+                          <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                        </td>
+                        
+                        <!-- Modus value -->
+                        <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-600 text-center">
+                          <div v-if="getModusNilai(capaian.id_capaian, siswa.id_siswa)" 
+                               :class="getNilaiClass(getModusNilai(capaian.id_capaian, siswa.id_siswa))" 
+                               class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                          {{ getModusNilai(capaian.id_capaian, siswa.id_siswa) }}
+                          </div>
+                          <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
+                </template>
+                
+                <!-- Average Row for each Elemen -->
+                <tr class="bg-blue-50 dark:bg-blue-900/20 border-t-2 border-blue-200 dark:border-blue-800">
+                  <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
+                    Rata-Rata Per Elemen
+                  </td>
+                  
+                  <!-- Empty cell for capaian column -->
+                  <td class="border border-gray-300 dark:border-gray-700"></td>
+                  
+                  <!-- Average for each student -->
+                  <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
+                    <td colspan="6" class="border border-gray-300 dark:border-gray-700 text-center text-sm font-medium text-gray-800 dark:text-gray-300 py-3">
+                      {{ calculateAvgForElemenAndSiswa(elemen.id_elemen, siswa.id_siswa).toFixed(1) }}
+                    </td>
+                    <td class="border border-gray-300 dark:border-gray-700 w-12 bg-gray-100 dark:bg-gray-600 text-center">
+                      <div v-if="getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa)" 
+                           :class="getNilaiClass(getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa))" 
+                           class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
+                        {{ getElemenModusForSiswa(elemen.id_elemen, siswa.id_siswa) }}
+                      </div>
+                      <div v-else class="m-1 py-1 px-1 text-gray-400 dark:text-gray-600">-</div>
+                    </td>
+                  </template>
+                </tr>
+              </template>
+            </template>
+            
+            <!-- Empty state -->
+            <tr v-if="filteredDimensiList.length === 0">
+              <td colspan="100%" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                Tidak ada data penilaian yang sesuai dengan filter. Silakan ubah filter atau tambahkan assessment baru.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div v-if="showToast" class="w-full max-w-2xl mx-auto mb-4 text-center">
+      <span :class="{'text-green-600': toastType === 'success', 'text-red-600': toastType === 'error'}" 
+            class="italic text-base font-medium">
+        {{ toastMessage }}
+      </span>
+    </div>
+
+    <!-- Keep the modal component -->
+    <AssesmentFormModal
       v-if="showModal"
       :isEdit="isEditMode"
       :selectedAssessment="selectedAssessment"
       @close="closeModal"
       @save="saveAssessment"
     />
-    <!-- Tabel Dinamis Siswa & Penilaian -->
-    <div v-if="siswaList.length > 0" class="mx-4 sm:mx-6 lg:mx-8 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8 transition-all duration-300 hover:shadow-xl">
-    <div class="font-semibold text-lg mb-6 flex items-center gap-2 text-gray-800">
-      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-      Daftar Siswa di Kelas Ini
-    </div>
-    <div class="overflow-x-auto rounded-2xl border border-gray-100">
-      <table class="min-w-full text-sm border-separate border-spacing-0 rounded-2xl overflow-hidden">
-        <thead class="bg-gradient-to-r from-blue-100 to-blue-50 sticky top-0 z-10">
-          <tr>
-            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Nama</th>
-            <th class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200" style="min-width: 150px;">Kelas</th>
-            <th v-if="selectedDimensi" class="px-6 py-4 font-bold text-gray-700 uppercase text-center border-b-2 border-blue-200 transition-colors duration-300 hover:bg-blue-200 relative" :style="{ 'min-width': selectedDimensi && (selectedElemen || selectedSubElemen || selectedCapaian) ? '600px' : '200px' }">
-              <div class="flex flex-col items-center">
-                <!-- Dimensi -->
-                <span>DIMENSI</span>
-                <span class="font-normal text-xs text-gray-600">{{ getNamaDimensi(selectedDimensi) }}</span>
-                <!-- Elemen -->
-                <span v-if="selectedElemen" class="mt-2">ELEMEN</span>
-                <span v-if="selectedElemen" class="font-normal text-xs text-gray-600">{{ getNamaElemen(selectedElemen) }}</span>
-                <!-- Sub Elemen -->
-                <span v-if="selectedSubElemen" class="mt-2">SUB ELEMEN</span>
-                <span v-if="selectedSubElemen" class="font-normal text-xs text-gray-600">{{ getNamaSubElemen(selectedSubElemen) }}</span>
-                <!-- Capaian -->
-                <span v-if="selectedCapaian" class="mt-2">CAPAIAN</span>
-                <span v-if="selectedCapaian" class="font-normal text-xs text-gray-600">{{ getNamaCapaian(selectedCapaian) }}</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(siswa, idx) in siswaList" :key="siswa.id_siswa" :class="[idx % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'hover:bg-blue-50/50 transition-all duration-200 border-b border-gray-100 last:border-b-0']">
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200 relative" style="min-width: 150px;">
-              <span class="inline-flex items-center gap-2">
-                {{ siswa.nama }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 150px;">{{ getNamaKelas(siswa.id_kelas) }}</td>
-            <td v-if="selectedDimensi" class="px-6 py-4 whitespace-nowrap text-gray-900 text-center border-r border-gray-200" style="min-width: 200px;">
-              <!-- Radio buttons ketika semua filter dipilih -->
-              <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="flex flex-col gap-2">
-                <div class="flex gap-4 justify-center">
-                  <label v-for="opt in ['MB', 'SB', 'BSH', 'SAB']" :key="opt" class="inline-flex items-center gap-2 p-2 rounded-lg bg-white shadow-md hover:bg-blue-50 transition-all duration-200">
-                    <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiSiswa[siswa.id_siswa]" class="accent-blue-600 w-5 h-5 cursor-pointer" />
-                    <span class="text-base font-medium text-gray-800">{{ opt }}</span>
-                  </label>
-                </div>
-                
-                <!-- Progress indicator -->
-                <div class="text-xs text-gray-500 mt-2">
-                  Session: {{ assessmentResultsStore.getProgress.current }}/{{ assessmentResultsStore.getProgress.max }}
-                </div>
-                
-                <!-- Modus display jika ada -->
-                <div v-if="assessmentResultsStore.getModus" class="text-xs text-green-600 font-medium">
-                  Modus: {{ assessmentResultsStore.getModus.nilai }} ({{ assessmentResultsStore.getModus.count }}/{{ assessmentResultsStore.getModus.total }})
-                </div>
-              </div>
-              
-              <!-- Informasi filter yang dipilih -->
-              <div v-else class="text-center">
-                <div v-if="!selectedElemen" class="text-s text-gray-400 italic">
-                  Pilih Elemen untuk melanjutkan
-                </div>
-                <div v-else-if="!selectedSubElemen" class="text-s text-gray-400 italic">
-                  Pilih Sub Elemen untuk melanjutkan
-                </div>
-                <div v-else-if="!selectedCapaian" class="text-s text-gray-400 italic">
-                  Pilih Capaian untuk mulai assessment
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-        </table>
-      </div>
-      <!-- Satu tombol untuk create assessment & nilai -->
-      <div v-if="selectedDimensi && selectedElemen && selectedSubElemen && selectedCapaian" class="mt-6 flex justify-center">
-        <button 
-          @click="buatAssessmentDanNilai"
-          :disabled="!canSaveAssessment || loading"
-          class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
-        >
-          <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          {{ loading ? 'Menyimpan...' : 'Buat Assessment & Simpan Nilai' }}
-        </button>
-      </div>
-      <!-- Notifikasi -->
-      <div v-if="notif" :class="['mt-4 text-center rounded p-2', notifType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
-        {{ notif }}
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue';
+import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue';
 import { useAssesmentStore } from '@/stores/assesment'
-import { useAssessmentResultsStore } from '@/stores/assessmentResults'
 import { useKelasStore } from '@/stores/kelas'
 import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
-import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue'
 import { useThemeStore } from '@/stores/theme'
-import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
 
-// Initialize stores
+// Store initialization
 const assessmentStore = useAssesmentStore()
-const assessmentResultsStore = useAssessmentResultsStore()
 const kelasStore = useKelasStore()
 const dimensiStore = useDimensiStore()
 const elemenStore = useElemenStore()
 const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
-const router = useRouter()
-const route = useRoute()
 
 // State variables
-const loading = ref(true)
+const loading = ref(false)
 const searchQuery = ref('')
-const selectedKelas = ref('')
-const selectedDimensi = ref('')
-const selectedElemen = ref('')
-const selectedSubElemen = ref('')
-const selectedCapaian = ref('')
-const filterStatus = ref('')
 const showModal = ref(false)
 const isEditMode = ref(false)
 const selectedAssessment = ref(null)
-const siswaList = ref([])
-const nilaiSiswa = ref({})
-const kelasList = ref([])
+// GANTI: kelasList pakai computed agar reactive ke store
+const kelasList = computed(() => kelasStore.getKelasList)
 const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
-const notif = ref('')
-const notifType = ref('success')
-const pengampuMap = ref({})
+const siswaList = ref([])
+const nilaiSiswa = ref({}) // {id_capaian: {id_siswa: nilai}}
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastType = ref('success')
 let toastTimeout = null
 
+// New data structure for storing assessment values
+const assessmentValues = ref({}) // {id_capaian: {id_siswa: {assessmentNumber: nilai}}}
+
+// Track current editing assessment
+const currentEditingAssessment = ref({
+  capaian: null,
+  siswa: null,
+  assessmentNumber: null
+})
+
+// Filter selections
+const selectedKelas = ref('')
+const selectedDimensi = ref('')
+const selectedElemen = ref('')
+const selectedSubElemen = ref('')
+const selectedCapaian = ref('')
+
+// Computed for filter description
+const filterDescription = computed(() => {
+  const parts = []
+  
+  if (selectedDimensi.value) {
+    parts.push(`Dimensi: ${getNamaDimensi(selectedDimensi.value)}`)
+  }
+  
+  if (selectedElemen.value) {
+    parts.push(`Elemen: ${getNamaElemen(selectedElemen.value)}`)
+  }
+  
+  if (selectedSubElemen.value) {
+    parts.push(`Sub Elemen: ${getNamaSubElemen(selectedSubElemen.value)}`)
+  }
+  
+  if (selectedCapaian.value) {
+    parts.push(`Capaian: ${truncateText(getNamaCapaian(selectedCapaian.value), 40)}`)
+  }
+  
+  return parts.length > 0 ? parts.join(' • ') : 'Menampilkan semua data penilaian'
+})
+
+// Helper functions
 function showSuccessToast(msg) {
   toastMessage.value = msg
   toastType.value = 'success'
@@ -292,85 +375,63 @@ function showSuccessToast(msg) {
   if (toastTimeout) clearTimeout(toastTimeout)
   toastTimeout = setTimeout(() => { showToast.value = false }, 2000)
 }
+
 function showErrorToast(msg) {
   toastMessage.value = msg
   toastType.value = 'error'
   showToast.value = true
   if (toastTimeout) clearTimeout(toastTimeout)
-  toastTimeout = setTimeout(() => { showToast.value = false }, 2000)
+  toastTimeout = setTimeout(() => { showToast.value = false }, 3000)
+}
+
+function truncateText(text, maxLength) {
+  if (!text) return ''
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
 }
 
 // Computed properties
-const assessmentList = computed(() => assessmentStore.getAssessmentList)
-const isDarkMode = computed(() => themeStore.isDarkMode)
-
 const filteredAssessmentList = computed(() => {
-  let filtered = [...assessmentList.value]
+  const list = assessmentStore.getAssessmentList
+  if (!list.length) return []
+
+  // Apply filters
+  let filtered = list
   
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(assessment => 
-      assessment.nama_kelas?.toLowerCase().includes(query) || 
-      assessment.nama_dimensi?.toLowerCase().includes(query) ||
-      assessment.nama_elemen?.toLowerCase().includes(query) ||
-      assessment.nama_sub_elemen?.toLowerCase().includes(query) ||
-      assessment.kompetensi?.toLowerCase().includes(query)
-    )
-  }
-  
-  if (selectedKelas.value) {
-    filtered = filtered.filter(assessment => 
-      assessment.id_kelas == selectedKelas.value
-    )
-  }
-  
-  if (selectedDimensi.value) {
-    filtered = filtered.filter(assessment => 
-      assessment.id_dimensi == selectedDimensi.value
-    )
-  }
-  
-  if (selectedElemen.value) {
-    filtered = filtered.filter(assessment => 
-      assessment.id_elemen == selectedElemen.value
-    )
-  }
-  
-  if (selectedSubElemen.value) {
-    filtered = filtered.filter(assessment => 
-      assessment.id_sub_elemen == selectedSubElemen.value
-    )
-  }
-  
-  if (filterStatus.value) {
-    filtered = filtered.filter(assessment => 
-      assessment.status === filterStatus.value
+      (assessment.nama_assessment && assessment.nama_assessment.toLowerCase().includes(query))
     )
   }
   
   return filtered
 })
 
-const filteredElemen = computed(() =>
-  elemenList.value.filter(e => e.id_dimensi == selectedDimensi.value)
-)
+const filteredElemenList = computed(() => {
+  if (!selectedDimensi.value) return []
+  return elemenList.value.filter(e => e.id_dimensi == selectedDimensi.value)
+})
 
-const filteredSubElemen = computed(() =>
-  subElemenList.value.filter(se => se.id_elemen == selectedElemen.value)
-)
+const filteredSubElemenList = computed(() => {
+  if (!selectedElemen.value) return []
+  return subElemenList.value.filter(se => se.id_elemen == selectedElemen.value)
+})
 
-const filteredCapaian = computed(() =>
-  capaianList.value.filter(c => c.id_sub_elemen == selectedSubElemen.value)
-)
+const filteredDimensiList = computed(() => {
+  if (!selectedKelas.value) return []
+  
+  let filtered = dimensiList.value
 
-const isAllFilterSelected = computed(() =>
-  selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value && selectedCapaian.value
-)
+  if (selectedDimensi.value) {
+    filtered = filtered.filter(d => d.id_dimensi == selectedDimensi.value)
+  }
+  
+  return filtered
+})
 
-const canSaveAssessment = computed(() => {
-  if (!isAllFilterSelected.value) return false
-  // Semua siswa wajib diisi nilainya
-  return siswaList.value.length > 0 && siswaList.value.every(siswa => nilaiSiswa.value[siswa.id_siswa])
+const isAllFilterSelected = computed(() => {
+  return selectedKelas.value && selectedDimensi.value && 
+         selectedElemen.value && selectedSubElemen.value && selectedCapaian.value
 })
 
 // Helper functions for fetching names
@@ -399,9 +460,399 @@ const getNamaCapaian = (id) => {
   return capaian ? capaian.deskripsi : 'N/A'
 }
 
-// Mapping kelas ke id_fase
+// Functions for grade book table
+const getElemenForDimensi = (id_dimensi) => {
+  if (!id_dimensi) return []
+  
+  let filtered = elemenList.value.filter(e => e.id_dimensi == id_dimensi)
+  
+  if (selectedElemen.value) {
+    filtered = filtered.filter(e => e.id_elemen == selectedElemen.value)
+  }
+  
+  return filtered
+}
+
+const getCapaianForElemen = (id_elemen) => {
+  if (!id_elemen || !selectedKelas.value) return [];
+  
+  // Get all sub-elemens for this elemen
+  const relevantSubElems = getSubElemenForElemen(id_elemen);
+  if (relevantSubElems.length === 0) return [];
+  
+  // Get the fase from the selected kelas
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return [];
+  
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return [];
+  
+  // Get all capaian for all sub-elemens of this elemen, filtered by fase
+  let allCapaian = [];
+  relevantSubElems.forEach(se => {
+    const capaianForSubElem = capaianList.value.filter(c => 
+      c.id_sub_elemen == se.id_sub_elemen && 
+      c.id_fase == id_fase
+    );
+    allCapaian = [...allCapaian, ...capaianForSubElem];
+  });
+  
+  // Additional filter if a specific capaian is selected
+  if (selectedCapaian.value) {
+    allCapaian = allCapaian.filter(c => c.id_capaian == selectedCapaian.value);
+  }
+  
+  return allCapaian;
+}
+
+// Functions for new assessment table
+const getNilaiForAssessment = (id_capaian, id_siswa, assessmentNumber) => {
+  if (!assessmentValues.value[id_capaian] || 
+      !assessmentValues.value[id_capaian][id_siswa] ||
+      !assessmentValues.value[id_capaian][id_siswa][assessmentNumber]) {
+    return null;
+  }
+  return assessmentValues.value[id_capaian][id_siswa][assessmentNumber];
+}
+
+const getModusNilai = (id_capaian, id_siswa) => {
+  if (!assessmentValues.value[id_capaian] || !assessmentValues.value[id_capaian][id_siswa]) {
+    return null;
+  }
+  
+  // Get all values for this capaian and student
+  const values = Object.values(assessmentValues.value[id_capaian][id_siswa]).filter(Boolean);
+  
+  if (values.length === 0) return null;
+  
+  // Calculate mode (most frequent value)
+  const counts = {};
+  let maxCount = 0;
+  let modus = null;
+  
+  values.forEach(value => {
+    counts[value] = (counts[value] || 0) + 1;
+    if (counts[value] > maxCount) {
+      maxCount = counts[value];
+      modus = value;
+    }
+  });
+  
+  return modus;
+}
+
+const getElemenModusForSiswa = (id_elemen, id_siswa) => {
+  // Get all capaian for this elemen
+  const capaians = getCapaianForElemen(id_elemen);
+  if (capaians.length === 0) return null;
+  
+  // Get mode values for each capaian
+  const modeValues = capaians
+    .map(capaian => getModusNilai(capaian.id_capaian, id_siswa))
+    .filter(Boolean);
+  
+  if (modeValues.length === 0) return null;
+  
+  // Calculate mode of mode values
+  const counts = {};
+  let maxCount = 0;
+  let modus = null;
+  
+  modeValues.forEach(value => {
+    // Convert string numeric values to actual numbers
+    const normalizedValue = typeof value === 'string' && !isNaN(Number(value)) 
+      ? Number(value) 
+      : value;
+      
+    counts[normalizedValue] = (counts[normalizedValue] || 0) + 1;
+    if (counts[normalizedValue] > maxCount) {
+      maxCount = counts[normalizedValue];
+      modus = normalizedValue;
+    }
+  });
+  
+  return modus;
+}
+
+const calculateAvgForElemenAndSiswa = (id_elemen, id_siswa) => {
+  const capaians = getCapaianForElemen(id_elemen);
+  if (capaians.length === 0) return 0;
+  
+  let total = 0;
+  let count = 0;
+  
+  capaians.forEach(capaian => {
+    const modeValue = getModusNilai(capaian.id_capaian, id_siswa);
+    if (modeValue) {
+      let numericValue = 0;
+      
+      if (typeof modeValue === 'string') {
+        if (modeValue === 'MB') numericValue = 1;
+        else if (modeValue === 'SB') numericValue = 2;
+        else if (modeValue === 'BSH') numericValue = 3;
+        else if (modeValue === 'SAB') numericValue = 4;
+        else numericValue = parseFloat(modeValue) || 0;
+      } else {
+        numericValue = modeValue || 0;
+      }
+      
+      total += numericValue;
+      count++;
+    }
+  });
+  
+  return count > 0 ? total / count : 0;
+}
+
+const getNilaiClass = (nilai) => {
+  if (!nilai) return 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400'
+  
+  switch (nilai) {
+    case '1':
+    case 1:
+    case 'MB':
+      return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
+    case '2':
+    case 2:
+    case 'SB':
+      return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300'
+    case '3':
+    case 3:
+    case 'BSH':
+      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+    case '4':
+    case 4:
+    case 'SAB':
+      return 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+    default:
+      return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+  }
+}
+
+// Edit assessment value function
+const editNilai = (capaian, siswa, assessmentNumber) => {
+  currentEditingAssessment.value = {
+    capaian,
+    siswa,
+    assessmentNumber
+  };
+  
+  // Find existing assessment for this combination
+  const existingAssessment = assessmentStore.getAssessmentList.find(a => 
+    a.id_capaian == capaian.id_capaian && 
+    a.id_kelas == siswa.id_kelas &&
+    a.assessmentNumber == assessmentNumber
+  );
+  
+  if (existingAssessment) {
+    // Edit existing assessment
+    selectedAssessment.value = { 
+      ...existingAssessment,
+      nilai: { ...existingAssessment.nilai } // Clone to avoid reference issues
+    };
+    isEditMode.value = true;
+  } else {
+    // Create new assessment
+    selectedAssessment.value = {
+      nama_assessment: `Assessment ${assessmentNumber} - ${capaian.deskripsi.substring(0, 30)}...`,
+      id_kelas: siswa.id_kelas,
+      id_dimensi: getElemenForCapaian(capaian).id_dimensi, // Changed from getElementForCapaian
+      id_elemen: getSubElemenForCapaian(capaian).id_elemen, // Changed from getSubElementForCapaian
+      id_sub_elemen: capaian.id_sub_elemen,
+      id_capaian: capaian.id_capaian,
+      nilai: {},
+      assessmentNumber
+    };
+    isEditMode.value = false;
+  }
+  
+  showModal.value = true;
+}
+
+// Change this function name to match what's used in the template
+const getSubElemenForCapaian = (capaian) => {
+  if (!capaian || capaian.id_sub_elemen === undefined) return {};
+  return subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) || {};
+}
+
+// Also rename this function for consistency
+const getElemenForCapaian = (capaian) => {
+  if (!capaian || capaian.id_sub_elemen === undefined) return {};
+  
+  const subElement = subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen);
+  if (!subElement || !subElement.id_elemen) return {};
+  
+  const element = elemenList.value.find(e => e.id_elemen == subElement.id_elemen);
+  return element || {};
+}
+
+// Add these functions to support the hierarchy display
+
+// Get Sub Elemen for an Elemen
+const getSubElemenForElemen = (id_elemen) => {
+  if (!id_elemen) return [];
+  return subElemenList.value.filter(se => se.id_elemen == id_elemen);
+}
+
+// Get Capaian for a Sub Elemen, filtered by the current fase
+const getCapaianForSubElemen = (id_sub_elemen) => {
+  if (!id_sub_elemen || !selectedKelas.value) return [];
+  
+  // Get the fase from the selected kelas
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return [];
+  
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return [];
+  
+  // Filter capaian by both sub_elemen and fase
+  return capaianList.value.filter(c => 
+    c.id_sub_elemen == id_sub_elemen && 
+    c.id_fase == id_fase
+  );
+}
+
+// Fetch data functions
+const fetchKelasList = async () => {
+  try {
+    await kelasStore.fetchKelasList()
+    // HAPUS: kelasList.value = kelasStore.getKelasList || []
+  } catch (error) {
+    console.error('Error fetching kelas list:', error)
+  }
+}
+
+const fetchDimensiList = async () => {
+  try {
+    await dimensiStore.fetchDimensiList()
+    dimensiList.value = dimensiStore.getDimensiList || []
+  } catch (error) {
+    console.error('Error fetching dimensi list:', error)
+  }
+}
+
+const fetchElemenList = async () => {
+  try {
+    await elemenStore.fetchElemenList()
+    elemenList.value = elemenStore.getElemenList || []
+  } catch (error) {
+    console.error('Error fetching elemen list:', error)
+  }
+}
+
+const fetchSubElemenList = async () => {
+  try {
+    await subElemenStore.fetchSubElemenList()
+    subElemenList.value = subElemenStore.getSubElemenList || []
+  } catch (error) {
+    console.error('Error fetching sub elemen list:', error)
+  }
+}
+
+const fetchCapaianList = async (id_fase, id_sub_elemen) => {
+  try {
+    const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
+    if (response.data.success) {
+      capaianList.value = response.data.data || []
+    } else {
+      capaianList.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching capaian list:', error)
+    capaianList.value = []
+  }
+}
+
+const fetchSiswaByKelas = async (id_kelas) => {
+  try {
+    const response = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
+    if (response.data.success) {
+      siswaList.value = response.data.data.filter(siswa => siswa.id_kelas == id_kelas) || []
+    } else {
+      siswaList.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching siswa list:', error)
+    siswaList.value = []
+  }
+}
+
+const fetchNilaiSiswa = async () => {
+  // Clear existing data first
+  nilaiSiswa.value = {};
+  assessmentValues.value = {};
+  
+  if (!selectedKelas.value) return;
+  
+  try {
+    // Step 1: Fetch all assessments for this kelas
+    const responseAssessments = await axios.get(`/list/assessment?id_kelas=${selectedKelas.value}`);
+    
+    if (!responseAssessments.data.success) {
+      console.error('Failed to fetch assessments');
+      return;
+    }
+    
+    const assessments = responseAssessments.data.data || [];
+    const assessmentIds = assessments.map(a => a.id_assessment);
+    
+    if (assessmentIds.length === 0) {
+      return;
+    }
+    
+    // Step 2: Fetch all nilai (scores) for these assessments
+    const responseNilai = await axios.get(`/list/nilai?id_kelas=${selectedKelas.value}`);
+    
+    if (!responseNilai.data.success) {
+      console.error('Failed to fetch nilai data');
+      return;
+    }
+    
+    const nilaiList = responseNilai.data.data || [];
+    
+    // Step 3: Organize data by capaian, student, and assessment number
+    assessments.forEach(assessment => {
+      const id_capaian = assessment.id_capaian;
+      const assessmentNumber = assessment.assessmentNumber || 1; // Default to 1 if not specified
+      
+      // Initialize assessment values structure
+      if (!assessmentValues.value[id_capaian]) {
+        assessmentValues.value[id_capaian] = {};
+      }
+      
+      // Find scores for this assessment
+      const scoresForAssessment = nilaiList.filter(n => n.id_assessment === assessment.id_assessment);
+      
+      // Map scores to students and assessment numbers
+      scoresForAssessment.forEach(nilai => {
+        if (nilai.nilai !== null && nilai.nilai !== undefined && nilai.nilai !== '') {
+          if (!assessmentValues.value[id_capaian][nilai.id_siswa]) {
+            assessmentValues.value[id_capaian][nilai.id_siswa] = {};
+          }
+          assessmentValues.value[id_capaian][nilai.id_siswa][assessmentNumber] = nilai.nilai;
+        }
+      });
+    });
+    
+    // Also maintain the existing nilaiSiswa structure for backward compatibility
+    Object.keys(assessmentValues.value).forEach(id_capaian => {
+      nilaiSiswa.value[id_capaian] = {};
+      
+      Object.keys(assessmentValues.value[id_capaian]).forEach(id_siswa => {
+        // Use the mode value as the representative value
+        nilaiSiswa.value[id_capaian][id_siswa] = getModusNilai(id_capaian, id_siswa);
+      });
+    });
+    
+  } catch (error) {
+    console.error('Error fetching nilai siswa:', error);
+    nilaiSiswa.value = {}; // Reset on error
+    assessmentValues.value = {};
+  }
+}
+
+// Get id_fase from kelas name
 function getIdFaseFromKelas(namaKelas) {
-  // Mapping romawi ke id_fase
   if (/\bI\b|\bII\b|\bIII\b|\bIV\b|\bV\b|\bVI\b|\bVII\b|\bVIII\b|\bIX\b|\bX\b|\bXI\b|\bXII\b/i.test(namaKelas)) {
     if (/\bI\b/i.test(namaKelas)) return 2; // Fase A (Kelas 1)
     if (/\bII\b/i.test(namaKelas)) return 2; // Fase A (Kelas 2)
@@ -419,95 +870,36 @@ function getIdFaseFromKelas(namaKelas) {
   return null;
 }
 
-// Fetch data methods
-const fetchKelasList = async () => {
+const fetchAllCapaianForKelas = async () => {
+  if (!selectedKelas.value) return;
+  
+  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
+  if (!kelas) return;
+  
+  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+  if (!id_fase) return;
+  
   try {
-    await kelasStore.fetchKelasList()
-    kelasList.value = kelasStore.getSortedKelasList || []
-    console.debug('Kelas list fetched (sorted):', kelasList.value)
-  } catch (error) {
-    console.error('Error fetching kelas list:', error)
-    kelasList.value = []
-  }
-}
-
-const fetchDimensiList = async () => {
-  try {
-    await dimensiStore.fetchDimensiList()
-    dimensiList.value = dimensiStore.getDimensiList || []
-    console.debug('Dimensi list fetched:', dimensiList.value)
-  } catch (error) {
-    console.error('Error fetching dimensi list:', error)
-    dimensiList.value = []
-  }
-}
-
-const fetchElemenList = async () => {
-  try {
-    await elemenStore.fetchElemenList()
-    elemenList.value = elemenStore.getElemenList || []
-    console.debug('Elemen list fetched:', elemenList.value)
-  } catch (error) {
-    console.error('Error fetching elemen list:', error)
-    elemenList.value = []
-  }
-}
-
-const fetchSubElemenList = async () => {
-  try {
-    await subElemenStore.fetchSubElemenList()
-    subElemenList.value = subElemenStore.getSubElemenList || []
-    console.debug('Sub Elemen list fetched:', subElemenList.value)
-  } catch (error) {
-    console.error('Error fetching sub elemen list:', error)
-    subElemenList.value = []
-  }
-}
-
-const fetchCapaianList = async (id_fase, id_sub_elemen) => {
-  try {
-    console.debug('Fetching capaian with params:', { id_fase, id_sub_elemen })
-    
-    // Gunakan endpoint filter capaian yang sudah berfungsi
-    const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
-    
-    console.debug('Capaian API response:', response.data)
-    
-    if (response.data.success) {
-      capaianList.value = response.data.data || []
-      console.debug('Capaian list fetched:', capaianList.value)
+    // If sub_elemen is selected, fetch capaian for that specific sub_elemen and fase
+    if (selectedSubElemen.value) {
+      const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
+      if (response.data.success) {
+        capaianList.value = response.data.data || [];
+      } else {
+        capaianList.value = [];
+      }
     } else {
-      console.warn('No capaian data returned from API')
-      capaianList.value = []
+      // Fetch all capaian for this fase
+      const response = await axios.get(`/list/capaian?id_fase=${id_fase}`);
+      if (response.data.success) {
+        capaianList.value = response.data.data.filter(c => c.id_fase == id_fase) || [];
+      } else {
+        capaianList.value = [];
+      }
     }
   } catch (error) {
-    console.error('Error fetching capaian list:', error, { id_fase, id_sub_elemen })
-    capaianList.value = []
-  }
-}
-
-const fetchSiswaList = async (id_kelas) => {
-  try {
-    const res = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
-    siswaList.value = res.data.success ? res.data.data.filter(siswa => siswa.id_kelas == id_kelas) : []
-    console.debug('Siswa list fetched:', siswaList.value)
-  } catch (error) {
-    console.error('Error fetching siswa list:', error)
-    siswaList.value = []
-  }
-}
-
-const fetchPengampuList = async () => {
-  try {
-    const res = await axios.get('/list/pengampu')
-    if (res.data.success) {
-      pengampuMap.value = {}
-      res.data.data.forEach(p => {
-        pengampuMap.value[p.id_kelas] = p.id_pengampu
-      })
-    }
-  } catch (err) {
-    console.error('Error fetching pengampu:', err)
+    console.error('Error fetching capaian list:', error);
+    capaianList.value = [];
   }
 }
 
@@ -519,8 +911,7 @@ const fetchData = async () => {
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
-      fetchSubElemenList(),
-      fetchPengampuList() // tambahkan ini
+      fetchSubElemenList()
     ])
   } catch (error) {
     console.error('Error fetching initial data:', error)
@@ -529,325 +920,194 @@ const fetchData = async () => {
   }
 }
 
-// Methods for handling dropdown changes
+// Filter change handlers
 const onKelasChange = async () => {
+  // Reset dependent filters
   selectedDimensi.value = ''
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  elemenList.value = []
-  subElemenList.value = []
-  capaianList.value = []
-  siswaList.value = []
+  
   if (selectedKelas.value) {
-    await fetchSiswaList(selectedKelas.value)
+    await Promise.all([
+      fetchSiswaByKelas(selectedKelas.value),
+      fetchAllCapaianForKelas(),
+      fetchNilaiSiswa()
+    ])
   }
 }
 
-const onDimensiChange = async () => {
+const onDimensiChange = () => {
+  // Reset dependent filters
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  subElemenList.value = []
-  capaianList.value = []
-  if (selectedDimensi.value) {
-    try {
-      await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
-      elemenList.value = elemenStore.getElemenList || []
-      console.debug('Filtered elemen list:', elemenList.value)
-    } catch (error) {
-      console.error('Error fetching elemen list:', error)
-    }
-  }
 }
 
-const onElemenChange = async () => {
+const onElemenChange = () => {
+  // Reset dependent filters
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  capaianList.value = []
-  if (selectedElemen.value) {
-    try {
-      await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
-      subElemenList.value = subElemenStore.getSubElemenList || []
-      console.debug('Filtered sub elemen list:', subElemenList.value)
-    } catch (error) {
-      console.error('Error fetching sub elemen list:', error)
-    }
-  }
 }
 
 const onSubElemenChange = async () => {
+  // Reset capaian
   selectedCapaian.value = '';
-  capaianList.value = [];
+  
   if (selectedSubElemen.value && selectedKelas.value) {
     const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
-    const id_fase = getIdFaseFromKelas(kelas?.nama_kelas || '');
-    if (id_fase) {
-      await fetchCapaianList(id_fase, selectedSubElemen.value);
-    } else {
-      console.warn('Tidak bisa menentukan id_fase dari kelas:', kelas?.nama_kelas);
+    if (kelas) {
+      const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
+      if (id_fase) {
+        try {
+          // Fetch capaian filtered by both fase and sub_elemen
+          const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
+          
+          if (response.data.success) {
+            capaianList.value = response.data.data || [];
+          } else {
+            capaianList.value = [];
+            console.warn('No capaian data returned from API');
+          }
+        } catch (error) {
+          console.error('Error fetching capaian list:', error);
+          capaianList.value = [];
+        }
+      } else {
+        capaianList.value = [];
+      }
     }
   }
-};
-
-const onCapaianChange = async () => {
-  console.debug('Selected capaian:', selectedCapaian.value)
-  
-  // Load assessment results jika semua filter sudah dipilih
-  if (selectedKelas.value && selectedDimensi.value && selectedElemen.value && selectedSubElemen.value && selectedCapaian.value) {
-    const filters = {
-      id_kelas: selectedKelas.value,
-      id_dimensi: selectedDimensi.value,
-      id_elemen: selectedElemen.value,
-      id_sub_elemen: selectedSubElemen.value,
-      id_capaian: selectedCapaian.value,
-      nama_kelas: getNamaKelas(selectedKelas.value),
-      nama_dimensi: getNamaDimensi(selectedDimensi.value),
-      nama_elemen: getNamaElemen(selectedElemen.value),
-      nama_sub_elemen: getNamaSubElemen(selectedSubElemen.value),
-      nama_capaian: getNamaCapaian(selectedCapaian.value)
-    }
-    
-    await assessmentResultsStore.loadAssessmentResults(filters)
-  }
 }
 
-// Other methods
-const openCreateModal = () => {
-  selectedAssessment.value = null
-  isEditMode.value = false
-  showModal.value = true
-}
-
-const selectAssessment = (assessment) => {
-  selectedAssessment.value = assessment
-}
-
-const editAssessment = (assessment) => {
-  selectedAssessment.value = assessment
-  isEditMode.value = true
-  showModal.value = true
-}
-
-const saveAssessment = async (formData) => {
-  try {
-    loading.value = true
-    if (isEditMode.value) {
-      await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
-    } else {
-      await assessmentStore.createAssessment(formData)
-    }
-    closeModal()
-    await fetchData()
-  } catch (error) {
-    console.error('Error saving assessment:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const closeModal = () => {
-  showModal.value = false
-  isEditMode.value = false
-  selectedAssessment.value = null
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(date)
-}
-
-const getStatusClass = (status) => {
-  if (isDarkMode.value) {
-    return status === 'completed' 
-      ? 'bg-green-900/30 text-green-300' 
-      : 'bg-yellow-900/30 text-yellow-300'
-  } else {
-    return status === 'completed' 
-      ? 'bg-green-100 text-green-800' 
-      : 'bg-yellow-100 text-yellow-800'
-  }
-}
-
-const getStatusText = (status) => {
-  return status === 'completed' ? 'Selesai' : 'Belum Selesai'
+const onCapaianChange = () => {
+  // Any additional logic when capaian is selected
 }
 
 const resetFilters = () => {
-  searchQuery.value = ''
   selectedKelas.value = ''
   selectedDimensi.value = ''
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  filterStatus.value = ''
-  elemenList.value = []
-  subElemenList.value = []
-  capaianList.value = []
-  siswaList.value = []
 }
 
-const saveAssessmentResults = async () => {
-  try {
-    // Siapkan data untuk disimpan
-    const filters = {
+// Modal methods
+const openCreateModal = () => {
+  if (isAllFilterSelected.value) {
+    selectedAssessment.value = {
+      nama_assessment: '',
       id_kelas: selectedKelas.value,
       id_dimensi: selectedDimensi.value,
       id_elemen: selectedElemen.value,
       id_sub_elemen: selectedSubElemen.value,
       id_capaian: selectedCapaian.value,
-      nama_kelas: getNamaKelas(selectedKelas.value),
-      nama_dimensi: getNamaDimensi(selectedDimensi.value),
-      nama_elemen: getNamaElemen(selectedElemen.value),
-      nama_sub_elemen: getNamaSubElemen(selectedSubElemen.value),
-      nama_capaian: getNamaCapaian(selectedCapaian.value)
+      nilai: {}
     }
-    
-    const data = {
-      siswaList: siswaList.value,
-      nilaiSiswa: nilaiSiswa.value,
-      filters: filters
+  } else {
+    selectedAssessment.value = {
+      nama_assessment: '',
+      id_kelas: '',
+      id_dimensi: '',
+      id_elemen: '',
+      id_sub_elemen: '',
+      id_capaian: '',
+      nilai: {}
     }
-    
-    // Simpan assessment results
-    const result = await assessmentResultsStore.saveAssessmentResult(data)
-    
-    // Reset nilai form
-    nilaiSiswa.value = {}
-    
-    // Tampilkan pesan sukses
-    alert(`Assessment berhasil disimpan! Session ${assessmentResultsStore.getProgress.current}/${assessmentResultsStore.getProgress.max}`)
-    
-    // Jika sudah mencapai maksimal, tampilkan modus
-    if (!assessmentResultsStore.canAddMore()) {
-      const modus = assessmentResultsStore.getModus
-      alert(`Assessment selesai! Modus: ${modus.nilai} (${modus.count}/${modus.total})`)
-    }
-    
-  } catch (error) {
-    console.error('Error saving assessment results:', error)
-    alert('Gagal menyimpan assessment: ' + (error.message || 'Unknown error'))
+  }
+  
+  isEditMode.value = false
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  currentEditingAssessment.value = {
+    capaian: null,
+    siswa: null,
+    assessmentNumber: null
   }
 }
 
-const buatAssessmentDanNilai = async () => {
-  notif.value = ''
-  notifType.value = 'success'
-  if (!isAllFilterSelected.value) {
-    showErrorToast('Lengkapi semua filter!')
-    notif.value = 'Lengkapi semua filter!'
-    notifType.value = 'error'
-    return
-  }
-  if (!siswaList.value.every(siswa => nilaiSiswa.value[siswa.id_siswa])) {
-    showErrorToast('Semua siswa wajib diisi nilainya!')
-    notif.value = 'Semua siswa wajib diisi nilainya!'
-    notifType.value = 'error'
-    return
-  }
+const editAssessment = (assessment) => {
+  selectedAssessment.value = { ...assessment }
+  isEditMode.value = true
+  showModal.value = true
+}
+
+const deleteAssessment = async (id) => {
+  if (!confirm('Apakah Anda yakin ingin menghapus assessment ini?')) return
+  
   try {
     loading.value = true
-    // 1. Buat assessment
-    const idCapaianInt = parseInt(selectedCapaian.value)
-    const assessmentData = {
-      id_capaian: isNaN(idCapaianInt) ? null : idCapaianInt,
-      nama_assessment: `${getNamaKelas(selectedKelas.value)} - ${getNamaDimensi(selectedDimensi.value)} - ${getNamaElemen(selectedElemen.value)} - ${getNamaSubElemen(selectedSubElemen.value)}`,
-      deskripsi: `Assessment untuk ${getNamaKelas(selectedKelas.value)} pada ${getNamaDimensi(selectedDimensi.value)}`,
-      bobot: 1
-    }
-    // Validasi payload
-    if (!assessmentData.id_capaian || !assessmentData.nama_assessment || !assessmentData.deskripsi || !assessmentData.bobot) {
-      showErrorToast('Data assessment tidak lengkap!')
-      notif.value = 'Data assessment tidak lengkap!'
-      notifType.value = 'error'
-      loading.value = false
-      return
-    }
-    const res = await axios.post('/add/assessment', assessmentData)
-    if (!res.data.success || !res.data.id) throw new Error('Gagal membuat assessment')
-    const id_assessment = res.data.id
-    // 2. Simpan nilai siswa
-    await Promise.all(
-      siswaList.value.map(siswa =>
-        axios.post('/add/nilai', {
-          id_siswa: siswa.id_siswa,
-          id_pengampu: pengampuMap.value[siswa.id_kelas],
-          id_assessment,
-          nilai: nilaiSiswa.value[siswa.id_siswa]
-        })
-      )
-    )
-    showSuccessToast('Assessment dan nilai siswa berhasil disimpan!')
-    // notif.value = 'Assessment dan nilai siswa berhasil disimpan!'
-    notifType.value = 'success'
-    resetFilters()
-  } catch (err) {
-    showErrorToast('Gagal menyimpan assessment/nilai: ' + (err.response?.data?.message || err.message))
-    notif.value = 'Gagal menyimpan assessment/nilai: ' + (err.response?.data?.message || err.message)
-    notifType.value = 'error'
+    await assessmentStore.deleteAssessment(id)
+    showSuccessToast('Assessment berhasil dihapus')
+  } catch (error) {
+    console.error('Error deleting assessment:', error)
+    showErrorToast('Gagal menghapus assessment: ' + (error.message || 'Unknown error'))
   } finally {
     loading.value = false
   }
 }
 
-// Lifecycle hooks
-onMounted(async () => {
-  await fetchData()
-  // Auto-load assessment jika ada id_assessment di query
-  const idAssessment = route.query.id_assessment
-  if (idAssessment) {
-    try {
-      // Fetch detail assessment
-      const res = await axios.get(`/list/assessment?id_assessment=${idAssessment}`)
-      const ass = Array.isArray(res.data.data) ? res.data.data[0] : res.data.data
-      if (ass) {
-        // Fetch capaian untuk dapatkan sub elemen, elemen, dimensi
-        const capaianRes = await axios.get(`/list/capaian`)
-        const capaian = capaianRes.data.data.find(c => c.id_capaian == ass.id_capaian)
-        let subElemen, elemen, dimensi
-        if (capaian) {
-          const subElemenRes = await axios.get(`/list/sub_elemen`)
-          subElemen = subElemenRes.data.data.find(se => se.id_sub_elemen == capaian.id_sub_elemen)
-          if (subElemen) {
-            const elemenRes = await axios.get(`/list/elemen`)
-            elemen = elemenRes.data.data.find(e => e.id_elemen == subElemen.id_elemen)
-            if (elemen) {
-              const dimensiRes = await axios.get(`/list/dimensi`)
-              dimensi = dimensiRes.data.data.find(d => d.id_dimensi == elemen.id_dimensi)
-            }
-          }
-        }
-        // Fetch nilai untuk assessment ini
-        const nilaiRes = await axios.get(`/list/nilai`)
-        const nilaiAssessment = nilaiRes.data.data.filter(n => n.id_assessment == ass.id_assessment)
-        // Ambil semua id_siswa dari nilai
-        const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
-        // Fetch siswa untuk kelas yang ditemukan dari nilai (ambil kelas dari siswa pertama)
-        const siswaRes = await axios.get(`/list/siswa`)
-        const siswaAssessment = siswaRes.data.data.filter(s => siswaIds.includes(s.id_siswa))
-        // Set filter otomatis
-        if (siswaAssessment.length > 0) {
-          selectedKelas.value = siswaAssessment[0].id_kelas
-          await fetchSiswaList(selectedKelas.value)
-        }
-        if (dimensi) selectedDimensi.value = dimensi.id_dimensi
-        if (elemen) selectedElemen.value = elemen.id_elemen
-        if (subElemen) selectedSubElemen.value = subElemen.id_sub_elemen
-        if (capaian) selectedCapaian.value = capaian.id_capaian
-        // Set nilai siswa otomatis
-        nilaiSiswa.value = {}
-        nilaiAssessment.forEach(n => {
-          nilaiSiswa.value[n.id_siswa] = n.nilai
-        })
-      }
-    } catch (err) {
-      console.error('Gagal auto-load assessment:', err)
+const saveAssessment = async (formData) => {
+  try {
+    loading.value = true
+    
+    // If we're editing a specific cell, update the assessmentNumber
+    if (currentEditingAssessment.value.capaian) {
+      formData.assessmentNumber = currentEditingAssessment.value.assessmentNumber;
     }
+    
+    if (isEditMode.value) {
+      await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
+      showSuccessToast('Assessment berhasil diperbarui')
+    } else {
+      await assessmentStore.createAssessment(formData)
+      showSuccessToast('Assessment baru berhasil dibuat')
+    }
+    closeModal()
+    await fetchData()
+    // Also refresh nilai data if we're looking at a class
+    if (selectedKelas.value) {
+      await fetchNilaiSiswa()
+    }
+  } catch (error) {
+    console.error('Error saving assessment:', error)
+    showErrorToast('Gagal menyimpan assessment: ' + (error.message || 'Unknown error'))
+  } finally {
+    loading.value = false
   }
-})
+}
+
+// Add this helper function to check if there are any actual values
+const hasAnyValues = (id_capaian) => {
+  if (!nilaiSiswa.value[id_capaian]) return false;
+  
+  const values = Object.values(nilaiSiswa.value[id_capaian]);
+  return values.some(v => v !== null && v !== undefined && v !== '');
+};
+
+// Initialize data on component mount
+onMounted(async () => {
+  await fetchData();
+});
+
+// Add to the script section with other helper functions
+const getElemenLetter = (index) => {
+  return String.fromCharCode(65 + index); // A, B, C, ...
+}
+
+// Update or add to your script section
+const getSiswaStatus = (avgValue) => {
+  if (avgValue >= 3) return "Tuntas";
+  return "Belum Tuntas";
+}
+
+const getSiswaStatusClass = (avgValue) => {
+  if (avgValue >= 3) {
+    return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded-lg text-xs font-medium";
+  }
+  return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-lg text-xs font-medium";
+}
 </script>
