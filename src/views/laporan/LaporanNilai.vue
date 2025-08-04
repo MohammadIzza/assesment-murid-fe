@@ -372,30 +372,26 @@
                   <th class="border border-gray-300 px-4 py-2 text-left">Elemen</th>
                   <th class="border border-gray-300 px-4 py-2 text-left">Sub Elemen</th>
                   <th class="border border-gray-300 px-4 py-2 text-left">Capaian Kelas</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">MB</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">SB</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">BSH</th>
-                  <th class="border border-gray-300 px-4 py-2 text-left">SAB</th>
+                  <th class="border border-gray-300 px-4 py-2 text-center">Nilai</th>
                 </tr>
               </thead>
               <tbody>
+                <!-- Debug info -->
+                <tr v-if="siswaCapaianList.length === 0" class="border-b border-gray-300">
+                  <td colspan="6" class="border-r border-gray-300 px-4 py-2 text-center text-red-500">
+                    Tidak ada data penilaian yang ditemukan untuk siswa ini.
+                    <br><small>Total capaian: {{ capaianList.length }}, Selected Siswa: {{ selectedSiswa?.nama }}</small>
+                  </td>
+                </tr>
+                
                 <tr v-for="(capaian, index) in siswaCapaianList" :key="index" class="border-b border-gray-300">
                   <td class="border-r border-gray-300 px-4 py-2">{{ index + 1 }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_dimensi }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.deskripsi, 80) }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2 text-center">
-                    <span v-if="getNilaiAverage(capaian.id_capaian) === 'MB'" class="inline-block w-5 h-5 bg-red-500 rounded-full"></span>
-                  </td>
-                  <td class="border-r border-gray-300 px-4 py-2 text-center">
-                    <span v-if="getNilaiAverage(capaian.id_capaian) === 'SB'" class="inline-block w-5 h-5 bg-yellow-500 rounded-full"></span>
-                  </td>
-                  <td class="border-r border-gray-300 px-4 py-2 text-center">
-                    <span v-if="getNilaiAverage(capaian.id_capaian) === 'BSH'" class="inline-block w-5 h-5 bg-blue-500 rounded-full"></span>
-                  </td>
-                  <td class="border-r border-gray-300 px-4 py-2 text-center">
-                    <span v-if="getNilaiAverage(capaian.id_capaian) === 'SAB'" class="inline-block w-5 h-5 bg-green-500 rounded-full"></span>
+                  <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
+                    {{ capaian.nilai_average || getNilaiAverage(capaian.id_capaian) }}
                   </td>
                 </tr>
               </tbody>
@@ -1009,37 +1005,96 @@ const fetchAssessmentData = async () => {
 };
 
 // Modal and printing functions
-const previewRapor = () => {
-  prepareCapaianList();
+const previewRapor = async () => {
+  if (!selectedSiswa.value) {
+    console.error('No student selected for rapor preview');
+    return;
+  }
+  
+  console.log('Preparing rapor for student:', selectedSiswa.value);
+  
+  // Refresh assessment data and prepare capaian list
+  await prepareCapaianList();
+  
+  console.log('Final siswaCapaianList for rapor:', siswaCapaianList.value);
+  
+  if (siswaCapaianList.value.length === 0) {
+    console.warn('No capaian data found for selected student');
+  }
+  
   showPreview.value = true;
 };
 
 const prepareCapaianList = async () => {
   if (!selectedSiswa.value) return;
   
-  // Create a list of capaian that have assessments for this student
-  siswaCapaianList.value = capaianList.value
-    .filter(c => {
-      const assessments = assessmentList.value.filter(a => 
-        a.id_capaian === c.id_capaian && 
-        a.nilai && 
-        a.nilai[selectedSiswa.value.id_siswa]
-      );
-      return assessments.length > 0;
-    })
-    .map(c => {
-      // Add dimensi and elemen names
-      const subElemen = subElemenList.value.find(se => se.id_sub_elemen === c.id_sub_elemen);
-      const elemen = subElemen ? elemenList.value.find(e => e.id_elemen === subElemen.id_elemen) : null;
-      const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi === elemen.id_dimensi) : null;
+  try {
+    // Create a list of capaian that have assessments for this student
+    siswaCapaianList.value = capaianList.value
+      .filter(c => {
+        const assessments = assessmentList.value.filter(a => 
+          a.id_capaian == c.id_capaian && 
+          a.nilai && 
+          a.nilai[selectedSiswa.value.id_siswa] !== undefined &&
+          a.nilai[selectedSiswa.value.id_siswa] !== null &&
+          a.nilai[selectedSiswa.value.id_siswa] !== ''
+        );
+        return assessments.length > 0;
+      })
+      .map(c => {
+        // Add dimensi and elemen names
+        const subElemen = subElemenList.value.find(se => se.id_sub_elemen == c.id_sub_elemen);
+        const elemen = subElemen ? elemenList.value.find(e => e.id_elemen == subElemen.id_elemen) : null;
+        const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi == elemen.id_dimensi) : null;
+        
+        // Calculate the nilai average for this capaian
+        const assessmentsForCapaian = assessmentList.value.filter(a => 
+          a.id_capaian == c.id_capaian && 
+          a.nilai && 
+          a.nilai[selectedSiswa.value.id_siswa] !== undefined &&
+          a.nilai[selectedSiswa.value.id_siswa] !== null &&
+          a.nilai[selectedSiswa.value.id_siswa] !== ''
+        );
+        
+        let nilaiAverage = 'MB';
+        if (assessmentsForCapaian.length > 0) {
+          const values = assessmentsForCapaian.map(a => {
+            const val = a.nilai[selectedSiswa.value.id_siswa];
+            if (typeof val === 'number') return val;
+            if (val === 'MB') return 1;
+            if (val === 'SB') return 2;
+            if (val === 'BSH') return 3;
+            if (val === 'SAB') return 4;
+            if (typeof val === 'string' && !isNaN(Number(val))) {
+              return Number(val);
+            }
+            return 0;
+          });
+          
+          const sum = values.reduce((a, b) => a + b, 0);
+          const avg = sum / values.length;
+          
+          if (avg < 1.5) nilaiAverage = 'MB';
+          else if (avg < 2.5) nilaiAverage = 'SB';
+          else if (avg < 3.5) nilaiAverage = 'BSH';
+          else nilaiAverage = 'SAB';
+        }
+        
+        return {
+          ...c,
+          nama_sub_elemen: subElemen?.nama_sub_elemen || '-',
+          nama_elemen: elemen?.nama_elemen || '-',
+          nama_dimensi: dimensi?.nama_dimensi || '-',
+          nilai_average: nilaiAverage
+        };
+      });
       
-      return {
-        ...c,
-        nama_sub_elemen: subElemen?.nama_sub_elemen || '-',
-        nama_elemen: elemen?.nama_elemen || '-',
-        nama_dimensi: dimensi?.nama_dimensi || '-'
-      };
-    });
+    console.log('Prepared capaian list for rapor:', siswaCapaianList.value);
+    
+  } catch (error) {
+    console.error('Error preparing capaian list:', error);
+    siswaCapaianList.value = [];
+  }
 };
 
 const printRapor = () => {
