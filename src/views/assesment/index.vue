@@ -135,6 +135,7 @@
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">Elemen</th>
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">SKL</th>
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Kompetensi</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700 bg-gray-700">Capaian Kelas</th>
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
@@ -172,7 +173,7 @@
                   </td>
                   
                   <!-- Elemen Name -->
-                  <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
+                  <td colspan="4" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
                     {{ elemen.nama_elemen }}
                   </td>
                   
@@ -202,6 +203,9 @@
                       <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
                         {{ capaian.deskripsi }}
                       </td>
+                      
+                      <!-- Additional empty column for spacing -->
+                      <td class="border border-gray-300 dark:border-gray-700 w-16 bg-gray-50 dark:bg-gray-750"></td>
                       
                       <!-- Student assessment cells -->
                       <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
@@ -234,11 +238,14 @@
                 <!-- Average Row for each Elemen -->
                 <tr class="bg-blue-50 dark:bg-blue-900/20 border-t-2 border-blue-200 dark:border-blue-800">
                   <td colspan="3" class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-300">
-                    Rata-Rata Per Elemen
+                    Modus Per Elemen
                   </td>
                   
                   <!-- Empty cell for capaian column -->
                   <td class="border border-gray-300 dark:border-gray-700"></td>
+                  
+                  <!-- Additional empty cell for spacing column -->
+                  <td class="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-750"></td>
                   
                   <!-- Average for each student -->
                   <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
