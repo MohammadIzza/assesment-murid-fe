@@ -371,6 +371,7 @@
                   <th class="border border-gray-300 px-4 py-2 text-left">Dimensi</th>
                   <th class="border border-gray-300 px-4 py-2 text-left">Elemen</th>
                   <th class="border border-gray-300 px-4 py-2 text-left">Sub Elemen</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Kode</th>
                   <th class="border border-gray-300 px-4 py-2 text-left">Capaian Kelas</th>
                   <th class="border border-gray-300 px-4 py-2 text-center">Nilai</th>
                 </tr>
@@ -378,7 +379,7 @@
               <tbody>
                 <!-- Debug info -->
                 <tr v-if="siswaCapaianList.length === 0" class="border-b border-gray-300">
-                  <td colspan="6" class="border-r border-gray-300 px-4 py-2 text-center text-red-500">
+                  <td colspan="7" class="border-r border-gray-300 px-4 py-2 text-center text-red-500">
                     Tidak ada data penilaian yang ditemukan untuk siswa ini.
                     <br><small>Total capaian: {{ capaianList.length }}, Selected Siswa: {{ selectedSiswa?.nama }}</small>
                   </td>
@@ -390,6 +391,7 @@
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.deskripsi, 80) }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50"></td>
                   <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
                     {{ capaian.nilai_average || getNilaiAverage(capaian.id_capaian) }}
                   </td>
@@ -1005,23 +1007,8 @@ const fetchAssessmentData = async () => {
 };
 
 // Modal and printing functions
-const previewRapor = async () => {
-  if (!selectedSiswa.value) {
-    console.error('No student selected for rapor preview');
-    return;
-  }
-  
-  console.log('Preparing rapor for student:', selectedSiswa.value);
-  
-  // Refresh assessment data and prepare capaian list
-  await prepareCapaianList();
-  
-  console.log('Final siswaCapaianList for rapor:', siswaCapaianList.value);
-  
-  if (siswaCapaianList.value.length === 0) {
-    console.warn('No capaian data found for selected student');
-  }
-  
+const previewRapor = () => {
+  prepareCapaianList();
   showPreview.value = true;
 };
 
