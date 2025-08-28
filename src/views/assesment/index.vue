@@ -10,9 +10,55 @@
         </div>
       </div>
     </div>
-  
+
+    <!-- Button history -->
+    <div flex>
+    <!-- Tombol -->
+        <button 
+          @click="isOpen = !isOpen"
+          class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-lg font-medium flex items-center gap-2"
+        >
+          History
+          <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" 
+              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M19 9l-7 7-7-7" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" 
+              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+
+        <!-- Data History -->
+        <div v-if="isOpen" class="p-4 border rounded-lg bg-gray-100 mt-3">
+          <h3 class="font-semibold mb-4">Riwayat Assessment</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-300 bg-white rounded-lg shadow-sm">
+              <thead class="bg-yellow-400">
+                <tr>
+                  <th class="px-4 py-2 border text-left">Nama Siswa</th>
+                  <th class="px-4 py-2 border text-left">Assessment</th>
+                  <th class="px-4 py-2 border text-left">Nilai</th>
+                  <th class="px-4 py-2 border text-left">Waktu Input</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border">{{ row.nama }}</td>
+                  <td class="px-4 py-2 border">{{ row.assessment }}</td>
+                  <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
+                  <td class="px-4 py-2 border">{{ row.waktu }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+        
     <!-- Filter & Action Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mt-8 mb-8 p-6">
       <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
         <!-- Kelas Filter -->
         <div>
@@ -308,6 +354,10 @@ import { useCapaianStore } from '@/stores/capaian'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
+
+// State History
+const isOpen = ref(false)
+
 
 // Store initialization
 const assessmentStore = useAssesmentStore()
