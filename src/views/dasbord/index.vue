@@ -123,17 +123,80 @@
               >
                 Lihat Detail
               </router-link>
+              <router-link
+                :to="{ name: 'assessment-edit', params: { id: ass.id_assessment }}"
+                class="mt-4 inline-block px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors duration-200 text-center shadow"
+              >
+                Edit Nilai
+              </router-link>
+              <!-- Add Delete Button -->
+              <button
+                @click.stop="confirmDelete(ass)"
+                class="mt-4 w-full inline-flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-200 shadow"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Hapus Assessment
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Modal -->
+  <Teleport to="body">
+    <div v-if="showDeleteModal" class="fixed inset-0 z-[100]">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-black bg-opacity-50" @click="cancelDelete"></div>
+      
+      <!-- Modal -->
+      <div class="relative z-[101] min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-lg w-full p-6">
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Hapus Assessment</h3>
+              <p class="text-sm text-gray-500">
+                Apakah Anda yakin ingin menghapus assessment "{{ selectedAssessment?.nama_assessment }}"? Semua nilai terkait akan ikut terhapus.
+              </p>
+              <div v-if="deleteError" class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                {{ deleteError }}
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button
+              @click="cancelDelete"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-medium"
+            >
+              Batal
+            </button>
+            <button
+              @click="deleteAssessment"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import axios from '@/plugins/axios'
+import { Teleport } from 'vue'
 import Cookies from 'js-cookie'
 import { parseJWT } from '@/utils/jwt'
 import { getGuruById } from '@/services/api'
@@ -172,6 +235,11 @@ const userData = ref({
 
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Delete functionality refs and methods
+const showDeleteModal = ref(false)
+const selectedAssessment = ref(null)
+const deleteError = ref(null)
 
 // Fungsi untuk mendapatkan ID guru dari JWT token
 const getGuruIdFromToken = () => {
@@ -401,6 +469,40 @@ onMounted(() => {
   fetchDashboardData()
   fetchReferenceData()
 })
+
+const confirmDelete = (assessment) => {
+  selectedAssessment.value = assessment
+  showDeleteModal.value = true
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  selectedAssessment.value = null
+  deleteError.value = null
+}
+
+const deleteAssessment = async () => {
+  try {
+    if (!selectedAssessment.value?.id_assessment) return;
+
+    // First delete all related nilai
+    await axios.delete(`/delete/assessment/${selectedAssessment.value.id_assessment}/nilai`)
+    
+    // Then delete the assessment
+    await axios.delete(`/delete/assessment/${selectedAssessment.value.id_assessment}`)
+    
+    // Close modal and reset state
+    showDeleteModal.value = false
+    selectedAssessment.value = null
+    deleteError.value = null
+    
+    // Refresh dashboard data
+    await refreshData()
+  } catch (err) {
+    deleteError.value = err?.response?.data?.message || 'Gagal menghapus assessment'
+    console.error('Error deleting assessment:', err)
+  }
+}
 </script>
 
 <style scoped>

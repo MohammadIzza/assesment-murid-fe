@@ -214,6 +214,15 @@ const router = createRouter({
           component: AssignmentDetail
         },
         {
+          path: '/assesment/:id/edit',
+          name: 'assessment-edit',
+          component: () => import('@/views/assesment/AssessmentEdit.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Edit Assessment'
+          }
+        },
+        {
           path: '/laporan',
           name: 'laporan-nilai',
           component: () => import('@/views/laporan/LaporanNilai.vue'),
