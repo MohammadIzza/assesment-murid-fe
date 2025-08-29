@@ -61,7 +61,24 @@
       <!-- Daftar Assessment -->
       <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900">Daftar Assessment</h3>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Daftar Assessment</h3>
+            <div v-if="hasActiveFilters" class="mt-1 flex flex-wrap gap-1">
+              <span class="text-xs text-gray-500">Filter aktif:</span>
+              <span v-if="searchQuery" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">
+                🔍 {{ searchQuery.length > 15 ? searchQuery.substring(0, 15) + '...' : searchQuery }}
+              </span>
+              <span v-if="filterKelas" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">
+                📚 {{ getNamaKelas(filterKelas) }}
+              </span>
+              <span v-if="filterDimensi" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-800">
+                🎯 {{ getNamaDimensi(filterDimensi).length > 20 ? getNamaDimensi(filterDimensi).substring(0, 20) + '...' : getNamaDimensi(filterDimensi) }}
+              </span>
+              <span v-if="filterElemen" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-orange-100 text-orange-800">
+                📝 {{ getNamaElemen(filterElemen).length > 20 ? getNamaElemen(filterElemen).substring(0, 20) + '...' : getNamaElemen(filterElemen) }}
+              </span>
+            </div>
+          </div>
           <button 
             @click="refreshData" 
             class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -72,6 +89,112 @@
             Refresh
           </button>
         </div>
+
+        <!-- Filter Toggle Button -->
+        <div class="mb-4">
+          <button
+            @click="showFilters = !showFilters"
+            class="inline-flex items-center px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors duration-200"
+          >
+            <svg :class="['w-4 h-4 mr-2 transition-transform duration-200', showFilters ? 'rotate-180' : '']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            {{ showFilters ? 'Sembunyikan Filter' : 'Tampilkan Filter' }}
+            <span v-if="hasActiveFilters" class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">
+              {{ [searchQuery, filterKelas, filterDimensi, filterElemen].filter(Boolean).length }} aktif
+            </span>
+          </button>
+        </div>
+
+        <!-- Filter Section -->
+        <div v-if="showFilters" class="mb-6 bg-gray-50 rounded-lg p-4 transition-all duration-300 ease-in-out">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Search Assessment -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">🔍 Cari Assessment</label>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Nama assessment..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+            </div>
+
+            <!-- Filter Kelas -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+              <select
+                v-model="filterKelas"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+                <option value="">Semua Kelas</option>
+                <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+                  {{ kelas.nama_kelas }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Filter Dimensi -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Dimensi</label>
+              <select
+                v-model="filterDimensi"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+                <option value="">Semua Dimensi</option>
+                <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
+                  {{ dimensi.nama_dimensi }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Filter Elemen -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Elemen</label>
+              <select
+                v-model="filterElemen"
+                :disabled="!filterDimensi"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                <option value="">Semua Elemen</option>
+                <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
+                  {{ elemen.nama_elemen }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Clear Filters -->
+            <div class="flex items-end">
+              <button
+                @click="clearFilters"
+                class="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-sm font-medium"
+              >
+                Clear Filter
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Results Info -->
+          <div v-if="filteredAssessments.length !== dashboardData.assessments.length" class="mt-3 flex items-center justify-between">
+            <div class="text-sm text-gray-600">
+              Menampilkan {{ filteredAssessments.length }} dari {{ dashboardData.assessments.length }} assessment
+            </div>
+            <div class="flex gap-2">
+              <span v-if="searchQuery" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                🔍 "{{ searchQuery }}"
+              </span>
+              <span v-if="filterKelas" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                📚 {{ getNamaKelas(filterKelas) }}
+              </span>
+              <span v-if="filterDimensi" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                🎯 {{ getNamaDimensi(filterDimensi) }}
+              </span>
+              <span v-if="filterElemen" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                📝 {{ getNamaElemen(filterElemen) }}
+              </span>
+            </div>
+          </div>
+        </div>
         <div v-if="loading" class="flex justify-center py-8">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -81,16 +204,16 @@
           </svg>
           <p class="text-sm">{{ error }}</p>
         </div>
-        <div v-else-if="dashboardData.assessments.length === 0" class="flex flex-col items-center py-8 text-gray-400">
+        <div v-else-if="filteredAssessments.length === 0" class="flex flex-col items-center py-8 text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <span class="text-sm">Belum ada assessment yang tersedia</span>
+          <span class="text-sm">Tidak ada assessment yang sesuai dengan filter</span>
         </div>
         <div v-else>
           <!-- Horizontal scrollable card container, bertingkat -->
           <div class="flex flex-row gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50">
-            <div v-for="(ass, idx) in dashboardData.assessments" :key="ass.id_assessment"
+            <div v-for="(ass, idx) in filteredAssessments" :key="ass.id_assessment"
               :class="['min-w-[340px] max-w-xs flex-shrink-0 rounded-2xl shadow-lg border border-gray-200 bg-white p-6 flex flex-col transition-all duration-200 hover:scale-105 hover:shadow-2xl', idx % 2 === 1 ? 'mt-6' : 'mt-0']">
               <!-- Label/tag dimensi -->
               <div :class="['inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3', getDimensiLabelClass(ass)]">
@@ -194,7 +317,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from '@/plugins/axios'
 import { Teleport } from 'vue'
 import Cookies from 'js-cookie'
@@ -235,6 +358,13 @@ const userData = ref({
 
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Filter variables
+const searchQuery = ref('')
+const filterKelas = ref('')
+const filterDimensi = ref('')
+const filterElemen = ref('')
+const showFilters = ref(false)
 
 // Delete functionality refs and methods
 const showDeleteModal = ref(false)
@@ -374,6 +504,76 @@ const getNamaElemen = id => elemenList.value.find(e => e.id_elemen == id)?.nama_
 const getNamaSubElemen = id => subElemenList.value.find(se => se.id_sub_elemen == id)?.nama_sub_elemen || '-';
 const getNamaCapaian = id => capaianList.value.find(c => c.id_capaian == id)?.deskripsi || '-';
 const getJumlahSiswa = id_kelas => siswaList.value.filter(s => s.id_kelas == id_kelas).length;
+
+// Computed property for active filters
+const hasActiveFilters = computed(() => {
+  return searchQuery.value || filterKelas.value || filterDimensi.value || filterElemen.value
+})
+
+// Computed properties for filtering
+const filteredElemenList = computed(() => {
+  if (!filterDimensi.value) return []
+  return elemenList.value.filter(e => e.id_dimensi == filterDimensi.value)
+})
+
+const filteredAssessments = computed(() => {
+  let filtered = dashboardData.value.assessments
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    filtered = filtered.filter(ass =>
+      ass.nama_assessment.toLowerCase().includes(query)
+    )
+  }
+
+  // Filter by kelas
+  if (filterKelas.value) {
+    filtered = filtered.filter(ass => {
+      const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
+      const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
+      const kelasIds = Array.from(new Set(
+        siswaIds
+          .map(sid => siswaList.value.find(s => s.id_siswa == sid)?.id_kelas)
+          .filter(Boolean)
+      ))
+      return kelasIds.includes(parseInt(filterKelas.value))
+    })
+  }
+
+  // Filter by dimensi
+  if (filterDimensi.value) {
+    filtered = filtered.filter(ass => {
+      const relasi = getRelasiAssessment(ass)
+      return relasi.dimensi !== '-' && dimensiList.value.find(d => d.nama_dimensi === relasi.dimensi)?.id_dimensi == filterDimensi.value
+    })
+  }
+
+  // Filter by elemen
+  if (filterElemen.value) {
+    filtered = filtered.filter(ass => {
+      const relasi = getRelasiAssessment(ass)
+      return relasi.elemen !== '-' && elemenList.value.find(e => e.nama_elemen === relasi.elemen)?.id_elemen == filterElemen.value
+    })
+  }
+
+  return filtered
+})
+
+// Clear filters function
+const clearFilters = () => {
+  searchQuery.value = ''
+  filterKelas.value = ''
+  filterDimensi.value = ''
+  filterElemen.value = ''
+}
+
+// Watch for dimensi changes to reset elemen
+watch(filterDimensi, (newDimensi) => {
+  if (!newDimensi) {
+    filterElemen.value = ''
+  }
+})
 
 // Helper relasi assessment (dimensi, elemen, sub elemen, capaian)
 const getRelasiAssessment = (ass) => {
