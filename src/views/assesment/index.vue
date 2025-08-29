@@ -185,7 +185,7 @@
                 <template v-for="(subElemen, subIndex) in getSubElemenForElemen(elemen.id_elemen)" :key="subElemen.id_sub_elemen">
                   <!-- For each capaian in this sub-elemen -->
                   <template v-for="(capaian, capIndex) in getCapaianForSubElemen(subElemen.id_sub_elemen)" :key="capaian.id_capaian">
-                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750">
+                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-950">
                       <!-- Empty cell for elemen identifier column -->
                       <td class="border border-gray-300 dark:border-gray-700"></td>
                       
@@ -205,14 +205,14 @@
                       </td>
                       
                       <!-- Additional empty column for spacing -->
-                      <td class="border border-gray-300 dark:border-gray-700 w-16 bg-gray-50 dark:bg-gray-750"></td>
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300"></td>
                       
                       <!-- Student assessment cells -->
                       <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
                         <!-- Assessment values (1-6) -->
                         <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
                             @click="editNilai(capaian, siswa, n)"
-                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30">
+                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-black dark:hover:text-white">
                           <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
                                :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
                                class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
