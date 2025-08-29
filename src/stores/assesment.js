@@ -117,9 +117,12 @@ export const useAssesmentStore = defineStore("assesment", {
       try {
         const response = await axios.get(`/filter/history/${id}`);
 
-        if (response.data.success) {
+        console.log("Full response:", response);
+        console.log("response.data", response.data);
+
+        if (response.status === 200) {
           this.assessmentHistoryList = this.processAssessmentData(
-            response.data.data
+            response.data
           );
         } else {
           throw new Error("Gagal mengambil data assessment history");

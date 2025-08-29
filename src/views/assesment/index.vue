@@ -15,7 +15,7 @@
     <div flex>
     <!-- Tombol -->
         <button 
-          @click="isOpen = !isOpen"
+          @click="toggleHistory(getGuru(currentEmailUser))"
           class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-lg font-medium flex items-center gap-2"
         >
           History
@@ -46,10 +46,14 @@
               </thead>
               <tbody>
                 <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50">
-                  <td class="px-4 py-2 border">{{ row.nama }}</td>
-                  <td class="px-4 py-2 border">{{ row.assessment }}</td>
+                  <td class="px-4 py-2 border">{{ getSiswa(row.id_siswa) }}</td>
+                  <td class="px-4 py-2 border">{{ getAssessment(row.id_assessment) }}</td>
                   <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
-                  <td class="px-4 py-2 border">{{ row.waktu }}</td>
+                  <td class="px-4 py-2 border">{{ formatDate(row.updated_at) }}</td>
+                </tr>
+
+                 <tr v-if="historyData.length === 0">
+                  <td colspan="4" class="px-4 py-2 text-center text-gray-500">Tidak ada riwayat assesment</td>
                 </tr>
               </tbody>
             </table>
@@ -354,9 +358,60 @@ import { useCapaianStore } from '@/stores/capaian'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
+import { useSiswaStore } from '@/stores/siswa';
+import { useGuruStore } from '@/stores/guru';
 
 // State History
 const isOpen = ref(false)
+const historyData = ref([])
+
+const toggleHistory = async (id) => {
+  console.log("CEK ID:", id);
+  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    try {
+      await assessmentStore.fetchAssessmentHistory(id)
+      historyData.value = assessmentStore.assessmentHistoryList
+      console.log("Processed data:", assessmentStore.assessmentHistoryList)
+    } catch (error) {
+      console.error("Error fetching history list:", error)
+    }
+  }
+}
+
+function formatDate(isoDate) {
+  if (!isoDate) return "-";
+  return new Date(isoDate).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta"
+  }).replace("pukul ", ", ");
+}
+
+const getAssessment = (id) => {
+  const assessment = assessmentStore.assessmentList.find(a => a.id_assessment == id)
+  console.log("ASSESSMENT CEK ", assessment)
+  console.log("ASSESSMENT CEK ID", id)
+  return assessment ? assessment.nama_assessment : 'N/A'
+
+}
+
+const getSiswa = (id) => {
+  const siswa = siswaStore.siswaList.find(s => s.id_siswa == id)
+  console.log("SISWA CEK ", siswaStore.siswaList)
+  return siswa ? siswa.nama : 'N/A'
+}
+
+const getGuru = (email) => {
+  const guru = guruStore.guruList.find(g => g.email == email)
+  console.log("GURU CEK ", guruStore.guruList)
+  return guru ? guru.id_guru : 'N/A'
+}
+
 
 
 // Store initialization
@@ -368,13 +423,19 @@ const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+const guruStore = useGuruStore()
+const siswaStore = useSiswaStore()
+
+const user = computed(() => authStore.getUser)
+console.log("Current User:", user)
+const currentEmailUser = computed(() => user.value?.email || '')
 
 // State variables
 const loading = ref(false)
 const searchQuery = ref('')
 const showModal = ref(false)
 const isEditMode = ref(false)
-const selectedAssessment = ref(null)
+const selegitctedAssessment = ref(null)
 // GANTI: kelasList pakai computed agar reactive ke store
 const kelasList = computed(() => kelasStore.getKelasList)
 const dimensiList = ref([])
@@ -520,6 +581,7 @@ const getNamaCapaian = (id) => {
   const capaian = capaianList.value.find(c => c.id_capaian == id)
   return capaian ? capaian.deskripsi : 'N/A'
 }
+
 
 // Functions for grade book table
 const getElemenForDimensi = (id_dimensi) => {
@@ -1024,6 +1086,8 @@ const fetchData = async () => {
   try {
     await Promise.all([
       assessmentStore.fetchAssessmentList(),
+      siswaStore.fetchSiswaList(),
+      guruStore.fetchGuruList(),
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
