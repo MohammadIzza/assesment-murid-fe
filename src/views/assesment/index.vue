@@ -11,99 +11,104 @@
       </div>
     </div>
   
-    <!-- Filter & Action Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
-        <!-- Kelas Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
-          <select 
-            v-model="selectedKelas" 
-            @change="onKelasChange"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-          >
-            <option value="">Pilih Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
-              {{ kelas.nama_kelas }}
-            </option>
-          </select>
-        </div>
-        
+    <!-- Filter Kelas Compact -->
+    <div class="mb-4 flex flex-col items-start w-full">
+      <label class="block text-base font-bold text-blue-700 dark:text-blue-300 mb-1">Kelas <span class="text-xs text-gray-400 ml-2">(Wajib dipilih dulu)</span></label>
+      <select 
+        v-model="selectedKelas" 
+        @change="onKelasChange"
+        class="block w-full max-w-md px-3 py-2 border border-blue-400 dark:border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-medium shadow-sm"
+      >
+        <option value="">Pilih Kelas</option>
+        <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+          {{ kelas.nama_kelas }}
+        </option>
+      </select>
+      <span v-if="!selectedKelas" class="text-red-600 dark:text-red-400 text-xs mt-1 block">* Pilih kelas terlebih dahulu sebelum filter lain</span>
+    </div>
+    <!-- Filter & Action Section Card Compact -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-6 p-4 relative">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Dimensi Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
           <select 
             v-model="selectedDimensi"
             @change="onDimensiChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedKelas ? 'Pilih kelas dulu' : ''"
           >
             <option value="">Pilih Dimensi</option>
             <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
               {{ dimensi.nama_dimensi }}
             </option>
           </select>
+          <span v-if="!selectedKelas" class="text-xs text-gray-400 mt-1 block">Aktif setelah kelas dipilih</span>
         </div>
-        
         <!-- Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
           <select 
             v-model="selectedElemen"
             @change="onElemenChange" 
-            :disabled="!selectedDimensi"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedDimensi || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedDimensi ? 'Pilih dimensi dulu' : ''"
           >
             <option value="">Pilih Elemen</option>
             <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
               {{ elemen.nama_elemen }}
             </option>
           </select>
+          <span v-if="!selectedDimensi" class="text-xs text-gray-400 mt-1 block">Aktif setelah dimensi dipilih</span>
         </div>
-        
         <!-- Sub Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
           <select 
             v-model="selectedSubElemen"
             @change="onSubElemenChange" 
-            :disabled="!selectedElemen"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedElemen || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedElemen ? 'Pilih elemen dulu' : ''"
           >
             <option value="">Pilih Sub Elemen</option>
             <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
               {{ subElemen.nama_sub_elemen }}
             </option>
           </select>
+          <span v-if="!selectedElemen" class="text-xs text-gray-400 mt-1 block">Aktif setelah elemen dipilih</span>
         </div>
-        
         <!-- Capaian Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
           <select 
             v-model="selectedCapaian"
             @change="onCapaianChange" 
-            :disabled="!selectedSubElemen"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedSubElemen || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedSubElemen ? 'Pilih sub elemen dulu' : ''"
           >
             <option value="">Pilih Capaian</option>
             <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
               {{ truncateText(capaian.deskripsi, 60) }}
             </option>
           </select>
+          <span v-if="!selectedSubElemen" class="text-xs text-gray-400 mt-1 block">Aktif setelah sub elemen dipilih</span>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="flex gap-2">
-          <button 
-            @click="openCreateModal"
-            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Buat
-          </button>
-        </div>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button 
+          @click="openCreateModal"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-semibold flex items-center gap-2 shadow"
+          title="Buat assessment baru"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Buat
+        </button>
       </div>
     </div>
 
