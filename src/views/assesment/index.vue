@@ -11,6 +11,75 @@
       </div>
     </div>
   
+    <!-- Global Search Section - Always visible -->
+    <div class="mb-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
+        <div class="flex items-center gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">🔍 Cari Siswa (Global)</label>
+            <div class="relative">
+              <input
+                v-model="globalSearchQuery"
+                @input="onGlobalSearch"
+                @keydown="handleSearchKeydown"
+                type="text"
+                placeholder="Ketik nama siswa untuk mencari di semua kelas..."
+                class="block w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+              >
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <button
+                v-if="globalSearchQuery"
+                @click="clearGlobalSearch"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="globalSearchQuery && searchResults.length > 0" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Ditemukan {{ searchResults.length }} siswa • Gunakan ↑↓ untuk navigasi, Esc untuk clear
+              <div class="mt-1 text-xs">
+                <span v-for="(result, index) in searchResults.slice(0, 5)" :key="result.siswa.id_siswa" class="inline-block mr-2 mb-1">
+                  <span :class="index === currentSearchIndex ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" 
+                        class="px-2 py-1 rounded text-xs">
+                    {{ result.siswa.nama }} ({{ result.kelas }})
+                  </span>
+                </span>
+                <span v-if="searchResults.length > 5" class="text-xs text-gray-500">+{{ searchResults.length - 5 }} lainnya</span>
+              </div>
+            </div>
+            <div v-if="globalSearchQuery && searchResults.length === 0" class="mt-2 text-sm text-red-600 dark:text-red-400">
+              Tidak ada siswa yang ditemukan
+            </div>
+          </div>
+          <div v-if="globalSearchQuery && searchResults.length > 0" class="flex gap-2">
+            <button
+              @click="scrollToPrevious"
+              :disabled="currentSearchIndex <= 0"
+              class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium"
+            >
+              ← Previous
+            </button>
+            <span class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center">
+              {{ currentSearchIndex + 1 }} / {{ searchResults.length }}
+            </span>
+            <button
+              @click="scrollToNext"
+              :disabled="currentSearchIndex >= searchResults.length - 1"
+              class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Filter Kelas Compact -->
     <div class="mb-4 flex flex-col items-start w-full">
       <label class="block text-base font-bold text-blue-700 dark:text-blue-300 mb-1">Kelas <span class="text-xs text-gray-400 ml-2">(Wajib dipilih dulu)</span></label>
@@ -121,6 +190,7 @@
       </div>
       <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihlah Kelas terlebih dahulu!</h3>
       <p class="text-gray-500 dark:text-gray-400">Anda harus memilih kelas untuk melihat dan mengelola penilaian siswa.</p>
+      <p class="text-sm text-blue-600 dark:text-blue-400 mt-2">💡 Gunakan fitur pencarian global di atas untuk mencari siswa di semua kelas</p>
     </div>
 
     <!-- Buku Penilaian - Muncul ketika kelas dipilih -->
@@ -144,9 +214,15 @@
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
-                <th :colspan="7" class="text-center border-l border-gray-700">
+                <th :id="`siswa-${siswa.id_siswa}`"
+                    :colspan="7"
+                    class="text-center border-l border-gray-700 transition-all duration-300"
+                    :class="isSiswaHighlighted(siswa.id_siswa) ? 'bg-yellow-200 dark:bg-yellow-800' : ''">
                   <div class="px-2 py-3 text-xs font-semibold">
-                    {{ siswa.nama }}
+                    <span v-html="highlightSearchText(siswa.nama)"></span>
+                    <div v-if="isSiswaHighlighted(siswa.id_siswa)" class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      ({{ getKelasNameById(siswa.id_kelas) }})
+                    </div>
                   </div>
                   <div class="flex border-t border-gray-700">
                     <div v-for="n in 6" :key="n" class="flex-1 px-1 py-2 text-xs border-r last:border-r-0 border-gray-700">{{ n }}</div>
@@ -283,7 +359,11 @@
 
     <!-- Toast notification -->
     <div v-if="showToast" class="w-full max-w-2xl mx-auto mb-4 text-center">
-      <span :class="{'text-green-600': toastType === 'success', 'text-red-600': toastType === 'error'}" 
+      <span :class="{
+        'text-green-600': toastType === 'success', 
+        'text-red-600': toastType === 'error',
+        'text-blue-600': toastType === 'info'
+      }" 
             class="italic text-base font-medium">
         {{ toastMessage }}
       </span>
@@ -301,8 +381,30 @@
   </div>
 </template>
 
+<style scoped>
+.search-highlight {
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0% { background-color: #fef3c7; }
+  50% { background-color: #fbbf24; }
+  100% { background-color: transparent; }
+}
+
+.dark .search-highlight {
+  animation: highlight-dark 2s ease-in-out;
+}
+
+@keyframes highlight-dark {
+  0% { background-color: #374151; }
+  50% { background-color: #92400e; }
+  100% { background-color: transparent; }
+}
+</style>
+
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue';
 import { useAssesmentStore } from '@/stores/assesment'
 import { useKelasStore } from '@/stores/kelas'
@@ -310,6 +412,7 @@ import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
+import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
@@ -327,6 +430,10 @@ const authStore = useAuthStore()
 // State variables
 const loading = ref(false)
 const searchQuery = ref('')
+const globalSearchQuery = ref('')
+const searchResults = ref([])
+const currentSearchIndex = ref(-1)
+const allSiswaList = ref([]) // Store all students for global search
 const showModal = ref(false)
 const isEditMode = ref(false)
 const selectedAssessment = ref(null)
@@ -336,7 +443,7 @@ const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
-const siswaList = ref([])
+const siswaList = ref([]) // Current class students
 const nilaiSiswa = ref({}) // {id_capaian: {id_siswa: nilai}}
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -403,6 +510,165 @@ function showErrorToast(msg) {
 function truncateText(text, maxLength) {
   if (!text) return ''
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+}
+
+// Global Search Functions
+const onGlobalSearch = () => {
+  if (!globalSearchQuery.value.trim()) {
+    searchResults.value = []
+    currentSearchIndex.value = -1
+    return
+  }
+
+  const query = globalSearchQuery.value.toLowerCase().trim()
+  const results = []
+
+  // Search in all students (not just current class)
+  allSiswaList.value.forEach((siswa, index) => {
+    if (siswa.nama.toLowerCase().includes(query)) {
+      results.push({
+        siswa,
+        index,
+        elementId: `siswa-${siswa.id_siswa}`,
+        kelas: getKelasNameById(siswa.id_kelas)
+      })
+    }
+  })
+
+  searchResults.value = results
+  currentSearchIndex.value = results.length > 0 ? 0 : -1
+
+  // Auto-scroll to first result if a class is selected
+  if (results.length > 0 && selectedKelas.value) {
+    setTimeout(() => scrollToResult(0), 100)
+  }
+}
+
+const handleSearchKeydown = (event) => {
+  if (!globalSearchQuery.value.trim()) return
+
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      scrollToNext()
+      break
+    case 'ArrowUp':
+      event.preventDefault()
+      scrollToPrevious()
+      break
+    case 'Escape':
+      event.preventDefault()
+      clearGlobalSearch()
+      break
+    case 'Enter':
+      event.preventDefault()
+      if (searchResults.value.length > 0) {
+        scrollToResult(currentSearchIndex.value)
+      }
+      break
+  }
+}
+
+const clearGlobalSearch = () => {
+  globalSearchQuery.value = ''
+  searchResults.value = []
+  currentSearchIndex.value = -1
+}
+
+const scrollToNext = () => {
+  if (currentSearchIndex.value < searchResults.value.length - 1) {
+    currentSearchIndex.value++
+    scrollToResult(currentSearchIndex.value)
+  }
+}
+
+const scrollToPrevious = () => {
+  if (currentSearchIndex.value > 0) {
+    currentSearchIndex.value--
+    scrollToResult(currentSearchIndex.value)
+  }
+}
+
+const scrollToResult = (index) => {
+  const result = searchResults.value[index]
+  if (!result) return
+
+  // If the student is not in the current class, automatically select their class
+  if (result.siswa.id_kelas != selectedKelas.value) {
+    selectedKelas.value = result.siswa.id_kelas
+    showInfoToast(`Beralih ke kelas ${result.kelas} untuk menampilkan siswa ${result.siswa.nama}`)
+    
+    // Wait for the class change to complete, then scroll
+    setTimeout(() => {
+      const element = document.getElementById(result.elementId)
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        })
+
+        // Add temporary highlight effect
+        element.classList.add('search-highlight')
+        setTimeout(() => {
+          element.classList.remove('search-highlight')
+        }, 2000)
+      }
+    }, 500) // Wait for data to load
+    return
+  }
+
+  const element = document.getElementById(result.elementId)
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center'
+    })
+
+    // Add temporary highlight effect
+    element.classList.add('search-highlight')
+    setTimeout(() => {
+      element.classList.remove('search-highlight')
+    }, 2000)
+  }
+}
+
+const isSiswaHighlighted = (siswaId) => {
+  return searchResults.value.some(result =>
+    result.siswa.id_siswa === siswaId &&
+    searchResults.value[currentSearchIndex.value]?.siswa.id_siswa === siswaId
+  )
+}
+
+const highlightSearchText = (text) => {
+  if (!globalSearchQuery.value.trim()) return text
+
+  const query = globalSearchQuery.value.toLowerCase()
+  const index = text.toLowerCase().indexOf(query)
+
+  if (index === -1) return text
+
+  const before = text.substring(0, index)
+  const match = text.substring(index, index + query.length)
+  const after = text.substring(index + query.length)
+
+  return `${before}<mark class="bg-yellow-200 dark:bg-yellow-600 px-1 rounded">${match}</mark>${after}`
+}
+
+// Helper function to get class name by ID
+const getKelasNameById = (id_kelas) => {
+  const kelas = kelasList.value.find(k => k.id_kelas == id_kelas)
+  return kelas ? kelas.nama_kelas : 'N/A'
+}
+
+// Add info toast function
+function showInfoToast(msg) {
+  toastMessage.value = msg
+  toastType.value = 'info'
+  showToast.value = true
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { showToast.value = false }, 4000)
 }
 
 // Computed properties
@@ -805,6 +1071,19 @@ const fetchSiswaByKelas = async (id_kelas) => {
   }
 }
 
+// Fetch all students for global search
+const fetchAllSiswa = async () => {
+  try {
+    const siswaStore = useSiswaStore()
+    await siswaStore.fetchSiswaList()
+    allSiswaList.value = siswaStore.getSiswaList || []
+    console.log('Fetched all students for global search:', allSiswaList.value.length)
+  } catch (error) {
+    console.error('Error fetching all siswa list:', error)
+    allSiswaList.value = []
+  }
+}
+
 const fetchNilaiSiswa = async () => {
   // Clear existing data first
   nilaiSiswa.value = {};
@@ -982,7 +1261,8 @@ const fetchData = async () => {
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
-      fetchSubElemenList()
+      fetchSubElemenList(),
+      fetchAllSiswa() // Fetch all students for global search
     ])
   } catch (error) {
     console.error('Error fetching initial data:', error)
@@ -998,7 +1278,10 @@ const onKelasChange = async () => {
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  
+
+  // Clear search when changing class
+  clearGlobalSearch()
+
   if (selectedKelas.value) {
     await Promise.all([
       fetchSiswaByKelas(selectedKelas.value),
@@ -1257,6 +1540,28 @@ const hasAnyValues = (id_capaian) => {
 // Initialize data on component mount
 onMounted(async () => {
   await fetchData();
+
+  // Add keyboard navigation for search
+  const handleKeydown = (event) => {
+    if (!globalSearchQuery.value || searchResults.value.length === 0) return;
+
+    if (event.key === 'ArrowDown' || (event.key === 'Enter' && event.shiftKey)) {
+      event.preventDefault();
+      scrollToNext();
+    } else if (event.key === 'ArrowUp' || (event.key === 'Enter' && event.ctrlKey)) {
+      event.preventDefault();
+      scrollToPrevious();
+    } else if (event.key === 'Escape') {
+      clearGlobalSearch();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeydown);
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown);
+  });
 });
 
 // Add to the script section with other helper functions
@@ -1277,3 +1582,30 @@ const getSiswaStatusClass = (avgValue) => {
   return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-lg text-xs font-medium";
 }
 </script>
+
+<style scoped>
+/* Search highlight animation */
+.search-highlight {
+  animation: searchHighlight 2s ease-in-out;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  border-radius: 8px;
+}
+
+@keyframes searchHighlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Info toast styling */
+.toast-info {
+  background-color: rgba(59, 130, 246, 0.9);
+  color: white;
+}
+</style>
