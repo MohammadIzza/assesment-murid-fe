@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 z-50 overflow-y-auto" 
     :class="{'bg-gray-900/50': !isDarkMode, 'bg-black/70': isDarkMode}">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center">
       <div class="relative w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all"
         :class="{'bg-white': !isDarkMode, 'bg-gray-800': isDarkMode}">
         
@@ -233,6 +233,9 @@
                           <span class="ml-2 text-sm"
                             :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">{{ opt }}</span>
                         </label>
+                        <span v-if="form.nilai[siswa.id_siswa] === '-'" class="text-sm text-gray-500">
+                          (Belum dinilai)
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -375,6 +378,9 @@ const isFormValid = computed(() => {
 // Load initial form data if editing
 const loadFormData = () => {
   if (props.isEdit && props.selectedAssessment) {
+    // Create a copy of existing nilai with '-' for any null or undefined values
+    const nilaiWithDefaults = { ...(props.selectedAssessment.nilai || {}) }
+    
     form.value = {
       nama_assessment: props.selectedAssessment.nama_assessment || '',
       id_kelas: props.selectedAssessment.id_kelas || '',
@@ -382,7 +388,7 @@ const loadFormData = () => {
       id_elemen: props.selectedAssessment.id_elemen || '',
       id_sub_elemen: props.selectedAssessment.id_sub_elemen || '',
       id_capaian: props.selectedAssessment.id_capaian || '',
-      nilai: props.selectedAssessment.nilai || {}
+      nilai: nilaiWithDefaults
     }
     
     // When editing, we use the existing name
@@ -571,10 +577,10 @@ const fetchSiswaByKelas = async () => {
     if (response.data.success) {
       siswaList.value = response.data.data.filter(siswa => siswa.id_kelas == form.value.id_kelas)
       
-      // Initialize nilai for new students
+      // Initialize nilai for new students with '-' for unselected values
       siswaList.value.forEach(siswa => {
-        if (!form.value.nilai[siswa.id_siswa]) {
-          form.value.nilai[siswa.id_siswa] = null
+        if (!form.value.nilai[siswa.id_siswa] || form.value.nilai[siswa.id_siswa] === null) {
+          form.value.nilai[siswa.id_siswa] = '-'
         }
       })
     } else {
@@ -601,7 +607,7 @@ const submitForm = async () => {
       id_elemen: parseInt(form.value.id_elemen),
       id_sub_elemen: parseInt(form.value.id_sub_elemen),
       id_capaian: parseInt(form.value.id_capaian),
-      nilai: form.value.nilai,
+      nilai: form.value.nilai || '',
       deskripsi: 'Assessment otomatis dari form',
       bobot: 20
     }
