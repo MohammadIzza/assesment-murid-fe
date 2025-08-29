@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-6">
+  <div :class="[
+    'min-h-screen py-6 transition-colors duration-300',
+    isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
+  ]">
     <!-- Toast Component -->
     <Toast 
       :show="showToast" 
@@ -16,8 +19,14 @@
         
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         
-        <div class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4">
+        <div :class="[
+          'relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full',
+          isDarkMode ? 'bg-dark-surface' : 'bg-white'
+        ]">
+          <div :class="[
+            'bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4',
+            isDarkMode ? 'bg-dark-surface' : 'bg-white'
+          ]">
             <div class="sm:flex sm:items-start">
               <div class="mx-auto flex-shrink-0 flex items-center justify-center h-14 w-14 rounded-full bg-red-100 sm:mx-0 sm:h-12 sm:w-12">
                 <svg class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +34,10 @@
                 </svg>
               </div>
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 class="text-lg leading-6 font-semibold text-gray-900" id="modal-title">
+                <h3 :class="[
+                  'text-lg leading-6 font-semibold',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]" id="modal-title">
                   Konfirmasi Hapus Guru
                 </h3>
                 <div class="mt-3">
@@ -39,7 +51,10 @@
               </div>
             </div>
           </div>
-          <div class="bg-gray-50 px-6 py-4 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div :class="[
+            'bg-gray-50 px-6 py-4 sm:px-6 sm:flex sm:flex-row-reverse',
+            isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-gray-50'
+          ]">
             <button
               @click="confirmDeleteGuru"
               :disabled="isDeleting"
@@ -59,7 +74,10 @@
             <button
               @click="showDeleteModal = false"
               :disabled="isDeleting"
-              class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="[
+                'mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed',
+                isDarkMode ? 'bg-dark-surface border-dark-border text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-700 hover:bg-gray-50'
+              ]"
             >
               Batal
             </button>
@@ -73,31 +91,46 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <button @click="goBack" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 transition-colors">
+            <button @click="goBack" :class="[
+              'inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 transition-colors',
+              isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-800'
+            ]">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
               Kembali ke Daftar Guru
             </button>
             <div class="flex items-center space-x-3">
-              <h1 class="text-2xl font-bold text-gray-900">Detail Guru</h1>
+              <h1 :class="[
+                'text-2xl font-bold',
+                isDarkMode ? 'text-gray-100' : 'text-gray-900'
+              ]">Detail Guru</h1>
               <div class="flex items-center px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">
                 <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                 <span class="text-sm font-medium">Live Data</span>
               </div>
             </div>
-            <p class="text-gray-600 mt-1">Informasi lengkap dan riwayat aktivitas guru</p>
+            <p :class="[
+              'text-gray-600 mt-1',
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            ]">Informasi lengkap dan riwayat aktivitas guru</p>
           </div>
           
           <!-- Quick Actions -->
           <div class="hidden md:flex items-center space-x-3">
-            <button @click="loadGuruDetail" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+            <button @click="loadGuruDetail" :class="[
+              'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all',
+              isDarkMode ? 'text-gray-300 bg-dark-surface border-dark-border hover:bg-gray-700' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
               Refresh
             </button>
-            <button class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+            <button :class="[
+              'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all',
+              isDarkMode ? 'text-gray-300 bg-dark-surface border-dark-border hover:bg-gray-700' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
@@ -108,32 +141,56 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="guruStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+      <div v-if="guruStore.isLoading" :class="[
+        'rounded-xl shadow-sm border p-12',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="text-center">
           <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Memuat Detail Guru</h3>
-          <p class="text-gray-600">Mohon tunggu sebentar...</p>
+          <h3 :class="[
+            'text-lg font-semibold mb-2',
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+          ]">Memuat Detail Guru</h3>
+          <p :class="[
+            'text-gray-600',
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          ]">Mohon tunggu sebentar...</p>
         </div>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="guruStore.getError" class="bg-white rounded-xl shadow-sm border border-red-200 p-12">
+      <div v-else-if="guruStore.getError" :class="[
+        'rounded-xl shadow-sm border p-12',
+        isDarkMode ? 'bg-dark-surface border-red-700' : 'bg-white border-red-200'
+      ]">
         <div class="text-center">
           <div class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-6">
             <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-3">Terjadi Kesalahan</h3>
-          <p class="text-gray-600 mb-6">{{ guruStore.getError }}</p>
+          <h3 :class="[
+            'text-lg font-semibold mb-3',
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+          ]">Terjadi Kesalahan</h3>
+          <p :class="[
+            'text-gray-600 mb-6',
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          ]">{{ guruStore.getError }}</p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <button @click="loadGuruDetail" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+            <button @click="loadGuruDetail" :class="[
+              'inline-flex items-center px-4 py-2 rounded-lg transition-all',
+              isDarkMode ? 'bg-red-700 hover:bg-red-800 text-white' : 'bg-red-600 hover:bg-red-700 text-white'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
               Coba Lagi
             </button>
-            <button @click="goBack" class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+            <button @click="goBack" :class="[
+              'inline-flex items-center px-4 py-2 rounded-lg transition-all',
+              isDarkMode ? 'border-dark-border text-gray-300 bg-dark-surface hover:bg-gray-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
@@ -146,7 +203,10 @@
       <!-- Guru Detail Content -->
       <div v-else-if="guruStore.getCurrentGuru" class="space-y-8">
         <!-- Profile Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div :class="[
+          'rounded-xl shadow-sm border overflow-hidden',
+          isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+        ]">
           <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-8 py-10">
             <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6">
               <div class="flex-shrink-0">
@@ -188,30 +248,63 @@
           </div>
 
           <!-- Details Section -->
-          <div class="px-8 py-8">
+          <div :class="[
+            'px-8 py-8',
+            isDarkMode ? 'bg-dark-surface' : 'bg-white'
+          ]">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <!-- Personal Information -->
               <div class="space-y-6">
-                <div class="bg-gray-50 rounded-lg p-4">
-                  <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Personal</h3>
+                <div :class="[
+                  'rounded-lg p-4',
+                  isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                ]">
+                  <h3 :class="[
+                    'text-base font-semibold mb-4',
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  ]">Informasi Personal</h3>
                   <div class="space-y-4">
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">ID Guru</span>
-                      <span class="text-sm text-gray-900 font-semibold">{{ guruStore.getCurrentGuru.id_guru }}</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">ID Guru</span>
+                      <span :class="[
+                        'text-sm font-semibold',
+                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                      ]">{{ guruStore.getCurrentGuru.id_guru }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">NIP</span>
-                      <span class="text-sm text-gray-900">{{ guruStore.getCurrentGuru.nip || 'Tidak Tersedia' }}</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">NIP</span>
+                      <span :class="[
+                        'text-sm',
+                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                      ]">{{ guruStore.getCurrentGuru.nip || 'Tidak Tersedia' }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">Email</span>
-                      <a :href="`mailto:${guruStore.getCurrentGuru.email}`" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Email</span>
+                      <a :href="`mailto:${guruStore.getCurrentGuru.email}`" :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
+                      ]">
                         {{ guruStore.getCurrentGuru.email || 'Tidak Tersedia' }}
                       </a>
                     </div>
                     <div class="flex justify-between items-center py-2">
-                      <span class="text-sm font-medium text-gray-600">Tanggal Bergabung</span>
-                      <span class="text-sm text-gray-900">{{ formatDate(guruStore.getCurrentGuru.created_at) }}</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Tanggal Bergabung</span>
+                      <span :class="[
+                        'text-sm',
+                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                      ]">{{ formatDate(guruStore.getCurrentGuru.created_at) }}</span>
                     </div>
                   </div>
                 </div>
@@ -219,31 +312,52 @@
 
               <!-- Institution Information -->
               <div class="space-y-6">
-                <div class="bg-gray-50 rounded-lg p-4">
-                  <h3 class="text-base font-semibold text-gray-900 mb-4">Informasi Institusi</h3>
+                <div :class="[
+                  'rounded-lg p-4',
+                  isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                ]">
+                  <h3 :class="[
+                    'text-base font-semibold mb-4',
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  ]">Informasi Institusi</h3>
                   <div class="space-y-4">
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">Sekolah</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Sekolah</span>
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(guruStore.getCurrentGuru.id_sekolah)">
                         {{ getSchoolName(guruStore.getCurrentGuru.id_sekolah) }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">Role</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Role</span>
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getRoleClass(guruStore.getCurrentGuru.id_role)">
                         {{ getRoleName(guruStore.getCurrentGuru.id_role) }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <span class="text-sm font-medium text-gray-600">Status Akun</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Status Akun</span>
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guruStore.getCurrentGuru)">
                         <div class="w-2 h-2 rounded-full mr-1.5" :class="guruStore.getCurrentGuru.password_hash ? 'bg-green-500' : 'bg-red-500'"></div>
                         {{ getStatusText(guruStore.getCurrentGuru) }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center py-2">
-                      <span class="text-sm font-medium text-gray-600">Terakhir Update</span>
-                      <span class="text-sm text-gray-900">{{ formatDate(guruStore.getCurrentGuru.updated_at) }}</span>
+                      <span :class="[
+                        'text-sm font-medium',
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      ]">Terakhir Update</span>
+                      <span :class="[
+                        'text-sm',
+                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                      ]">{{ formatDate(guruStore.getCurrentGuru.updated_at) }}</span>
                     </div>
                   </div>
                 </div>
@@ -254,23 +368,38 @@
       </div>
 
       <!-- Not Found State -->
-      <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+      <div v-else :class="[
+        'rounded-xl shadow-sm border p-12',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="text-center">
           <div class="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mx-auto mb-6">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-3">Guru Tidak Ditemukan</h3>
-          <p class="text-gray-600 mb-6">Guru dengan ID <span class="font-medium">{{ $route.params.id }}</span> tidak ditemukan dalam sistem.</p>
+          <h3 :class="[
+            'text-lg font-semibold mb-3',
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+          ]">Guru Tidak Ditemukan</h3>
+          <p :class="[
+            'text-gray-600 mb-6',
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          ]">Guru dengan ID <span class="font-medium">{{ $route.params.id }}</span> tidak ditemukan dalam sistem.</p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <button @click="goBack" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+            <button @click="goBack" :class="[
+              'inline-flex items-center px-4 py-2 rounded-lg transition-all',
+              isDarkMode ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
               Kembali ke Daftar Guru
             </button>
-            <button @click="loadGuruDetail" class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+            <button @click="loadGuruDetail" :class="[
+              'inline-flex items-center px-4 py-2 rounded-lg transition-all',
+              isDarkMode ? 'border-dark-border text-gray-300 bg-dark-surface hover:bg-gray-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            ]">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
@@ -284,9 +413,10 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
+import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -298,6 +428,8 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const guruStore = useGuruStore()
+    const themeStore = useThemeStore()
+    const isDarkMode = computed(() => themeStore.isDarkMode)
 
     // Toast state
     const showToast = ref(false)
@@ -475,6 +607,8 @@ export default {
 
     return {
       guruStore,
+      themeStore,
+      isDarkMode,
       showToast,
       toastType,
       toastTitle,

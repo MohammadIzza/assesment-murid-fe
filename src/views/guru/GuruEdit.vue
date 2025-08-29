@@ -1,9 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8">
+  <div :class="[
+    'min-h-screen py-8 transition-colors duration-300',
+    isDarkMode ? 'bg-dark-background' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'
+  ]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <button @click="goBack" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium mb-6 px-4 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200">
+        <button @click="goBack" :class="[
+          'inline-flex items-center font-medium mb-6 px-4 py-2 rounded-lg transition-all duration-200',
+          isDarkMode ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-700' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+        ]">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
           </svg>
@@ -11,7 +17,10 @@
         </button>
         
         <!-- Enhanced Header Card -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+        <div :class="[
+          'rounded-2xl shadow-lg p-6 mb-8',
+          isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+        ]">
           <div class="flex items-center space-x-4">
             <div class="flex-shrink-0">
               <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -22,10 +31,16 @@
               </div>
             </div>
             <div class="flex-1">
-              <h1 class="text-2xl font-bold text-gray-900 mb-1">
+              <h1 :class="[
+                'text-2xl font-bold mb-1',
+                isDarkMode ? 'text-gray-100' : 'text-gray-900'
+              ]">
                 {{ isAddMode ? 'Tambah Guru Baru' : 'Edit Data Guru' }}
               </h1>
-              <p class="text-gray-600">
+              <p :class="[
+                'text-gray-600',
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              ]">
                 {{ isAddMode ? 'Lengkapi formulir untuk menambahkan guru baru ke sistem' : 'Perbarui informasi guru yang sudah ada' }}
               </p>
             </div>
@@ -39,24 +54,48 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="guruStore.isLoading && !form.nama && !isAddMode" class="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
+      <div v-if="guruStore.isLoading && !form.nama && !isAddMode" :class="[
+        'rounded-2xl shadow-lg p-12',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="text-center">
           <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Memuat Data Guru</h3>
-          <p class="text-gray-600">Mohon tunggu sebentar...</p>
+          <h3 :class="[
+            'text-lg font-semibold mb-2',
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+          ]">Memuat Data Guru</h3>
+          <p :class="[
+            'text-gray-600',
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          ]">Mohon tunggu sebentar...</p>
         </div>
       </div>
 
       <!-- Form -->
-      <div v-else class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+      <div v-else :class="[
+        'rounded-2xl shadow-lg overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <!-- Form Header -->
-        <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-b border-gray-200">
+        <div :class="[
+          'px-8 py-6 border-b',
+          isDarkMode ? 'bg-gray-700 border-dark-border' : 'bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200'
+        ]">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-semibold text-gray-900">Formulir Data Guru</h2>
-              <p class="text-sm text-gray-600 mt-1">Lengkapi semua field - semua field wajib diisi</p>
+              <h2 :class="[
+                'text-lg font-semibold',
+                isDarkMode ? 'text-gray-100' : 'text-gray-900'
+              ]">Formulir Data Guru</h2>
+              <p :class="[
+                'text-sm mt-1',
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              ]">Lengkapi semua field - semua field wajib diisi</p>
             </div>
-            <div class="flex items-center space-x-2 text-sm text-gray-500">
+            <div :class="[
+              'flex items-center space-x-2 text-sm',
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            ]">
               <span class="text-red-500">*</span>
               <span>Field wajib diisi</span>
             </div>
@@ -74,14 +113,23 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-semibold text-gray-900">Informasi Personal</h3>
-                  <p class="text-sm text-gray-500">Data pribadi guru</p>
+                  <h3 :class="[
+                    'text-base font-semibold',
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  ]">Informasi Personal</h3>
+                  <p :class="[
+                    'text-sm',
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  ]">Data pribadi guru</p>
                 </div>
               </div>
               
               <!-- Nama -->
               <div class="group">
-                <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="nama" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -95,14 +143,20 @@
                   id="nama"
                   required
                   @input="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
                   placeholder="Masukkan nama lengkap guru"
                 />
               </div>
 
               <!-- Email -->
               <div class="group">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="email" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
@@ -116,14 +170,20 @@
                   id="email"
                   required
                   @input="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
                   placeholder="guru@example.com"
                 />
               </div>
 
               <!-- NIP -->
               <div class="group">
-                <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="nip" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -137,7 +197,10 @@
                   id="nip"
                   required
                   @input="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
                   placeholder="Masukkan Nomor Induk Pegawai"
                 />
               </div>
@@ -152,14 +215,23 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-semibold text-gray-900">Informasi Institusi</h3>
-                  <p class="text-sm text-gray-500">Data sekolah dan jabatan</p>
+                  <h3 :class="[
+                    'text-base font-semibold',
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  ]">Informasi Institusi</h3>
+                  <p :class="[
+                    'text-sm',
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  ]">Data sekolah dan jabatan</p>
                 </div>
               </div>
 
               <!-- Sekolah -->
               <div class="group">
-                <label for="id_sekolah" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="id_sekolah" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -172,7 +244,10 @@
                   id="id_sekolah"
                   required
                   @change="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400 bg-white"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
+                  ]"
                 >
                   <option value="" disabled>Pilih Sekolah</option>
                   <option value="1">SMA Negeri 1 Semarang</option>
@@ -182,7 +257,10 @@
 
               <!-- Role -->
               <div class="group">
-                <label for="id_role" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="id_role" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
@@ -195,7 +273,10 @@
                   id="id_role"
                   required
                   @change="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400 bg-white"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
+                  ]"
                 >
                   <option value="" disabled>Pilih Role</option>
                   <option value="2">Guru</option>
@@ -205,7 +286,10 @@
 
               <!-- Password -->
               <div class="group">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="password" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -221,11 +305,20 @@
                   id="password"
                   :required="isAddMode"
                   @input="watchFormChanges"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
                   :placeholder="isAddMode ? 'Masukkan password untuk guru baru' : 'Kosongkan jika tidak ingin mengubah password'"
                 />
-                <div class="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p class="text-sm text-blue-700 flex items-center">
+                <div :class="[
+                  'mt-2 p-3 rounded-lg border',
+                  isDarkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'
+                ]">
+                  <p :class="[
+                    'text-sm flex items-center',
+                    isDarkMode ? 'text-blue-200' : 'text-blue-700'
+                  ]">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -237,7 +330,10 @@
           </div>
 
           <!-- Form Actions -->
-          <div class="mt-10 pt-8 border-t border-gray-200 bg-gray-50 -mx-8 px-8 py-6">
+          <div :class="[
+            'mt-10 pt-8 border-t -mx-8 px-8 py-6',
+            isDarkMode ? 'bg-gray-700 border-dark-border' : 'bg-gray-50 border-gray-200'
+          ]">
             <div class="flex flex-col sm:flex-row gap-4 justify-between">
               <!-- Progress/Status Indicator -->
               <div class="flex items-center space-x-2 text-sm">
@@ -257,7 +353,10 @@
                 <button
                   type="button"
                   @click="goBack"
-                  class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 bg-white rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                  :class="[
+                    'inline-flex items-center justify-center px-6 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md',
+                    isDarkMode ? 'border-dark-border text-gray-300 bg-dark-surface hover:bg-gray-600' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                  ]"
                 >
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -301,6 +400,7 @@
 import { reactive, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
+import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -312,6 +412,8 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const guruStore = useGuruStore()
+    const themeStore = useThemeStore()
+    const isDarkMode = computed(() => themeStore.isDarkMode)
 
     // State
     const form = reactive({
@@ -511,6 +613,8 @@ export default {
       toastMessage,
       toastDuration,
       guruStore,
+      themeStore,
+      isDarkMode,
       submitForm,
       goBack,
       watchFormChanges,

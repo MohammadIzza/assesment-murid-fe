@@ -1,12 +1,21 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div :class="[
+    'min-h-screen py-8 transition-colors duration-300',
+    isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
+  ]">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-600 p-8 mb-8 text-white">
+      <div :class="[
+        'rounded-xl shadow-lg border p-8 mb-8 text-white',
+        isDarkMode ? 'bg-gradient-to-r from-blue-800 to-blue-900 border-blue-700' : 'bg-gradient-to-r from-blue-600 to-blue-700 border-blue-600'
+      ]">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div class="flex items-center space-x-6">
             <div class="relative">
-              <div class="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
+              <div :class="[
+                'flex items-center justify-center w-16 h-16 backdrop-blur-sm rounded-xl shadow-lg',
+                isDarkMode ? 'bg-white/10' : 'bg-white/20'
+              ]">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                 </svg>
@@ -19,7 +28,10 @@
             </div>
             <div>
               <h1 class="text-2xl font-bold text-white mb-2">Daftar Guru</h1>
-              <p class="text-blue-100 text-base">Kelola dan pantau data guru dalam sistem assessment</p>
+              <p :class="[
+                'text-base',
+                isDarkMode ? 'text-blue-200' : 'text-blue-100'
+              ]">Kelola dan pantau data guru dalam sistem assessment</p>
               <div class="flex items-center mt-3 space-x-4">
                 <div class="flex items-center text-blue-100">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,12 +49,21 @@
             </div>
           </div>
           <div class="mt-6 lg:mt-0">
-            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+            <div :class="[
+              'backdrop-blur-sm rounded-xl p-6 text-center border',
+              isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white/10 border-white/20'
+            ]">
               <div class="text-2xl font-bold text-white mb-1">{{ filteredGuruList.length }}</div>
-              <div class="text-sm text-blue-100 font-medium mb-2">Total Guru</div>
+              <div :class="[
+                'text-sm font-medium mb-2',
+                isDarkMode ? 'text-blue-200' : 'text-blue-100'
+              ]">Total Guru</div>
               <div class="flex items-center justify-center space-x-2">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span class="text-xs text-blue-100">Live Data</span>
+                <span :class="[
+                  'text-xs',
+                  isDarkMode ? 'text-blue-200' : 'text-blue-100'
+                ]">Live Data</span>
               </div>
             </div>
           </div>
@@ -50,23 +71,41 @@
       </div>
 
       <!-- Search and Filter Section -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
+      <div :class="[
+        'rounded-xl shadow-lg mb-8 overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <!-- Filter Header -->
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+        <div :class="[
+          'px-6 py-4 border-b',
+          isDarkMode ? 'bg-gradient-to-r from-gray-700 to-gray-800 border-dark-border' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'
+        ]">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center space-x-3">
-              <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-xl shadow-sm">
+              <div :class="[
+                'flex items-center justify-center w-10 h-10 rounded-xl shadow-sm',
+                isDarkMode ? 'bg-blue-800' : 'bg-blue-100'
+              ]">
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900">Filter & Pencarian Data Guru</h3>
-                <p class="text-sm text-gray-600">Temukan dan filter data guru berdasarkan kriteria spesifik</p>
+                <h3 :class="[
+                  'text-lg font-semibold',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">Filter & Pencarian Data Guru</h3>
+                <p :class="[
+                  'text-sm',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                ]">Temukan dan filter data guru berdasarkan kriteria spesifik</p>
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <div v-if="hasActiveFilters" class="flex items-center text-sm text-blue-700 bg-blue-100 px-4 py-2 rounded-full shadow-sm border border-blue-200">
+              <div v-if="hasActiveFilters" :class="[
+                'flex items-center text-sm px-4 py-2 rounded-full shadow-sm border',
+                isDarkMode ? 'text-blue-300 bg-blue-900/30 border-blue-700' : 'text-blue-700 bg-blue-100 border-blue-200'
+              ]">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -75,7 +114,10 @@
               <button 
                 @click="clearAllFilters" 
                 v-if="hasActiveFilters" 
-                class="inline-flex items-center text-sm text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full transition-all duration-200 border border-red-200 hover:border-red-300 shadow-sm"
+                :class="[
+                  'inline-flex items-center text-sm px-4 py-2 rounded-full transition-all duration-200 border shadow-sm',
+                  isDarkMode ? 'text-red-300 bg-red-900/30 border-red-700 hover:bg-red-900/50' : 'text-red-600 bg-red-50 hover:bg-red-100 border-red-200 hover:border-red-300'
+                ]"
               >
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -98,7 +140,10 @@
               </label>
               <button 
                 @click="toggleAdvancedFilter" 
-                class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-indigo-200"
+                :class="[
+                  'inline-flex items-center text-sm px-3 py-1.5 rounded-lg transition-all duration-200 border',
+                  isDarkMode ? 'text-indigo-300 bg-indigo-900/30 border-indigo-700 hover:bg-indigo-900/50' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border-indigo-200'
+                ]"
               >
                 <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -114,20 +159,26 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
               <!-- School Filter -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                   </svg>
                   Sekolah
                 </label>
                 <div class="relative">
-                  <select v-model="selectedSchool" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <select v-model="selectedSchool" :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]">
                     <option value="">Semua Sekolah</option>
                     <option value="1">SMA Negeri 1 Semarang</option>
                     <option value="2">SMA Negeri 2 Semarang</option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg :class="[
+                      'h-4 w-4',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </div>
@@ -142,20 +193,26 @@
               
               <!-- Role Filter -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
                   Role/Jabatan
                 </label>
                 <div class="relative">
-                  <select v-model="selectedRole" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <select v-model="selectedRole" :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]">
                     <option value="">Semua Role</option>
                     <option value="2">Guru</option>
                     <option value="3">Kepala Sekolah</option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg :class="[
+                      'h-4 w-4',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </div>
@@ -170,20 +227,26 @@
               
               <!-- Status Filter -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                   Status Akun
                 </label>
                 <div class="relative">
-                  <select v-model="selectedStatus" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <select v-model="selectedStatus" :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]">
                     <option value="">Semua Status</option>
                     <option value="aktif">Aktif</option>
                     <option value="belum_aktif">Belum Aktif</option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg :class="[
+                      'h-4 w-4',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </div>
@@ -198,14 +261,17 @@
 
               <!-- Date Filter -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                   Filter Tanggal
                 </label>
                 <div class="relative">
-                  <select v-model="dateFilter" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <select v-model="dateFilter" :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]">
                     <option value="">Semua Periode</option>
                     <option value="today">Hari Ini</option>
                     <option value="week">Minggu Ini</option>
@@ -213,7 +279,10 @@
                     <option value="year">Tahun Ini</option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg :class="[
+                      'h-4 w-4',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </div>
@@ -230,7 +299,10 @@
             <!-- Advanced Filter Section (Collapsible) -->
             <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label :class="[
+                  'flex text-sm font-medium items-center',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
                   </svg>
@@ -240,15 +312,24 @@
                   v-model="nipFilter"
                   type="text"
                   placeholder="Masukkan NIP guru (contoh: 19850601)"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ]"
                 />
-                <div v-if="nipFilter" class="text-xs text-gray-500">
+                <div :class="[
+                  'text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
                   Mencari NIP yang mengandung "{{ nipFilter }}"
                 </div>
               </div>
               
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label :class="[
+                  'flex text-sm font-medium items-center',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <svg class="w-4 h-4 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                   </svg>
@@ -258,22 +339,34 @@
                   v-model="emailFilter"
                   type="text"
                   placeholder="Masukkan domain email (contoh: @gmail.com)"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ]"
                 />
-                <div v-if="emailFilter" class="text-xs text-gray-500">
+                <div :class="[
+                  'text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
                   Mencari email yang mengandung "{{ emailFilter }}"
                 </div>
               </div>
               
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                <label :class="[
+                  'flex text-sm font-medium items-center',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   <svg class="w-4 h-4 mr-1.5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                   </svg>
                   Urutkan Berdasarkan
                 </label>
                 <div class="flex gap-2">
-                  <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <select v-model="sortBy" :class="[
+                    'flex-1 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]">
                     <option value="nama">Nama</option>
                     <option value="email">Email</option>
                     <option value="nip">NIP</option>
@@ -282,7 +375,10 @@
                   </select>
                   <button 
                     @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
-                    class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:shadow-md hover:bg-gray-50"
+                    :class="[
+                      'px-3 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md',
+                      isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 hover:bg-gray-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ]"
                     :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
                   >
                     <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,7 +389,10 @@
                     </svg>
                   </button>
                 </div>
-                <div class="text-xs text-gray-500">
+                <div :class="[
+                  'text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
                   Urutan: {{ sortOrder === 'asc' ? 'A → Z' : 'Z → A' }}
                 </div>
               </div>
@@ -303,7 +402,10 @@
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <div class="flex-1">
-                <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                <label :class="[
+                  'flex text-sm font-semibold mb-3 items-center',
+                  isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                ]">
                   <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                   </svg>
@@ -313,7 +415,10 @@
                   <button 
                     @click="loadGuruData" 
                     :disabled="guruStore.isLoading"
-                    class="inline-flex items-center justify-center px-4 py-3 border border-blue-300 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-blue-600 text-blue-300 bg-blue-900/30 hover:bg-blue-900/50' : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                    ]"
                   >
                     <svg v-if="!guruStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -324,7 +429,10 @@
                   <button 
                     @click="exportData" 
                     :disabled="filteredGuruList.length === 0"
-                    class="inline-flex items-center justify-center px-4 py-3 border border-green-300 rounded-xl text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                    ]"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -334,7 +442,10 @@
                   <button 
                     @click="printData" 
                     :disabled="filteredGuruList.length === 0"
-                    class="inline-flex items-center justify-center px-4 py-3 border border-purple-300 rounded-xl text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                    ]"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
@@ -348,7 +459,10 @@
             <!-- Active Filter Tags -->
             <div v-if="hasActiveFilters" class="pt-6 border-t border-gray-200">
               <div class="flex flex-wrap items-center gap-3">
-                <span class="text-sm font-semibold text-gray-800 flex items-center">
+                <span :class="[
+                  'text-sm font-semibold flex items-center',
+                  isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                ]">
                   <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                   </svg>
@@ -444,7 +558,10 @@
         </div>
 
       <!-- Action Section -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-6 p-6">
+      <div :class="[
+        'rounded-xl shadow-lg border mb-6 p-6',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
@@ -453,14 +570,23 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-base font-semibold text-gray-900">Kelola Data Guru</h3>
-              <p class="text-sm text-gray-500">Tambah guru baru atau kelola data yang sudah ada</p>
+              <h3 :class="[
+                'text-base font-semibold',
+                isDarkMode ? 'text-gray-100' : 'text-gray-900'
+              ]">Kelola Data Guru</h3>
+              <p :class="[
+                'text-sm',
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              ]">Tambah guru baru atau kelola data yang sudah ada</p>
             </div>
           </div>
           <div class="flex flex-col sm:flex-row gap-3">
             <button
               @click="goToAddGuru"
-              class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              :class="[
+                'inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5',
+                isDarkMode ? 'bg-blue-700 hover:bg-blue-800' : 'bg-blue-600 hover:bg-blue-700'
+              ]"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -496,36 +622,97 @@
       </div>
 
       <!-- Data Table -->
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div :class="[
+        'rounded-xl border overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead :class="[
+              isDarkMode ? 'bg-dark-surface' : 'bg-gray-50'
+            ]">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sekolah</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">ID</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Nama</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Email</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">NIP</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Sekolah</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Role</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Status</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Aksi</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="guru in paginatedGuruList" :key="guru.id_guru" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.id_guru }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.nama }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.email }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ guru.nip }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getSchoolName(guru.id_sekolah) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getRoleName(guru.id_role) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getStatusText(guru) }}</td>
+            <tbody :class="[
+              isDarkMode ? 'bg-dark-surface divide-dark-border' : 'bg-white divide-gray-200'
+            ]">
+              <tr v-for="guru in paginatedGuruList" :key="guru.id_guru" :class="[
+                'transition-colors',
+                isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+              ]">
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ guru.id_guru }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ guru.nama }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ guru.email }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ guru.nip }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ getSchoolName(guru.id_sekolah) }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ getRoleName(guru.id_role) }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ getStatusText(guru) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button @click="viewGuruDetail(guru.id_guru)" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition-colors">Detail</button>
+                  <button @click="viewGuruDetail(guru.id_guru)" :class="[
+                    'text-green-600 hover:text-green-900 px-3 py-1 rounded-lg transition-colors',
+                    isDarkMode ? 'bg-green-900/30 hover:bg-green-900/50' : 'bg-green-50 hover:bg-green-100'
+                  ]">Detail</button>
                 </td>
               </tr>
               <tr v-if="paginatedGuruList.length === 0">
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="8" :class="[
+                  'px-6 py-12 text-center',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
                   <div>Tidak ada data guru</div>
                 </td>
               </tr>
@@ -536,14 +723,29 @@
 
         <!-- Empty State -->
         <div v-if="filteredGuruList.length === 0 && !guruStore.isLoading" class="text-center py-12">
-          <div class="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div :class="[
+            'flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4',
+            isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+          ]">
+            <svg :class="[
+              'w-8 h-8',
+              isDarkMode ? 'text-gray-500' : 'text-gray-400'
+            ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Data Guru</h3>
-          <p class="text-gray-600 mb-4">Tidak ada guru yang ditemukan dengan kriteria pencarian saat ini.</p>
-          <button @click="loadGuruData" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <h3 :class="[
+            'text-lg font-medium mb-2',
+            isDarkMode ? 'text-gray-100' : 'text-gray-900'
+          ]">Tidak Ada Data Guru</h3>
+          <p :class="[
+            'text-gray-600 mb-4',
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          ]">Tidak ada guru yang ditemukan dengan kriteria pencarian saat ini.</p>
+          <button @click="loadGuruData" :class="[
+            'inline-flex items-center px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+            isDarkMode ? 'bg-blue-700 text-white' : 'bg-blue-600 text-white'
+          ]">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -552,7 +754,10 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div v-if="totalPages > 1" :class="[
+          'px-6 py-4 border-t',
+          isDarkMode ? 'border-dark-border bg-dark-surface' : 'border-gray-200 bg-gray-50'
+        ]">
           <div class="flex items-center justify-between">
             <div class="flex-1 flex justify-between sm:hidden">
               <button 
@@ -572,7 +777,10 @@
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p class="text-sm text-gray-700">
+                <p :class="[
+                  'text-sm',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
                   Menampilkan halaman <span class="font-medium">{{ currentPage }}</span> dari <span class="font-medium">{{ totalPages }}</span>
                 </p>
               </div>
@@ -581,7 +789,10 @@
                   <button 
                     @click="currentPage--" 
                     :disabled="currentPage === 1"
-                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                      'relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium transition-colors',
+                      isDarkMode ? 'border-dark-border bg-dark-surface text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ]"
                   >
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -596,7 +807,7 @@
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       currentPage === page 
                         ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        : isDarkMode ? 'bg-dark-surface border-dark-border text-gray-300 hover:bg-gray-700' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                     ]"
                   >
                     {{ page }}
@@ -605,7 +816,10 @@
                   <button 
                     @click="currentPage++" 
                     :disabled="currentPage === totalPages"
-                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                      'relative inline-flex items-center px-2 py-2 rounded-r-md border text-sm font-medium transition-colors',
+                      isDarkMode ? 'border-dark-border bg-dark-surface text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ]"
                   >
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -624,12 +838,15 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
+import { useThemeStore } from '@/stores/theme'
 
 export default {
   name: 'GuruList',
   setup() {
     const router = useRouter()
     const guruStore = useGuruStore()
+    const themeStore = useThemeStore()
+    const isDarkMode = computed(() => themeStore.isDarkMode)
     
     // Reactive data
     const searchQuery = ref('')
@@ -1122,6 +1339,8 @@ export default {
 
     return {
       guruStore,
+      themeStore,
+      isDarkMode,
       searchQuery,
       selectedSchool,
       selectedRole,
