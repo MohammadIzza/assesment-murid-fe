@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-indigo-50 py-8">
+  <div :class="['min-h-screen py-8', isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-green-50 via-white to-indigo-50']">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <button @click="goBack" class="inline-flex items-center text-green-600 hover:text-green-700 font-medium mb-6 px-4 py-2 rounded-lg hover:bg-green-50 transition-all duration-200">
+        <button @click="goBack" :class="['inline-flex items-center font-medium mb-6 px-4 py-2 rounded-lg transition-all duration-200', isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-green-600 hover:text-green-700 hover:bg-green-50']">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
           </svg>
@@ -11,7 +11,7 @@
         </button>
         
         <!-- Enhanced Header Card -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+        <div :class="['rounded-2xl shadow-lg border p-6 mb-8', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
           <div class="flex items-center space-x-4">
             <div class="flex-shrink-0">
               <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -22,15 +22,15 @@
               </div>
             </div>
             <div class="flex-1">
-              <h1 class="text-2xl font-bold text-gray-900 mb-1">
+              <h1 :class="['text-2xl font-bold mb-1', isDarkMode ? 'text-white' : 'text-gray-900']">
                 {{ isAddMode ? 'Tambah Siswa Baru' : 'Edit Data Siswa' }}
               </h1>
-              <p class="text-gray-600">
+              <p :class="['', isDarkMode ? 'text-gray-400' : 'text-gray-600']">
                 {{ isAddMode ? 'Lengkapi formulir untuk menambahkan siswa baru ke sistem' : 'Perbarui informasi siswa yang sudah ada' }}
               </p>
             </div>
             <div class="hidden md:flex items-center space-x-2">
-              <div class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              <div :class="['px-3 py-1 rounded-full text-sm font-medium', isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700']">
                 {{ isAddMode ? 'Mode Tambah' : 'Mode Edit' }}
               </div>
             </div>
@@ -39,24 +39,24 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="siswaStore.isLoading && !form.nama && !isAddMode" class="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
+      <div v-if="siswaStore.isLoading && !form.nama && !isAddMode" :class="['rounded-2xl shadow-lg border p-12', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
         <div class="text-center">
-          <div class="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Memuat Data Siswa</h3>
-          <p class="text-gray-600">Mohon tunggu sebentar...</p>
+          <div :class="['w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-6', isDarkMode ? 'border-green-800 border-t-green-400' : 'border-green-200 border-t-green-600']"></div>
+          <h3 :class="['text-lg font-semibold mb-2', isDarkMode ? 'text-white' : 'text-gray-900']">Memuat Data Siswa</h3>
+          <p :class="['', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Mohon tunggu sebentar...</p>
         </div>
       </div>
 
       <!-- Form -->
-      <div v-else class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+      <div v-else :class="['rounded-2xl shadow-lg border overflow-hidden', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
         <!-- Form Header -->
-        <div class="bg-gradient-to-r from-gray-50 to-green-50 px-8 py-6 border-b border-gray-200">
+        <div :class="['px-8 py-6 border-b', isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-r from-gray-50 to-green-50 border-gray-200']">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-semibold text-gray-900">Formulir Data Siswa</h2>
-              <p class="text-sm text-gray-600 mt-1">Lengkapi semua field - semua field wajib diisi</p>
+              <h2 :class="['text-lg font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">Formulir Data Siswa</h2>
+              <p :class="['text-sm mt-1', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Lengkapi semua field - semua field wajib diisi</p>
             </div>
-            <div class="flex items-center space-x-2 text-sm text-gray-500">
+            <div :class="['flex items-center space-x-2 text-sm', isDarkMode ? 'text-gray-400' : 'text-gray-500']">
               <span class="text-red-500">*</span>
               <span>Field wajib diisi</span>
             </div>
@@ -74,33 +74,33 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-semibold text-gray-900">Informasi Personal</h3>
-                  <p class="text-sm text-gray-500">Data pribadi siswa</p>
+                  <h3 :class="['text-base font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">Informasi Personal</h3>
+                  <p :class="['text-sm', isDarkMode ? 'text-gray-400' : 'text-gray-500']">Data pribadi siswa</p>
                 </div>
               </div>
               
               <!-- Nama -->
               <div class="group">
-                <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap <span class="text-red-500 ml-1">*</span></label>
-                <input v-model="form.nama" type="text" id="nama" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="Masukkan nama lengkap siswa" />
+                <label for="nama" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Nama Lengkap <span class="text-red-500 ml-1">*</span></label>
+                <input v-model="form.nama" type="text" id="nama" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:border-green-400' : 'border-gray-300 placeholder-gray-500 focus:border-green-500']" placeholder="Masukkan nama lengkap siswa" />
               </div>
 
               <!-- NISN -->
               <div class="group">
-                <label for="nisn" class="block text-sm font-medium text-gray-700 mb-2">NISN <span class="text-red-500 ml-1">*</span></label>
-                <input v-model="form.nisn" type="text" id="nisn" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="Masukkan NISN siswa" />
+                <label for="nisn" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">NISN <span class="text-red-500 ml-1">*</span></label>
+                <input v-model="form.nisn" type="text" id="nisn" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:border-green-400' : 'border-gray-300 placeholder-gray-500 focus:border-green-500']" placeholder="Masukkan NISN siswa" />
               </div>
 
               <!-- Tanggal Lahir -->
               <div class="group">
-                <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir <span class="text-red-500 ml-1">*</span></label>
-                <input v-model="form.tanggal_lahir" type="date" id="tanggal_lahir" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl" placeholder="Pilih tanggal lahir" />
+                <label for="tanggal_lahir" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Tanggal Lahir <span class="text-red-500 ml-1">*</span></label>
+                <input v-model="form.tanggal_lahir" type="date" id="tanggal_lahir" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']" placeholder="Pilih tanggal lahir" />
               </div>
 
               <!-- Jenis Kelamin -->
               <div class="group">
-                <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500 ml-1">*</span></label>
-                <select v-model="form.jenis_kelamin" id="jenis_kelamin" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl">
+                <label for="jenis_kelamin" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Jenis Kelamin <span class="text-red-500 ml-1">*</span></label>
+                <select v-model="form.jenis_kelamin" id="jenis_kelamin" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']">
                   <option value="" disabled>Pilih Jenis Kelamin</option>
                   <option value="L">Laki-laki</option>
                   <option value="P">Perempuan</option>
@@ -117,15 +117,15 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-base font-semibold text-gray-900">Informasi Institusi</h3>
-                  <p class="text-sm text-gray-500">Data sekolah dan kelas</p>
+                  <h3 :class="['text-base font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">Informasi Institusi</h3>
+                  <p :class="['text-sm', isDarkMode ? 'text-gray-400' : 'text-gray-500']">Data sekolah dan kelas</p>
                 </div>
               </div>
 
               <!-- Sekolah -->
               <div class="group">
-                <label for="id_sekolah" class="block text-sm font-medium text-gray-700 mb-2">Sekolah <span class="text-red-500 ml-1">*</span></label>
-                <select v-model="form.id_sekolah" id="id_sekolah" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl">
+                <label for="id_sekolah" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Sekolah <span class="text-red-500 ml-1">*</span></label>
+                <select v-model="form.id_sekolah" id="id_sekolah" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']">
                   <option value="" disabled>Pilih Sekolah</option>
                   <option value="1">SMA Negeri 1 Semarang</option>
                   <option value="2">SMA Negeri 2 Semarang</option>
@@ -134,8 +134,8 @@
 
               <!-- Kelas -->
               <div class="group">
-                <label for="id_kelas" class="block text-sm font-medium text-gray-700 mb-2">Kelas <span class="text-red-500 ml-1">*</span></label>
-                <select v-model="form.id_kelas" id="id_kelas" required class="block w-full px-4 py-3 border border-gray-300 rounded-xl">
+                <label for="id_kelas" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Kelas <span class="text-red-500 ml-1">*</span></label>
+                <select v-model="form.id_kelas" id="id_kelas" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']">
                   <option value="" disabled>Pilih Kelas</option>
                   <option value="1">Kelas X</option>
                   <option value="2">Kelas XI</option>
@@ -146,11 +146,11 @@
           </div>
 
           <!-- Form Actions -->
-          <div class="flex items-center justify-end space-x-4 pt-8 border-t border-gray-200">
+          <div :class="['flex items-center justify-end space-x-4 pt-8 border-t', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
             <button
               type="button"
               @click="goBack"
-              class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+              :class="['inline-flex items-center px-6 py-3 border font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200', isDarkMode ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50']"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -182,10 +182,14 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSiswaStore } from '@/stores/siswa'
+import { useThemeStore } from '@/stores/theme'
 
 const router = useRouter()
 const route = useRoute()
 const siswaStore = useSiswaStore()
+const themeStore = useThemeStore()
+
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 // Reactive data
 const form = ref({

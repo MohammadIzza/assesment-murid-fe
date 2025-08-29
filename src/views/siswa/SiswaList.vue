@@ -1,8 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div :class="[
+    'min-h-screen py-8 transition-colors duration-300',
+    isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
+  ]">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
-      <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg border border-green-600 p-8 mb-8 text-white">
+      <div :class="[
+        'rounded-xl shadow-lg border p-8 mb-8 text-white',
+        isDarkMode ? 'bg-gradient-to-r from-green-800 to-green-900 border-green-700' : 'bg-gradient-to-r from-green-600 to-green-700 border-green-600'
+      ]">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div class="flex items-center space-x-6">
             <div class="relative">
@@ -19,7 +25,10 @@
             </div>
             <div>
               <h1 class="text-2xl font-bold text-white mb-2">Daftar Siswa</h1>
-              <p class="text-green-100 text-base">Kelola dan pantau data siswa dalam sistem assessment</p>
+              <p :class="[
+                'text-base',
+                isDarkMode ? 'text-green-200' : 'text-green-100'
+              ]">Kelola dan pantau data siswa dalam sistem assessment</p>
               <div class="flex items-center mt-3 space-x-4">
                 <div class="flex items-center text-green-100">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,12 +46,21 @@
             </div>
           </div>
           <div class="mt-6 lg:mt-0">
-            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center border border-white/20">
+            <div :class="[
+              'backdrop-blur-sm rounded-xl p-6 text-center border',
+              isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white/10 border-white/20'
+            ]">
               <div class="text-2xl font-bold text-white mb-1">{{ filteredSiswaList.length }}</div>
-              <div class="text-sm text-green-100 font-medium mb-2">Total Siswa</div>
+              <div :class="[
+                'text-sm font-medium mb-2',
+                isDarkMode ? 'text-green-200' : 'text-green-100'
+              ]">Total Siswa</div>
               <div class="flex items-center justify-center space-x-2">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span class="text-xs text-green-100">Live Data</span>
+                <span :class="[
+                  'text-xs',
+                  isDarkMode ? 'text-green-200' : 'text-green-100'
+                ]">Live Data</span>
               </div>
             </div>
           </div>
@@ -50,9 +68,15 @@
       </div>
 
       <!-- Search and Filter Section -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
+      <div :class="[
+        'rounded-xl shadow-lg mb-8 overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <!-- Filter Header -->
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+        <div :class="[
+          'px-6 py-4 border-b',
+          isDarkMode ? 'bg-gray-700 border-dark-border' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'
+        ]">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center space-x-3">
               <div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl shadow-sm">
@@ -61,8 +85,14 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900">Filter & Pencarian Data Siswa</h3>
-                <p class="text-sm text-gray-600">Temukan dan filter data siswa berdasarkan kriteria spesifik</p>
+                <h3 :class="[
+                  'text-lg font-semibold',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">Filter & Pencarian Data Siswa</h3>
+                <p :class="[
+                  'text-sm',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                ]">Temukan dan filter data siswa berdasarkan kriteria spesifik</p>
               </div>
             </div>
             <div class="flex items-center gap-3">
@@ -90,38 +120,35 @@
         <div class="p-6 space-y-4">
           <!-- Advanced Filters Section -->
           <div class="flex items-center justify-between mb-6">
-            <label class="text-sm font-semibold text-gray-800 flex items-center">
+            <label :class="[
+              'text-sm font-semibold flex items-center',
+              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+            ]">
               <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
               </svg>
               Filter 
             </label>
-            <button 
-              @click="toggleAdvancedFilter" 
-              class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-indigo-200"
-            >
-              <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-              <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-              </svg>
-              {{ showAdvancedFilter ? 'Sembunyikan' : 'Tampilkan' }}
-            </button>
           </div>
 
           <!-- Basic Filters -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
             <!-- School Filter -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 flex items-center">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
                 Sekolah
               </label>
               <div class="relative">
-                <select v-model="selectedSchool" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                <select v-model="selectedSchool" :class="[
+                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'border-gray-300 bg-white text-gray-900'
+                ]">
                   <option value="">Semua Sekolah</option>
                   <option value="1">SMA Negeri 1 Semarang</option>
                   <option value="2">SMA Negeri 2 Semarang</option>
@@ -142,7 +169,7 @@
             
             <!-- Kelas Filter -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 flex items-center">
+              <label class="flex text-sm font-medium text-gray-700 items-center">
                 <svg class="w-4 h-4 mr-1.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
@@ -171,7 +198,7 @@
             
             <!-- Status Filter -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 flex items-center">
+              <label class="flex text-sm font-medium text-gray-700 items-center">
                 <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -199,7 +226,7 @@
 
             <!-- Search -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 flex items-center">
+              <label class="flex text-sm font-medium text-gray-700 items-center">
                 <svg class="w-4 h-4 mr-1.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
@@ -248,42 +275,109 @@
       </div>
 
       <!-- Data Table -->
-      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div :class="[
+        'rounded-xl shadow-lg border overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead :class="[
+              isDarkMode ? 'bg-dark-surface' : 'bg-gray-50'
+            ]">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Lahir</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Kelas</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Sekolah</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">ID</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Nama</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">NISN</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Tanggal Lahir</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Jenis Kelamin</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">ID Kelas</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">ID Sekolah</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Aksi</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id_siswa" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.id_siswa }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.nama }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.nisn }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.tanggal_lahir }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.jenis_kelamin }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.id_kelas }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ siswa.id_sekolah }}</td>
+            <tbody :class="[
+              isDarkMode ? 'bg-dark-surface divide-dark-border' : 'bg-white divide-gray-200'
+            ]">
+              <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id_siswa" :class="[
+                'transition-colors',
+                isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+              ]">
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.id_siswa }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.nama }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.nisn }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.tanggal_lahir }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.jenis_kelamin }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.id_kelas }}</td>
+                <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">{{ siswa.id_sekolah }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button @click="goToDetail(siswa.id_siswa)" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition-colors">Detail</button>
+                  <button @click="goToDetail(siswa.id_siswa)" :class="[
+                    'px-3 py-1 rounded-lg transition-colors',
+                    isDarkMode ? 'text-green-400 bg-green-900/30 hover:bg-green-900/50' : 'text-green-600 bg-green-50 hover:bg-green-100'
+                  ]">Detail</button>
                 </td>
               </tr>
               <tr v-if="paginatedSiswaList.length === 0">
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="8" :class="[
+                  'px-6 py-12 text-center',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
                   <div class="flex flex-col items-center">
                     <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <p class="text-lg font-medium text-gray-900 mb-2">Tidak ada data siswa</p>
-                    <p class="text-gray-500">Coba ubah filter atau tambah siswa baru</p>
+                    <p :class="[
+                      'text-lg font-medium mb-2',
+                      isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                    ]">Tidak ada data siswa</p>
+                    <p :class="[
+                      'text-gray-500',
+                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    ]">Coba ubah filter atau tambah siswa baru</p>
                   </div>
                 </td>
               </tr>
@@ -292,7 +386,10 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="totalPages > 1" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div v-if="totalPages > 1" :class="[
+          'px-4 py-3 flex items-center justify-between border-t sm:px-6',
+          isDarkMode ? 'border-dark-border bg-dark-surface' : 'border-gray-200 bg-gray-50'
+        ]">
           <div class="flex-1 flex justify-between sm:hidden">
             <button
               @click="prevPage"
@@ -311,7 +408,10 @@
           </div>
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p class="text-sm text-gray-700">
+              <p :class="[
+                'text-sm',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 Menampilkan
                 <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
                 sampai
@@ -369,9 +469,12 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSiswaStore } from '@/stores/siswa'
+import { useThemeStore } from '@/stores/theme'
 
 const router = useRouter()
 const siswaStore = useSiswaStore()
+const themeStore = useThemeStore()
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 // Reactive data
 const searchQuery = ref('')
