@@ -13,22 +13,23 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 // Add request interceptor untuk menambahkan token otentikasi
 axios.interceptors.request.use(
   (config) => {
-    // Get token from cookie (support 'auth' or 'auth_token')
-    const token = Cookies.get('auth') || Cookies.get('auth_token');
+    // Get token from cookie (support both TOKEN_COOKIE formats)
+    const token = Cookies.get('auth_token'); 
     
     // If token exists, add to headers
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     
-    // Remove this line to stop logging API requests
-    // console.log('API Request:', config.method?.toUpperCase(), config.url);
+    // Get session ID if exists
+    const sessionId = Cookies.get('session_id');
+    if (sessionId) {
+      config.headers['Session-Id'] = sessionId;
+    }
     
     return config;
   },
   (error) => {
-    // Remove or modify this line
-    // console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
@@ -36,25 +37,40 @@ axios.interceptors.request.use(
 // Add response interceptor untuk handling error
 axios.interceptors.response.use(
   (response) => {
-    // Remove this line to stop logging API responses
-    // console.log('API Response:', response.status, response.config.url);
     return response;
   },
   (error) => {
-    // Modify this to be less specific
-    // console.error('API Error:', error.response?.status, error.response?.data || error.message);
     console.error('API request failed');
     
-    // Rest of your error handling code
+    // Handle 401 errors only on specific API calls, not on all
+    // Avoid auto logout on page refresh or when checking auth status
     if (error.response?.status === 401) {
-      // Hapus token yang tidak valid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      delete axios.defaults.headers.common['Authorization'];
+      const requestUrl = error.config?.url || '';
       
-      // Redirect ke login jika bukan di halaman auth
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-        // Your redirect code
+      // Only logout on specific endpoints, not on profile checks or verification
+      const isAuthEndpoint = 
+        requestUrl.includes('/auth/login') || 
+        requestUrl.includes('/auth/register');
+      
+      // Avoid auto-logout on profile or verification endpoints
+      const isProfileOrVerify = 
+        requestUrl.includes('/user/profile') || 
+        requestUrl.includes('/auth/verify');
+      
+      // Only remove tokens and redirect on auth endpoints, not on profile/verify checks
+      if (isAuthEndpoint && !isProfileOrVerify) {
+        // Import authStore and handle logout through proper channels
+        const { useAuthStore } = require('@/stores/auth');
+        const authStore = useAuthStore();
+        authStore.logout();
+        
+        // Redirect only if explicitly logging out, not on page refresh auth checks
+        if (requestUrl.includes('/auth/logout')) {
+          // Redirect to login
+          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+            window.location.href = '/login';
+          }
+        }
       }
     }
     

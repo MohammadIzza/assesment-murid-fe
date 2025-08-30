@@ -242,9 +242,9 @@ router.beforeEach(async (to, from, next) => {
   const { useAuthStore } = await import('@/stores/auth')
   const authStore = useAuthStore()
   
-  // Initialize auth jika belum
-  if (!authStore.isAuthenticated && localStorage.getItem('token')) {
-    authStore.initAuth()
+  // Jika belum diinisialisasi, coba init
+  if (!authStore.isAuthenticated) {
+    await authStore.initAuth()
   }
   
   const isAuthenticated = authStore.isAuthenticated

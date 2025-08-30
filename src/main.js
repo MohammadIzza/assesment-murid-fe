@@ -33,11 +33,17 @@ app.use(router)
 
 // Initialize auth store
 const authStore = useAuthStore()
-authStore.initAuth()
+// Use async/await for proper initialization
+async function initApp() {
+  await authStore.initAuth()
+  
+  // Initialize theme store
+  const themeStore = useThemeStore()
+  themeStore.initTheme()
+  
+  // Mount the app after initialization
+  app.mount('#app')
+}
 
-// Initialize theme store
-const themeStore = useThemeStore()
-themeStore.initTheme()
-
-// Memasang aplikasi ke elemen dengan id 'app' di index.html
-app.mount('#app')
+// Start initialization
+initApp()
