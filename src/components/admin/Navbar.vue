@@ -377,7 +377,7 @@ const closeMobileMenu = () => {
   }
 }
 
-const handleLogout = (event) => {
+const handleLogout = async (event) => {
   // Prevent event from bubbling up to parent elements
   event.stopPropagation()
   
@@ -388,8 +388,20 @@ const handleLogout = (event) => {
     }
   }
   
-  authStore.logout()
-  router.push('/login')
+  try {
+    // Tambahkan loading state jika diperlukan
+    // Tunggu sampai proses logout selesai sebelum navigasi
+    await authStore.logout()
+    
+    // Delay singkat untuk memastikan operasi clearAuthCookies selesai
+    setTimeout(() => {
+      router.push('/login')
+    }, 100)
+  } catch (error) {
+    console.error('Error during logout:', error)
+    // Fallback jika terjadi error, tetap arahkan ke login
+    router.push('/login')
+  }
 }
 
 // Close mobile menu when clicking outside

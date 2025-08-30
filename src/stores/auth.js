@@ -26,11 +26,15 @@ export const useAuthStore = defineStore('auth', {
       console.error('Error parsing user cookie:', e);
     }
 
+    const token = Cookies.get(TOKEN_COOKIE);
+    const sessionId = Cookies.get(SESSION_COOKIE);
+    const isAuthenticated = !!token && !!user && !!sessionId;
+
     return {
       user,
-      token: Cookies.get(TOKEN_COOKIE) || null,
-      sessionId: Cookies.get(SESSION_COOKIE) || null,
-      isAuthenticated: false,
+      token: token || null,
+      sessionId: sessionId || null,
+      isAuthenticated: isAuthenticated,
       loading: false,
       error: null
     }
@@ -44,20 +48,44 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     // Initialize auth state from cookies
-    initAuth() {
+    async initAuth() {
       const token = Cookies.get(TOKEN_COOKIE)
-      const user = Cookies.get(USER_COOKIE)
+      const userCookie = Cookies.get(USER_COOKIE)
       const sessionId = Cookies.get(SESSION_COOKIE)
       
-      if (token && user && sessionId) {
-        this.token = token
-        this.user = JSON.parse(user)
-        this.sessionId = sessionId
-        this.isAuthenticated = true
-        
-        // Set axios default headers
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        axios.defaults.headers.common['Session-Id'] = sessionId
+      if (token && userCookie && sessionId) {
+        try {
+          this.token = token
+          this.user = JSON.parse(userCookie)
+          this.sessionId = sessionId
+          this.isAuthenticated = true
+          
+          // Set axios default headers
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          axios.defaults.headers.common['Session-Id'] = sessionId
+          
+          // Verify the token silently, but don't logout if it fails to prevent refresh issues
+          try {
+            const response = await axios.get('/user/profile')
+            if (response.data.success) {
+              // Update user if needed
+              this.user = response.data.data || response.data.user || this.user
+              
+              // If a new token is provided, update it
+              if (response.data.token) {
+                this.token = response.data.token
+                Cookies.set(TOKEN_COOKIE, this.token, COOKIE_OPTIONS)
+                axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+              }
+            }
+          } catch (error) {
+            console.warn('Token verification warning:', error.message)
+            // Don't logout here, let the user continue with the session
+          }
+        } catch (error) {
+          console.error('Error during auth initialization:', error)
+          // Don't immediately logout on init error
+        }
       }
     },
 
@@ -96,9 +124,31 @@ export const useAuthStore = defineStore('auth', {
 
     // Clear all auth cookies
     clearAuthCookies() {
-      Cookies.remove(TOKEN_COOKIE)
-      Cookies.remove(USER_COOKIE)
-      Cookies.remove(SESSION_COOKIE)
+      // Definisikan opsi untuk penghapusan cookie
+      const removalOptions = {
+        path: '/',
+        domain: process.env.NODE_ENV === 'production' ? process.env.VITE_COOKIE_DOMAIN : undefined,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      };
+      
+      // Hapus setiap cookie dengan menggunakan opsi yang sama dengan saat pembuatan
+      Cookies.remove(TOKEN_COOKIE, removalOptions);
+      Cookies.remove(USER_COOKIE, removalOptions);
+      Cookies.remove(SESSION_COOKIE, removalOptions);
+      
+      // Untuk kompatibilitas dengan kode lama, hapus juga cookie 'auth' jika ada
+      Cookies.remove('auth', removalOptions);
+      
+      // Verifikasi penghapusan
+      if (Cookies.get(TOKEN_COOKIE) || Cookies.get(USER_COOKIE) || Cookies.get(SESSION_COOKIE)) {
+        console.warn('Some cookies could not be removed. Trying alternative method...');
+        
+        // Alternatif: coba hapus tanpa opsi
+        Cookies.remove(TOKEN_COOKIE);
+        Cookies.remove(USER_COOKIE);
+        Cookies.remove(SESSION_COOKIE);
+      }
     },
 
     // Register new user
@@ -189,26 +239,40 @@ export const useAuthStore = defineStore('auth', {
       try {
         // Call backend to invalidate session if session exists
         if (this.sessionId) {
-          await axios.post('/auth/logout', {
-            sessionId: this.sessionId
-          })
+          try {
+            // Set timeout to avoid hanging if server doesn't respond
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            await axios.post('/auth/logout', {
+              sessionId: this.sessionId
+            }, { signal: controller.signal });
+            
+            clearTimeout(timeoutId);
+          } catch (apiError) {
+            console.error('API logout error:', apiError);
+            // Continue with client-side logout even if API call fails
+          }
         }
       } catch (error) {
         console.error('Logout error:', error)
       } finally {
-        // Clear state
+        // Clear cookies first - most important for ensuring session ends
+        this.clearAuthCookies()
+        
+        // Clear state after cookies
         this.token = null
         this.user = null
         this.sessionId = null
         this.isAuthenticated = false
         this.error = null
         
-        // Clear cookies
-        this.clearAuthCookies()
-        
         // Remove axios default headers
         delete axios.defaults.headers.common['Authorization']
         delete axios.defaults.headers.common['Session-Id']
+        
+        // Return promise to allow awaiting completion
+        return Promise.resolve();
       }
     },
 
@@ -306,25 +370,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Di dalam method initAuth()
-    async initAuth() {
-      const token = Cookies.get('token')
-      
-      if (token) {
-        try {
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          
-          // Ambil data user
-          const response = await axios.get('/user/profile')
-          if (response.data.success) {
-            this.user = response.data.data || response.data.user
-            this.isAuthenticated = true
-          }
-        } catch (error) {
-          console.error('Failed to initialize auth')
-          this.logout()
-        }
-      }
-    }
+    // Ini akan dihapus karena merupakan duplikat dari initAuth() yang ada di atas
   }
 })
