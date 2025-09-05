@@ -10,150 +10,174 @@
         </div>
       </div>
     </div>
-
-    <!-- Button history -->
-    <div flex>
-    <!-- Tombol -->
-        <button 
-          @click="toggleHistory(getGuru(currentEmailUser))"
-          class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-lg font-medium flex items-center gap-2"
-        >
-          History
-          <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" 
-              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M19 9l-7 7-7-7" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" 
-              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-
-        <!-- Data History -->
-        <div v-if="isOpen" class="p-4 border rounded-lg bg-gray-100 mt-3">
-          <h3 class="font-semibold mb-4">Riwayat Assessment</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full border border-gray-300 bg-white rounded-lg shadow-sm">
-              <thead class="bg-yellow-400">
-                <tr>
-                  <th class="px-4 py-2 border text-left">Nama Siswa</th>
-                  <th class="px-4 py-2 border text-left">Assessment</th>
-                  <th class="px-4 py-2 border text-left">Nilai</th>
-                  <th class="px-4 py-2 border text-left">Waktu Input</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50">
-                  <td class="px-4 py-2 border">{{ getSiswa(row.id_siswa) }}</td>
-                  <td class="px-4 py-2 border">{{ getAssessment(row.id_assessment) }}</td>
-                  <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
-                  <td class="px-4 py-2 border">{{ formatDate(row.updated_at) }}</td>
-                </tr>
-
-                 <tr v-if="historyData.length === 0">
-                  <td colspan="4" class="px-4 py-2 text-center text-gray-500">Tidak ada riwayat assesment</td>
-                </tr>
-              </tbody>
-            </table>
+  
+    <!-- Global Search Section - Always visible -->
+    <div class="mb-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
+        <div class="flex items-center gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">🔍 Cari Siswa (Global)</label>
+            <div class="relative">
+              <input
+                v-model="globalSearchQuery"
+                @input="onGlobalSearch"
+                @keydown="handleSearchKeydown"
+                type="text"
+                placeholder="Ketik nama siswa untuk mencari di semua kelas..."
+                class="block w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+              >
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <button
+                v-if="globalSearchQuery"
+                @click="clearGlobalSearch"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div v-if="globalSearchQuery && searchResults.length > 0" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Ditemukan {{ searchResults.length }} siswa • Gunakan ↑↓ untuk navigasi, Esc untuk clear
+              <div class="mt-1 text-xs">
+                <span v-for="(result, index) in searchResults.slice(0, 5)" :key="result.siswa.id_siswa" class="inline-block mr-2 mb-1">
+                  <span :class="index === currentSearchIndex ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" 
+                        class="px-2 py-1 rounded text-xs">
+                    {{ result.siswa.nama }} ({{ result.kelas }})
+                  </span>
+                </span>
+                <span v-if="searchResults.length > 5" class="text-xs text-gray-500">+{{ searchResults.length - 5 }} lainnya</span>
+              </div>
+            </div>
+            <div v-if="globalSearchQuery && searchResults.length === 0" class="mt-2 text-sm text-red-600 dark:text-red-400">
+              Tidak ada siswa yang ditemukan
+            </div>
+          </div>
+          <div v-if="globalSearchQuery && searchResults.length > 0" class="flex gap-2">
+            <button
+              @click="scrollToPrevious"
+              :disabled="currentSearchIndex <= 0"
+              class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium"
+            >
+              ← Previous
+            </button>
+            <span class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center">
+              {{ currentSearchIndex + 1 }} / {{ searchResults.length }}
+            </span>
+            <button
+              @click="scrollToNext"
+              :disabled="currentSearchIndex >= searchResults.length - 1"
+              class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium"
+            >
+              Next →
+            </button>
           </div>
         </div>
+      </div>
     </div>
-        
-    <!-- Filter & Action Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mt-8 mb-8 p-6">
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
-        <!-- Kelas Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
-          <select 
-            v-model="selectedKelas" 
-            @change="onKelasChange"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-          >
-            <option value="">Pilih Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
-              {{ kelas.nama_kelas }}
-            </option>
-          </select>
-        </div>
-        
+
+    <!-- Filter Kelas Compact -->
+    <div class="mb-4 flex flex-col items-start w-full">
+      <label class="block text-base font-bold text-blue-700 dark:text-blue-300 mb-1">Kelas <span class="text-xs text-gray-400 ml-2">(Wajib dipilih dulu)</span></label>
+      <select 
+        v-model="selectedKelas" 
+        @change="onKelasChange"
+        class="block w-full max-w-md px-3 py-2 border border-blue-400 dark:border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-medium shadow-sm"
+      >
+        <option value="">Pilih Kelas</option>
+        <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+          {{ kelas.nama_kelas }}
+        </option>
+      </select>
+      <span v-if="!selectedKelas" class="text-red-600 dark:text-red-400 text-xs mt-1 block">* Pilih kelas terlebih dahulu sebelum filter lain</span>
+    </div>
+    <!-- Filter & Action Section Card Compact -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-6 p-4 relative">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Dimensi Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Dimensi</label>
           <select 
             v-model="selectedDimensi"
             @change="onDimensiChange" 
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedKelas ? 'Pilih kelas dulu' : ''"
           >
             <option value="">Pilih Dimensi</option>
             <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
               {{ dimensi.nama_dimensi }}
             </option>
           </select>
+          <span v-if="!selectedKelas" class="text-xs text-gray-400 mt-1 block">Aktif setelah kelas dipilih</span>
         </div>
-        
         <!-- Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Elemen</label>
           <select 
             v-model="selectedElemen"
             @change="onElemenChange" 
-            :disabled="!selectedDimensi"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedDimensi || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedDimensi ? 'Pilih dimensi dulu' : ''"
           >
             <option value="">Pilih Elemen</option>
             <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
               {{ elemen.nama_elemen }}
             </option>
           </select>
+          <span v-if="!selectedDimensi" class="text-xs text-gray-400 mt-1 block">Aktif setelah dimensi dipilih</span>
         </div>
-        
         <!-- Sub Elemen Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Sub Elemen</label>
           <select 
             v-model="selectedSubElemen"
             @change="onSubElemenChange" 
-            :disabled="!selectedElemen"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedElemen || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedElemen ? 'Pilih elemen dulu' : ''"
           >
             <option value="">Pilih Sub Elemen</option>
             <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
               {{ subElemen.nama_sub_elemen }}
             </option>
           </select>
+          <span v-if="!selectedElemen" class="text-xs text-gray-400 mt-1 block">Aktif setelah elemen dipilih</span>
         </div>
-        
         <!-- Capaian Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Capaian</label>
           <select 
             v-model="selectedCapaian"
             @change="onCapaianChange" 
-            :disabled="!selectedSubElemen"
-            class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+            :disabled="!selectedSubElemen || !selectedKelas"
+            class="block w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm"
+            :title="!selectedSubElemen ? 'Pilih sub elemen dulu' : ''"
           >
             <option value="">Pilih Capaian</option>
             <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
               {{ truncateText(capaian.deskripsi, 60) }}
             </option>
           </select>
+          <span v-if="!selectedSubElemen" class="text-xs text-gray-400 mt-1 block">Aktif setelah sub elemen dipilih</span>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="flex gap-2">
-          <button 
-            @click="openCreateModal"
-            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Buat
-          </button>
-        </div>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button 
+          @click="openCreateModal"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-semibold flex items-center gap-2 shadow"
+          title="Buat assessment baru"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Buat
+        </button>
       </div>
     </div>
 
@@ -166,6 +190,7 @@
       </div>
       <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Pilihlah Kelas terlebih dahulu!</h3>
       <p class="text-gray-500 dark:text-gray-400">Anda harus memilih kelas untuk melihat dan mengelola penilaian siswa.</p>
+      <p class="text-sm text-blue-600 dark:text-blue-400 mt-2">💡 Gunakan fitur pencarian global di atas untuk mencari siswa di semua kelas</p>
     </div>
 
     <!-- Buku Penilaian - Muncul ketika kelas dipilih -->
@@ -189,9 +214,15 @@
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
-                <th :colspan="7" class="text-center border-l border-gray-700">
+                <th :id="`siswa-${siswa.id_siswa}`"
+                    :colspan="7"
+                    class="text-center border-l border-gray-700 transition-all duration-300"
+                    :class="isSiswaHighlighted(siswa.id_siswa) ? 'bg-yellow-200 dark:bg-yellow-800' : ''">
                   <div class="px-2 py-3 text-xs font-semibold">
-                    {{ siswa.nama }}
+                    <span v-html="highlightSearchText(siswa.nama)"></span>
+                    <div v-if="isSiswaHighlighted(siswa.id_siswa)" class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      ({{ getKelasNameById(siswa.id_kelas) }})
+                    </div>
                   </div>
                   <div class="flex border-t border-gray-700">
                     <div v-for="n in 6" :key="n" class="flex-1 px-1 py-2 text-xs border-r last:border-r-0 border-gray-700">{{ n }}</div>
@@ -235,7 +266,7 @@
                 <template v-for="(subElemen, subIndex) in getSubElemenForElemen(elemen.id_elemen)" :key="subElemen.id_sub_elemen">
                   <!-- For each capaian in this sub-elemen -->
                   <template v-for="(capaian, capIndex) in getCapaianForSubElemen(subElemen.id_sub_elemen)" :key="capaian.id_capaian">
-                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750">
+                    <tr class="border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-950">
                       <!-- Empty cell for elemen identifier column -->
                       <td class="border border-gray-300 dark:border-gray-700"></td>
                       
@@ -255,14 +286,14 @@
                       </td>
                       
                       <!-- Additional empty column for spacing -->
-                      <td class="border border-gray-300 dark:border-gray-700 w-16 bg-gray-50 dark:bg-gray-750"></td>
+                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300"></td>
                       
                       <!-- Student assessment cells -->
                       <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
                         <!-- Assessment values (1-6) -->
                         <td v-for="n in 6" :key="`${capaian.id_capaian}-${siswa.id_siswa}-${n}`" 
                             @click="editNilai(capaian, siswa, n)"
-                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30">
+                            class="border border-gray-300 dark:border-gray-700 w-12 text-center cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-black dark:hover:text-white">
                           <div v-if="getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n)" 
                                :class="getNilaiClass(getNilaiForAssessment(capaian.id_capaian, siswa.id_siswa, n))" 
                                class="m-1 py-1 px-1 font-medium rounded-full flex items-center justify-center h-8 w-8 mx-auto">
@@ -328,7 +359,11 @@
 
     <!-- Toast notification -->
     <div v-if="showToast" class="w-full max-w-2xl mx-auto mb-4 text-center">
-      <span :class="{'text-green-600': toastType === 'success', 'text-red-600': toastType === 'error'}" 
+      <span :class="{
+        'text-green-600': toastType === 'success', 
+        'text-red-600': toastType === 'error',
+        'text-blue-600': toastType === 'info'
+      }" 
             class="italic text-base font-medium">
         {{ toastMessage }}
       </span>
@@ -346,8 +381,30 @@
   </div>
 </template>
 
+<style scoped>
+.search-highlight {
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0% { background-color: #fef3c7; }
+  50% { background-color: #fbbf24; }
+  100% { background-color: transparent; }
+}
+
+.dark .search-highlight {
+  animation: highlight-dark 2s ease-in-out;
+}
+
+@keyframes highlight-dark {
+  0% { background-color: #374151; }
+  50% { background-color: #92400e; }
+  100% { background-color: transparent; }
+}
+</style>
+
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import AssesmentFormModal from '@/components/assesment/AssesmentFormModal.vue';
 import { useAssesmentStore } from '@/stores/assesment'
 import { useKelasStore } from '@/stores/kelas'
@@ -355,64 +412,10 @@ import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
 import { useCapaianStore } from '@/stores/capaian'
+import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
-import { useSiswaStore } from '@/stores/siswa';
-import { useGuruStore } from '@/stores/guru';
-
-// State History
-const isOpen = ref(false)
-const historyData = ref([])
-
-const toggleHistory = async (id) => {
-  console.log("CEK ID:", id);
-  isOpen.value = !isOpen.value
-  if (isOpen.value) {
-    try {
-      await assessmentStore.fetchAssessmentHistory(id)
-      historyData.value = assessmentStore.assessmentHistoryList
-      console.log("Processed data:", assessmentStore.assessmentHistoryList)
-    } catch (error) {
-      console.error("Error fetching history list:", error)
-    }
-  }
-}
-
-function formatDate(isoDate) {
-  if (!isoDate) return "-";
-  return new Date(isoDate).toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Jakarta"
-  }).replace("pukul ", ", ");
-}
-
-const getAssessment = (id) => {
-  const assessment = assessmentStore.assessmentList.find(a => a.id_assessment == id)
-  console.log("ASSESSMENT CEK ", assessment)
-  console.log("ASSESSMENT CEK ID", id)
-  return assessment ? assessment.nama_assessment : 'N/A'
-
-}
-
-const getSiswa = (id) => {
-  const siswa = siswaStore.siswaList.find(s => s.id_siswa == id)
-  console.log("SISWA CEK ", siswaStore.siswaList)
-  return siswa ? siswa.nama : 'N/A'
-}
-
-const getGuru = (email) => {
-  const guru = guruStore.guruList.find(g => g.email == email)
-  console.log("GURU CEK ", guruStore.guruList)
-  return guru ? guru.id_guru : 'N/A'
-}
-
-
 
 // Store initialization
 const assessmentStore = useAssesmentStore()
@@ -423,26 +426,24 @@ const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const guruStore = useGuruStore()
-const siswaStore = useSiswaStore()
-
-const user = computed(() => authStore.getUser)
-console.log("Current User:", user)
-const currentEmailUser = computed(() => user.value?.email || '')
 
 // State variables
 const loading = ref(false)
 const searchQuery = ref('')
+const globalSearchQuery = ref('')
+const searchResults = ref([])
+const currentSearchIndex = ref(-1)
+const allSiswaList = ref([]) // Store all students for global search
 const showModal = ref(false)
 const isEditMode = ref(false)
-const selegitctedAssessment = ref(null)
+const selectedAssessment = ref(null)
 // GANTI: kelasList pakai computed agar reactive ke store
 const kelasList = computed(() => kelasStore.getKelasList)
 const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
-const siswaList = ref([])
+const siswaList = ref([]) // Current class students
 const nilaiSiswa = ref({}) // {id_capaian: {id_siswa: nilai}}
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -509,6 +510,165 @@ function showErrorToast(msg) {
 function truncateText(text, maxLength) {
   if (!text) return ''
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+}
+
+// Global Search Functions
+const onGlobalSearch = () => {
+  if (!globalSearchQuery.value.trim()) {
+    searchResults.value = []
+    currentSearchIndex.value = -1
+    return
+  }
+
+  const query = globalSearchQuery.value.toLowerCase().trim()
+  const results = []
+
+  // Search in all students (not just current class)
+  allSiswaList.value.forEach((siswa, index) => {
+    if (siswa.nama.toLowerCase().includes(query)) {
+      results.push({
+        siswa,
+        index,
+        elementId: `siswa-${siswa.id_siswa}`,
+        kelas: getKelasNameById(siswa.id_kelas)
+      })
+    }
+  })
+
+  searchResults.value = results
+  currentSearchIndex.value = results.length > 0 ? 0 : -1
+
+  // Auto-scroll to first result if a class is selected
+  if (results.length > 0 && selectedKelas.value) {
+    setTimeout(() => scrollToResult(0), 100)
+  }
+}
+
+const handleSearchKeydown = (event) => {
+  if (!globalSearchQuery.value.trim()) return
+
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      scrollToNext()
+      break
+    case 'ArrowUp':
+      event.preventDefault()
+      scrollToPrevious()
+      break
+    case 'Escape':
+      event.preventDefault()
+      clearGlobalSearch()
+      break
+    case 'Enter':
+      event.preventDefault()
+      if (searchResults.value.length > 0) {
+        scrollToResult(currentSearchIndex.value)
+      }
+      break
+  }
+}
+
+const clearGlobalSearch = () => {
+  globalSearchQuery.value = ''
+  searchResults.value = []
+  currentSearchIndex.value = -1
+}
+
+const scrollToNext = () => {
+  if (currentSearchIndex.value < searchResults.value.length - 1) {
+    currentSearchIndex.value++
+    scrollToResult(currentSearchIndex.value)
+  }
+}
+
+const scrollToPrevious = () => {
+  if (currentSearchIndex.value > 0) {
+    currentSearchIndex.value--
+    scrollToResult(currentSearchIndex.value)
+  }
+}
+
+const scrollToResult = (index) => {
+  const result = searchResults.value[index]
+  if (!result) return
+
+  // If the student is not in the current class, automatically select their class
+  if (result.siswa.id_kelas != selectedKelas.value) {
+    selectedKelas.value = result.siswa.id_kelas
+    showInfoToast(`Beralih ke kelas ${result.kelas} untuk menampilkan siswa ${result.siswa.nama}`)
+    
+    // Wait for the class change to complete, then scroll
+    setTimeout(() => {
+      const element = document.getElementById(result.elementId)
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        })
+
+        // Add temporary highlight effect
+        element.classList.add('search-highlight')
+        setTimeout(() => {
+          element.classList.remove('search-highlight')
+        }, 2000)
+      }
+    }, 500) // Wait for data to load
+    return
+  }
+
+  const element = document.getElementById(result.elementId)
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center'
+    })
+
+    // Add temporary highlight effect
+    element.classList.add('search-highlight')
+    setTimeout(() => {
+      element.classList.remove('search-highlight')
+    }, 2000)
+  }
+}
+
+const isSiswaHighlighted = (siswaId) => {
+  return searchResults.value.some(result =>
+    result.siswa.id_siswa === siswaId &&
+    searchResults.value[currentSearchIndex.value]?.siswa.id_siswa === siswaId
+  )
+}
+
+const highlightSearchText = (text) => {
+  if (!globalSearchQuery.value.trim()) return text
+
+  const query = globalSearchQuery.value.toLowerCase()
+  const index = text.toLowerCase().indexOf(query)
+
+  if (index === -1) return text
+
+  const before = text.substring(0, index)
+  const match = text.substring(index, index + query.length)
+  const after = text.substring(index + query.length)
+
+  return `${before}<mark class="bg-yellow-200 dark:bg-yellow-600 px-1 rounded">${match}</mark>${after}`
+}
+
+// Helper function to get class name by ID
+const getKelasNameById = (id_kelas) => {
+  const kelas = kelasList.value.find(k => k.id_kelas == id_kelas)
+  return kelas ? kelas.nama_kelas : 'N/A'
+}
+
+// Add info toast function
+function showInfoToast(msg) {
+  toastMessage.value = msg
+  toastType.value = 'info'
+  showToast.value = true
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { showToast.value = false }, 4000)
 }
 
 // Computed properties
@@ -581,7 +741,6 @@ const getNamaCapaian = (id) => {
   const capaian = capaianList.value.find(c => c.id_capaian == id)
   return capaian ? capaian.deskripsi : 'N/A'
 }
-
 
 // Functions for grade book table
 const getElemenForDimensi = (id_dimensi) => {
@@ -912,6 +1071,19 @@ const fetchSiswaByKelas = async (id_kelas) => {
   }
 }
 
+// Fetch all students for global search
+const fetchAllSiswa = async () => {
+  try {
+    const siswaStore = useSiswaStore()
+    await siswaStore.fetchSiswaList()
+    allSiswaList.value = siswaStore.getSiswaList || []
+    console.log('Fetched all students for global search:', allSiswaList.value.length)
+  } catch (error) {
+    console.error('Error fetching all siswa list:', error)
+    allSiswaList.value = []
+  }
+}
+
 const fetchNilaiSiswa = async () => {
   // Clear existing data first
   nilaiSiswa.value = {};
@@ -1086,12 +1258,11 @@ const fetchData = async () => {
   try {
     await Promise.all([
       assessmentStore.fetchAssessmentList(),
-      siswaStore.fetchSiswaList(),
-      guruStore.fetchGuruList(),
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
-      fetchSubElemenList()
+      fetchSubElemenList(),
+      fetchAllSiswa() // Fetch all students for global search
     ])
   } catch (error) {
     console.error('Error fetching initial data:', error)
@@ -1107,7 +1278,10 @@ const onKelasChange = async () => {
   selectedElemen.value = ''
   selectedSubElemen.value = ''
   selectedCapaian.value = ''
-  
+
+  // Clear search when changing class
+  clearGlobalSearch()
+
   if (selectedKelas.value) {
     await Promise.all([
       fetchSiswaByKelas(selectedKelas.value),
@@ -1366,6 +1540,28 @@ const hasAnyValues = (id_capaian) => {
 // Initialize data on component mount
 onMounted(async () => {
   await fetchData();
+
+  // Add keyboard navigation for search
+  const handleKeydown = (event) => {
+    if (!globalSearchQuery.value || searchResults.value.length === 0) return;
+
+    if (event.key === 'ArrowDown' || (event.key === 'Enter' && event.shiftKey)) {
+      event.preventDefault();
+      scrollToNext();
+    } else if (event.key === 'ArrowUp' || (event.key === 'Enter' && event.ctrlKey)) {
+      event.preventDefault();
+      scrollToPrevious();
+    } else if (event.key === 'Escape') {
+      clearGlobalSearch();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeydown);
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown);
+  });
 });
 
 // Add to the script section with other helper functions
@@ -1386,3 +1582,30 @@ const getSiswaStatusClass = (avgValue) => {
   return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-lg text-xs font-medium";
 }
 </script>
+
+<style scoped>
+/* Search highlight animation */
+.search-highlight {
+  animation: searchHighlight 2s ease-in-out;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  border-radius: 8px;
+}
+
+@keyframes searchHighlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Info toast styling */
+.toast-info {
+  background-color: rgba(59, 130, 246, 0.9);
+  color: white;
+}
+</style>

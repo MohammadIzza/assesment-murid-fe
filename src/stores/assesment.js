@@ -7,31 +7,27 @@
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
 
-export const useAssesmentStore = defineStore("assesment", {
+export const useAssesmentStore = defineStore('assesment', {
   state: () => ({
     // State untuk menyimpan daftar assessment
     assessmentList: [],
-    // State untuk menyimpan daftar assessment
-    assessmentHistoryList: [],
     // State untuk menyimpan detail assessment yang sedang dilihat
     currentAssessment: null,
     // State untuk loading
     loading: false,
     // State untuk error
-    error: null,
+    error: null
   }),
 
   getters: {
     // Getter untuk mendapatkan daftar assessment
     getAssessmentList: (state) => state.assessmentList,
-    // Getter untuk mendapatkan daftar assessment
-    getAssessmentHistoryList: (state) => state.assessmentHistoryList,
     // Getter untuk mendapatkan detail assessment
     getCurrentAssessment: (state) => state.currentAssessment,
     // Getter untuk status loading
     isLoading: (state) => state.loading,
     // Getter untuk error
-    getError: (state) => state.error,
+    getError: (state) => state.error
   },
 
   actions: {
@@ -40,48 +36,43 @@ export const useAssesmentStore = defineStore("assesment", {
      * @param {object} filters - Object berisi filter yang akan diterapkan
      */
     async fetchAssessmentListWithFilters(filters = {}) {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
         // Buat query parameters dari filters
-        const params = new URLSearchParams();
-
-        if (filters.search) params.append("search", filters.search);
-        if (filters.id_kelas) params.append("id_kelas", filters.id_kelas);
-        if (filters.id_skl) params.append("id_skl", filters.id_skl);
-        if (filters.status) params.append("status", filters.status);
-        if (filters.sort_by) params.append("sort_by", filters.sort_by);
-        if (filters.sort_order) params.append("sort_order", filters.sort_order);
-
-        const queryString = params.toString();
-        const url = queryString
-          ? `/list/assessment?${queryString}`
-          : "/list/assessment";
-
-        const response = await axios.get(url);
-
+        const params = new URLSearchParams()
+        
+        if (filters.search) params.append('search', filters.search)
+        if (filters.id_kelas) params.append('id_kelas', filters.id_kelas)
+        if (filters.id_skl) params.append('id_skl', filters.id_skl)
+        if (filters.status) params.append('status', filters.status)
+        if (filters.sort_by) params.append('sort_by', filters.sort_by)
+        if (filters.sort_order) params.append('sort_order', filters.sort_order)
+        
+        const queryString = params.toString()
+        const url = queryString ? `/list/assessment?${queryString}` : '/list/assessment'
+        
+        const response = await axios.get(url)
+        
         if (response.data.success) {
-          this.assessmentList = this.processAssessmentData(response.data.data);
+          this.assessmentList = this.processAssessmentData(response.data.data)
         } else {
-          throw new Error("Gagal mengambil data assessment dengan filter");
+          throw new Error('Gagal mengambil data assessment dengan filter')
         }
       } catch (error) {
-        console.error("Error fetching filtered assessment list:", error);
-
+        console.error('Error fetching filtered assessment list:', error)
+        
         // Jika endpoint tidak mendukung filter, fallback ke method biasa
         if (error.response?.status === 404 || error.response?.status === 500) {
-          console.log(
-            "API tidak mendukung filter, menggunakan filter frontend..."
-          );
-          await this.fetchAssessmentList();
+          console.log('API tidak mendukung filter, menggunakan filter frontend...')
+          await this.fetchAssessmentList()
         } else {
-          this.error =
-            error.message || "Terjadi kesalahan saat mengambil data assessment";
-          throw error;
+          this.error = error.message || 'Terjadi kesalahan saat mengambil data assessment'
+          throw error
         }
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
@@ -89,51 +80,23 @@ export const useAssesmentStore = defineStore("assesment", {
      * Mengambil daftar semua assessment dari API
      */
     async fetchAssessmentList() {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
-        const response = await axios.get("/list/assessment");
-
+        const response = await axios.get('/list/assessment')
+        
         if (response.data.success) {
-          this.assessmentList = this.processAssessmentData(response.data.data);
+          this.assessmentList = this.processAssessmentData(response.data.data)
         } else {
-          throw new Error("Gagal mengambil data assessment");
+          throw new Error('Gagal mengambil data assessment')
         }
       } catch (error) {
-        console.error("Error fetching assessment list:", error);
-        this.error =
-          error.message || "Terjadi kesalahan saat mengambil data assessment";
-        throw error;
+        console.error('Error fetching assessment list:', error)
+        this.error = error.message || 'Terjadi kesalahan saat mengambil data assessment'
+        throw error
       } finally {
-        this.loading = false;
-      }
-    },
-
-    /**
-     * Mengambil daftar semua assessment History dari API
-     */
-    async fetchAssessmentHistory(id) {
-      this.loading = true;
-      this.error = null;
-
-      try {
-        const response = await axios.get(`/filter/history/${id}`);
-        console.log("Full response:", response);
-        console.log("response.data", response.data);
-        if (response.status === 200) {
-          this.assessmentHistoryList = this.processAssessmentData(response.data);
-        } else {
-          throw new Error("Gagal mengambil data history assessment");
-        }
-      } catch (error) {
-        console.error("Error fetching assessment history:", error);
-        this.error =
-          error.message ||
-          "Terjadi kesalahan saat mengambil data history assessment";
-        throw error;
-      } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
@@ -143,24 +106,24 @@ export const useAssesmentStore = defineStore("assesment", {
      * @returns {array} - Processed assessment data with additional fields
      */
     processAssessmentData(assessmentData) {
-      return assessmentData.map((assessment) => {
-        const totalNilai = Object.keys(assessment.nilai || {}).length;
-        const totalSiswa = assessment.total_siswa || totalNilai;
-
+      return assessmentData.map(assessment => {
+        const totalNilai = Object.keys(assessment.nilai || {}).length
+        const totalSiswa = assessment.total_siswa || totalNilai
+        
         // Calculate progress percentage
-        const progress =
-          totalSiswa > 0 ? Math.round((totalNilai / totalSiswa) * 100) : 0;
-
+        const progress = totalSiswa > 0 ? 
+          Math.round((totalNilai / totalSiswa) * 100) : 0
+        
         // Determine status based on progress
-        const status = progress === 100 ? "completed" : "in_progress";
-
+        const status = progress === 100 ? 'completed' : 'in_progress'
+        
         return {
           ...assessment,
           progress,
           status,
-          total_siswa: totalSiswa,
-        };
-      });
+          total_siswa: totalSiswa
+        }
+      })
     },
 
     /**
@@ -168,25 +131,24 @@ export const useAssesmentStore = defineStore("assesment", {
      * @param {number} id - ID assessment yang akan diambil detailnya
      */
     async fetchAssessmentDetail(id) {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
-        const response = await axios.get(`/view/assessment/${id}`);
-
+        const response = await axios.get(`/view/assessment/${id}`)
+        
         if (response.data.success) {
           // Add any additional processing needed for the new fields
-          this.currentAssessment = response.data.data;
+          this.currentAssessment = response.data.data
         } else {
-          throw new Error("Gagal mengambil detail assessment");
+          throw new Error('Gagal mengambil detail assessment')
         }
       } catch (error) {
-        console.error("Error fetching assessment detail:", error);
-        this.error =
-          error.message || "Terjadi kesalahan saat mengambil detail assessment";
-        throw error;
+        console.error('Error fetching assessment detail:', error)
+        this.error = error.message || 'Terjadi kesalahan saat mengambil detail assessment'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
@@ -194,14 +156,14 @@ export const useAssesmentStore = defineStore("assesment", {
      * Membersihkan error
      */
     clearError() {
-      this.error = null;
+      this.error = null
     },
 
     /**
      * Membersihkan data assessment yang sedang dilihat
      */
     clearCurrentAssessment() {
-      this.currentAssessment = null;
+      this.currentAssessment = null
     },
 
     /**
@@ -209,39 +171,33 @@ export const useAssesmentStore = defineStore("assesment", {
      * @param {object} assessmentData - Data assessment yang akan ditambahkan
      */
     async createAssessment(assessmentData) {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
         // Make sure assessmentData includes nama_assessment
         const formData = {
           ...assessmentData,
-          nama_assessment:
-            assessmentData.nama_assessment || `Assessment ${Date.now()}`,
-        };
-
-        const response = await axios.post("/add/assessment", formData);
-
+          nama_assessment: assessmentData.nama_assessment || `Assessment ${Date.now()}`
+        }
+        
+        const response = await axios.post('/add/assessment', formData)
+        
         if (response.data.success) {
           // Reload assessment list to get latest data
-          await this.fetchAssessmentList();
-
-          return response.data;
+          await this.fetchAssessmentList()
+          
+          return response.data
         } else {
-          throw new Error(
-            response.data.message || "Gagal menambahkan assessment"
-          );
+          throw new Error(response.data.message || 'Gagal menambahkan assessment')
         }
       } catch (error) {
-        console.error("Error adding assessment:", error);
-
-        this.error =
-          error.response?.data?.message ||
-          error.message ||
-          "Terjadi kesalahan saat menambahkan assessment";
-        throw error;
+        console.error('Error adding assessment:', error)
+        
+        this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menambahkan assessment'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
@@ -251,57 +207,41 @@ export const useAssesmentStore = defineStore("assesment", {
      * @param {object} assessmentData - Data assessment yang akan diupdate
      */
     async updateAssessment(id, assessmentData) {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
-        const response = await axios.put(
-          `/update/assessment/${id}`,
-          assessmentData
-        );
-
+        const response = await axios.put(`/update/assessment/${id}`, assessmentData)
+        
         if (response.data.success) {
           // Update assessment in list
-          const index = this.assessmentList.findIndex(
-            (assessment) => assessment.id_assessment === id
-          );
+          const index = this.assessmentList.findIndex(assessment => assessment.id_assessment === id)
           if (index !== -1) {
-            this.assessmentList[index] = {
+            this.assessmentList[index] = { 
               ...this.assessmentList[index],
-              ...assessmentData,
-            };
+              ...assessmentData
+            }
           }
-
+          
           // Update current assessment jika sedang dilihat
-          if (
-            this.currentAssessment &&
-            this.currentAssessment.id_assessment === id
-          ) {
-            this.currentAssessment = {
-              ...this.currentAssessment,
-              ...assessmentData,
-            };
+          if (this.currentAssessment && this.currentAssessment.id_assessment === id) {
+            this.currentAssessment = { ...this.currentAssessment, ...assessmentData }
           }
-
+          
           // Reload assessment list untuk mendapatkan data terbaru
-          await this.fetchAssessmentList();
-
-          return response.data;
+          await this.fetchAssessmentList()
+          
+          return response.data
         } else {
-          throw new Error(
-            response.data.message || "Gagal mengupdate assessment"
-          );
+          throw new Error(response.data.message || 'Gagal mengupdate assessment')
         }
       } catch (error) {
-        console.error("Error updating assessment:", error);
-
-        this.error =
-          error.response?.data?.message ||
-          error.message ||
-          "Terjadi kesalahan saat mengupdate assessment";
-        throw error;
+        console.error('Error updating assessment:', error)
+        
+        this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat mengupdate assessment'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
@@ -310,43 +250,33 @@ export const useAssesmentStore = defineStore("assesment", {
      * @param {number} id - ID assessment yang akan dihapus
      */
     async deleteAssessment(id) {
-      this.loading = true;
-      this.error = null;
-
+      this.loading = true
+      this.error = null
+      
       try {
-        const response = await axios.delete(`/delete/assessment/${id}`);
-
+        const response = await axios.delete(`/delete/assessment/${id}`)
+        
         if (response.data.success) {
           // Remove assessment from list
-          this.assessmentList = this.assessmentList.filter(
-            (assessment) => assessment.id_assessment !== id
-          );
-
+          this.assessmentList = this.assessmentList.filter(assessment => assessment.id_assessment !== id)
+          
           // Clear current assessment if it's the one being deleted
-          if (
-            this.currentAssessment &&
-            this.currentAssessment.id_assessment === id
-          ) {
-            this.currentAssessment = null;
+          if (this.currentAssessment && this.currentAssessment.id_assessment === id) {
+            this.currentAssessment = null
           }
-
-          return response.data;
+          
+          return response.data
         } else {
-          throw new Error(
-            response.data.message || "Gagal menghapus assessment"
-          );
+          throw new Error(response.data.message || 'Gagal menghapus assessment')
         }
       } catch (error) {
-        console.error("Error deleting assessment:", error);
-
-        this.error =
-          error.response?.data?.message ||
-          error.message ||
-          "Terjadi kesalahan saat menghapus assessment";
-        throw error;
+        console.error('Error deleting assessment:', error)
+        
+        this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus assessment'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
-    },
-  },
-});
+    }
+  }
+})
