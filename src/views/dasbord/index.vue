@@ -414,18 +414,27 @@ const fetchDashboardData = async () => {
     loading.value = true
     error.value = null
 
+    const { userId, email } = getClaimsFromToken()
+    let result = null
+    const resultGet = await getGuruByUserId(userId)
+
+    console.log('userId from token:', resultGet.data)
+    const guruId = resultGet.data?.id_guru || null
     // Ambil data kelas
-    const kelasRes = await axios.get('/list/kelas')
-    dashboardData.value.totalKelas = Array.isArray(kelasRes.data.data) ? kelasRes.data.data.length : 0
+    const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
+    console.log('response kelas', kelasRes.data.jumlah_kelas);
+    dashboardData.value.totalKelas =kelasRes.data.jumlah_kelas
 
     // Ambil data assessment
-    const assessmentRes = await axios.get('/list/assessment')
+    const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
     dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
+    console.log('response assessment', assessmentRes.data);
     dashboardData.value.assessments = assessmentRes.data.data || []
 
     // Ambil data siswa
-    const siswaRes = await axios.get('/list/siswa')
-    dashboardData.value.totalSiswa = Array.isArray(siswaRes.data.data) ? siswaRes.data.data.length : 0
+    const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
+    console.log('response siswa', siswaRes.data.jumlah_siswa);
+    dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa
 
     // Ambil data nilai
     const nilaiRes = await axios.get('/list/nilai')
