@@ -372,6 +372,8 @@
                     <option value="nip">NIP</option>
                     <option value="id_sekolah">Sekolah</option>
                     <option value="id_role">Role</option>
+                    <option value="created_at">Tanggal Dibuat</option>
+                    <option value="updated_at">Tanggal Diperbarui</option>
                   </select>
                   <button 
                     @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
@@ -886,8 +888,8 @@ export default {
     const emailFilter = ref('')
     const dateFilter = ref('')
     const quickFilterActive = ref('')
-    const sortBy = ref('nama')
-    const sortOrder = ref('asc')
+  const sortBy = ref('updated_at')
+  const sortOrder = ref('desc')
     const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
@@ -921,10 +923,10 @@ export default {
         filtered = filtered.filter(guru => guru.id_role == selectedRole.value)
       }
 
-      // Filter by status
+      // Filter by status (aktif jika sudah tertaut email)
       if (selectedStatus.value) {
         filtered = filtered.filter(guru => {
-          const isActive = !!guru.password_hash
+          const isActive = !!guru.email
           if (selectedStatus.value === 'aktif') {
             return isActive
           } else if (selectedStatus.value === 'belum_aktif') {
@@ -981,18 +983,21 @@ export default {
 
       // Sort the results
       filtered.sort((a, b) => {
-        let aValue = a[sortBy.value] || ''
-        let bValue = b[sortBy.value] || ''
+        const key = sortBy.value
 
-        // Convert to string for comparison
+        // Date-aware sorting for created_at / updated_at
+        if (key === 'created_at' || key === 'updated_at') {
+          const aTime = a[key] ? new Date(a[key]).getTime() : 0
+          const bTime = b[key] ? new Date(b[key]).getTime() : 0
+          return sortOrder.value === 'asc' ? aTime - bTime : bTime - aTime
+        }
+
+        // Fallback string compare for other fields
+        let aValue = a[key] ?? ''
+        let bValue = b[key] ?? ''
         aValue = String(aValue).toLowerCase()
         bValue = String(bValue).toLowerCase()
-
-        if (sortOrder.value === 'asc') {
-          return aValue.localeCompare(bValue)
-        } else {
-          return bValue.localeCompare(aValue)
-        }
+        return sortOrder.value === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
       })
 
       return filtered
@@ -1062,7 +1067,7 @@ export default {
         if (selectedStatus.value) apiFilters.status = selectedStatus.value
         if (nipFilter.value) apiFilters.nip = nipFilter.value
         if (emailFilter.value) apiFilters.email = emailFilter.value
-        if (sortBy.value) apiFilters.sort_by = sortBy.value
+  if (sortBy.value) apiFilters.sort_by = sortBy.value
         if (sortOrder.value) apiFilters.sort_order = sortOrder.value
 
         // Coba gunakan API filter terlebih dahulu
@@ -1350,8 +1355,8 @@ export default {
       emailFilter.value = ''
       dateFilter.value = ''
       quickFilterActive.value = ''
-      sortBy.value = 'nama'
-      sortOrder.value = 'asc'
+  sortBy.value = 'updated_at'
+  sortOrder.value = 'desc'
       currentPage.value = 1
     }
 
@@ -1580,13 +1585,12 @@ export default {
     }
 
     const getStatusText = (guru) => {
-      if (!guru.password_hash) return 'Belum Aktif'
-      return 'Aktif'
+      // Backend 'guru' tidak menyimpan password; anggap aktif jika sudah tertaut email pengguna
+      return guru?.email ? 'Aktif' : 'Belum Aktif'
     }
 
     const getStatusClass = (guru) => {
-      if (!guru.password_hash) return 'bg-red-100 text-red-800'
-      return 'bg-green-100 text-green-800'
+      return guru?.email ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
     }
 
     const getInitials = (name) => {

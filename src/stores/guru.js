@@ -201,7 +201,7 @@ export const useGuruStore = defineStore('guru', {
      * Tambah guru baru
      * @param {object} guruData - Data guru yang akan ditambahkan
      */
-    async addGuru(guruData) {
+  async addGuru(guruData) {
       this.loading = true
       this.error = null
       
@@ -210,7 +210,41 @@ export const useGuruStore = defineStore('guru', {
         console.log('Add URL:', '/add/guru')
         console.log('Add data:', guruData)
         
-        const response = await axios.post('/add/guru', guruData)
+        // Utility: sanitize single guru payload
+        const sanitize = (g) => {
+          const nama = g?.nama != null ? String(g.nama).trim() : null
+          const nip = g?.nip != null ? String(g.nip).trim() : null
+          const id_sekolah = g?.id_sekolah !== undefined && g?.id_sekolah !== ''
+            ? Number(g.id_sekolah)
+            : null
+          const id_role = g?.id_role !== undefined && g?.id_role !== ''
+            ? Number(g.id_role)
+            : null
+
+          return { id_sekolah, nama, nip, id_role }
+        }
+
+        // Kirim hanya field yang didukung backend (dengan sanitasi)
+        const payload = Array.isArray(guruData)
+          ? guruData
+              .map(sanitize)
+              // Hanya kirim baris yang punya minimal nama atau nip
+              .filter((r) => (r.nama != null && r.nama !== '') || (r.nip != null && r.nip !== ''))
+          : sanitize(guruData)
+
+        // Validasi minimal untuk single create (form add)
+        if (!Array.isArray(payload)) {
+          const missing = []
+          if (!payload.nama) missing.push('nama')
+          if (!payload.nip) missing.push('nip')
+          if (payload.id_sekolah === null || Number.isNaN(payload.id_sekolah)) missing.push('id_sekolah')
+          if (payload.id_role === null || Number.isNaN(payload.id_role)) missing.push('id_role')
+          if (missing.length) {
+            throw new Error(`Field wajib belum lengkap: ${missing.join(', ')}`)
+          }
+        }
+
+        const response = await axios.post('/add/guru', payload)
         
         console.log('Add response:', response)
         console.log('Add response status:', response.status)
@@ -242,7 +276,7 @@ export const useGuruStore = defineStore('guru', {
      * @param {number} id - ID guru yang akan diupdate
      * @param {object} guruData - Data guru yang akan diupdate
      */
-    async updateGuru(id, guruData) {
+  async updateGuru(id, guruData) {
       this.loading = true
       this.error = null
       
@@ -251,7 +285,24 @@ export const useGuruStore = defineStore('guru', {
         console.log('Update URL:', `/update/guru/${id}`)
         console.log('Update data:', guruData)
         
-        const response = await axios.put(`/update/guru/${id}`, guruData)
+        // Kirim hanya field yang didukung backend (dengan sanitasi)
+        const payload = {
+          id_sekolah: guruData?.id_sekolah !== undefined && guruData?.id_sekolah !== '' ? Number(guruData.id_sekolah) : null,
+          nama: guruData?.nama != null ? String(guruData.nama).trim() : null,
+          nip: guruData?.nip != null ? String(guruData.nip).trim() : null,
+          id_role: guruData?.id_role !== undefined && guruData?.id_role !== '' ? Number(guruData.id_role) : null,
+        }
+
+        // Validasi minimal
+        const missing = []
+        if (!payload.nama) missing.push('nama')
+        if (!payload.nip) missing.push('nip')
+        if (payload.id_sekolah === null || Number.isNaN(payload.id_sekolah)) missing.push('id_sekolah')
+        if (payload.id_role === null || Number.isNaN(payload.id_role)) missing.push('id_role')
+        if (missing.length) {
+          throw new Error(`Field wajib belum lengkap: ${missing.join(', ')}`)
+        }
+        const response = await axios.put(`/update/guru/${id}`, payload)
         
         console.log('Update response:', response)
         console.log('Update response status:', response.status)
@@ -290,75 +341,22 @@ export const useGuruStore = defineStore('guru', {
      * Hapus guru
      * @param {number} id - ID guru yang akan dihapus
      */
-    async deleteGuru(id) {
+  async deleteGuru(id) {
       this.loading = true
       this.error = null
       
       try {
         console.log('Attempting to delete guru with ID:', id)
         
-        // List endpoint alternatif untuk dicoba
-        const endpoints = [
-          { method: 'delete', url: `/delete/guru/${id}`, description: 'DELETE /delete/guru/:id' },
-          { method: 'post', url: `/delete/guru/${id}`, description: 'POST /delete/guru/:id' },
-          { method: 'post', url: `/guru/delete/${id}`, description: 'POST /guru/delete/:id' },
-          { method: 'delete', url: `/guru/${id}`, description: 'DELETE /guru/:id' },
-          { method: 'post', url: `/guru/delete`, data: { id_guru: id }, description: 'POST /guru/delete with id_guru in body' },
-          { method: 'post', url: `/guru/delete`, data: { id }, description: 'POST /guru/delete with id in body' },
-          { method: 'put', url: `/guru/${id}`, data: { _method: 'DELETE' }, description: 'PUT /guru/:id with _method DELETE' },
-          { method: 'post', url: `/guru/delete/${id}`, description: 'POST /guru/delete/:id' }
-        ]
-        
-        let response
-        let lastError
-        
-        for (let i = 0; i < endpoints.length; i++) {
-          const endpoint = endpoints[i]
-          console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoint.description}...`)
-          
-          try {
-            if (endpoint.method === 'delete') {
-              response = await axios.delete(endpoint.url)
-            } else if (endpoint.method === 'post') {
-              response = await axios.post(endpoint.url, endpoint.data || {})
-            } else if (endpoint.method === 'put') {
-              response = await axios.put(endpoint.url, endpoint.data || {})
-            }
-            
-            console.log(`✅ SUCCESS with ${endpoint.description}:`, response.status, response.data)
-            break // Jika berhasil, keluar dari loop
-            
-          } catch (error) {
-            console.log(`❌ FAILED with ${endpoint.description}:`, error.response?.status, error.response?.statusText)
-            console.log('Error data:', error.response?.data)
-            lastError = error
-            
-            // Jika error 500, 404, atau 405, coba endpoint lain
-            if ([500, 404, 405].includes(error.response?.status)) {
-              console.log('Continuing to next endpoint...')
-              continue
-            } else {
-              // Error lain yang mungkin tidak bisa diperbaiki dengan ganti endpoint
-              console.log('Non-recoverable error, stopping attempts')
-              throw error
-            }
-          }
-        }
-        
-        if (!response) {
-          console.error('All endpoints failed. Last error:', lastError)
-          throw lastError || new Error('Semua endpoint gagal dicoba')
-        }
+  // Backend menyediakan DELETE /delete/guru/:id
+  const response = await axios.delete(`/delete/guru/${id}`)
         
         console.log('Final delete response:', response)
         console.log('Response status:', response.status)
         console.log('Response data:', response.data)
         
         // Cek berbagai format response yang mungkin
-        const isSuccess = (response.data?.success !== false && 
-                         response.status >= 200 && 
-                         response.status < 300) ||
-                         response.status === 204 // No Content - common for delete
+  const isSuccess = (response.data?.success !== false && response.status >= 200 && response.status < 300) || response.status === 204
         
         if (isSuccess) {
           console.log('Delete operation successful, updating local state...')
@@ -385,7 +383,7 @@ export const useGuruStore = defineStore('guru', {
         console.error('Error response data:', error.response?.data)
         console.error('Error message:', error.message)
         
-        this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus guru'
+  this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus guru'
         throw error
       } finally {
         this.loading = false

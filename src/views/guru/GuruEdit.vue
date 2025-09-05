@@ -90,7 +90,7 @@
               <p :class="[
                 'text-sm mt-1',
                 isDarkMode ? 'text-gray-400' : 'text-gray-600'
-              ]">Lengkapi semua field - semua field wajib diisi</p>
+              ]">Field bertanda * wajib diisi</p>
             </div>
             <div :class="[
               'flex items-center space-x-2 text-sm',
@@ -151,7 +151,7 @@
                 />
               </div>
 
-              <!-- Email -->
+      <!-- Email (opsional) -->
               <div class="group">
                 <label for="email" :class="[
                   'block text-sm font-medium mb-2',
@@ -161,21 +161,24 @@
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                     </svg>
-                    Email <span class="text-red-500 ml-1">*</span>
+        Email <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
                   </span>
                 </label>
                 <input
                   v-model="form.email"
                   type="email"
                   id="email"
-                  required
                   @input="watchFormChanges"
                   :class="[
                     'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
                     isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
                   ]"
-                  placeholder="guru@example.com"
+                  placeholder="guru@example.com (opsional, akan terhubung saat verifikasi NIP)"
                 />
+                <p :class="[
+                  'mt-2 text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Email guru akan otomatis terhubung setelah proses verifikasi NIP pada akun pengguna.</p>
               </div>
 
               <!-- NIP -->
@@ -295,21 +298,21 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
                     Password {{ isAddMode ? '' : 'Baru' }} 
-                    <span v-if="isAddMode" class="text-red-500 ml-1">*</span>
-                    <span v-else class="text-gray-400 text-xs ml-1">(Opsional)</span>
+                    <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
                   </span>
                 </label>
                 <input
                   v-model="form.password_hash"
                   type="password"
                   id="password"
-                  :required="isAddMode"
+                  :required="false"
                   @input="watchFormChanges"
                   :class="[
                     'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
                     isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
                   ]"
-                  :placeholder="isAddMode ? 'Masukkan password untuk guru baru' : 'Kosongkan jika tidak ingin mengubah password'"
+                  :placeholder="'Opsional: tidak wajib diisi (pengelolaan kredensial lewat modul pengguna)'
+                  "
                 />
                 <div :class="[
                   'mt-2 p-3 rounded-lg border',
@@ -322,7 +325,7 @@
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    {{ isAddMode ? 'Password akan digunakan untuk login guru' : 'Kosongkan jika tidak ingin mengubah password' }}
+                    Pengelolaan kata sandi dilakukan pada akun pengguna. Tambah/ubah guru tidak memerlukan kata sandi.
                   </p>
                 </div>
               </div>
@@ -460,13 +463,12 @@ export default {
 
     // Watch form changes for validation
     const checkFormValidity = () => {
+      // Backend hanya membutuhkan: nama, nip, id_sekolah, id_role
       formValid.value = !!(
-        form.nama.trim() && 
-        form.email.trim() && 
+        form.nama.trim() &&
         form.nip.trim() &&
-        form.id_sekolah && 
-        form.id_role &&
-        (isAddMode.value ? form.password_hash.trim() : true)
+        form.id_sekolah &&
+        form.id_role
       )
     }
 
@@ -490,18 +492,12 @@ export default {
     }
 
     const submitForm = async () => {
-      if (!form.nama || !form.email || !form.nip || !form.id_sekolah || !form.id_role) {
+  if (!form.nama || !form.nip || !form.id_sekolah || !form.id_role) {
         showMessage('Mohon lengkapi semua field yang wajib diisi', 'error')
         showNotification('error', 'Validasi Gagal', 'Mohon lengkapi semua field yang wajib diisi')
         return
       }
 
-      // For add mode, password is required
-      if (isAddMode.value && !form.password_hash.trim()) {
-        showMessage('Password wajib diisi untuk guru baru', 'error')
-        showNotification('error', 'Password Diperlukan', 'Password wajib diisi untuk guru baru')
-        return
-      }
 
       isSubmitting.value = true
       closeToast()
@@ -510,17 +506,12 @@ export default {
       showNotification('info', 'Menyimpan Data', 'Sedang memproses data guru...', 0)
 
       try {
+        // Hanya kirim field yang didukung backend
         const formData = {
           nama: form.nama,
-          email: form.email,
           nip: form.nip,
           id_sekolah: form.id_sekolah,
           id_role: form.id_role
-        }
-
-        // Only include password if it's not empty (for edit) or always include for add
-        if (isAddMode.value || form.password_hash.trim()) {
-          formData.password_hash = form.password_hash
         }
 
         if (isAddMode.value) {

@@ -13,14 +13,14 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showDeleteModal = false"></div>
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40" aria-hidden="true" @click="showDeleteModal = false"></div>
         
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         
         <div :class="[
-          'relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full',
+          'relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-50',
           isDarkMode ? 'bg-dark-surface' : 'bg-white'
         ]">
           <div :class="[
@@ -221,7 +221,7 @@
                 <p class="text-blue-100 text-base mb-3">{{ guruStore.getCurrentGuru.email || 'Email Tidak Tersedia' }}</p>
                 <div class="flex flex-wrap gap-2">
                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="getStatusClass(guruStore.getCurrentGuru)">
-                    <div class="w-2 h-2 rounded-full mr-2" :class="guruStore.getCurrentGuru.password_hash ? 'bg-green-400' : 'bg-red-400'"></div>
+                    <div class="w-2 h-2 rounded-full mr-2" :class="guruStore.getCurrentGuru?.email ? 'bg-green-400' : 'bg-red-400'"></div>
                     {{ getStatusText(guruStore.getCurrentGuru) }}
                   </span>
                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="getRoleClass(guruStore.getCurrentGuru.id_role)">
@@ -345,7 +345,7 @@
                         isDarkMode ? 'text-gray-400' : 'text-gray-600'
                       ]">Status Akun</span>
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getStatusClass(guruStore.getCurrentGuru)">
-                        <div class="w-2 h-2 rounded-full mr-1.5" :class="guruStore.getCurrentGuru.password_hash ? 'bg-green-500' : 'bg-red-500'"></div>
+                        <div class="w-2 h-2 rounded-full mr-1.5" :class="guruStore.getCurrentGuru?.email ? 'bg-green-500' : 'bg-red-500'"></div>
                         {{ getStatusText(guruStore.getCurrentGuru) }}
                       </span>
                     </div>
@@ -587,13 +587,12 @@ export default {
     }
 
     const getStatusText = (guru) => {
-      if (!guru.password_hash) return 'Belum Aktif'
-      return 'Aktif'
+      // Anggap aktif jika guru sudah memiliki email tertaut (verifikasi akun selesai)
+      return guru?.email ? 'Aktif' : 'Belum Aktif'
     }
 
     const getStatusClass = (guru) => {
-      if (!guru.password_hash) return 'bg-red-100 text-red-800'
-      return 'bg-green-100 text-green-800'
+      return guru?.email ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
     }
 
     // Lifecycle
