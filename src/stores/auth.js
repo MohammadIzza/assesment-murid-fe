@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
 import { parseJWT } from '@/utils/jwt'
 import Cookies from 'js-cookie'
+import { useGuruStore } from '@/stores/guru'
 
 // Constants for cookie names and options
 const TOKEN_COOKIE = 'auth_token'
@@ -96,6 +97,17 @@ export const useAuthStore = defineStore('auth', {
           } catch (error) {
             console.warn('Token verification warning:', error.message)
             // Don't logout here, let the user continue with the session
+          }
+
+          // Resolve current guru based on token (best-effort)
+          try {
+            const guruStore = useGuruStore()
+            if (!guruStore.getCurrentGuru) {
+              await guruStore.fetchCurrentGuruFromToken()
+            }
+          } catch (e) {
+            // Non-fatal
+            console.warn('Could not resolve current guru on init:', e?.message || e)
           }
         } catch (error) {
           console.error('Error during auth initialization:', error)

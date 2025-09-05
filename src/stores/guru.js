@@ -6,6 +6,8 @@
 
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
+import Cookies from 'js-cookie'
+import { parseJWT } from '@/utils/jwt'
 
 export const useGuruStore = defineStore('guru', {
   state: () => ({
@@ -24,6 +26,8 @@ export const useGuruStore = defineStore('guru', {
     getGuruList: (state) => state.guruList,
     // Getter untuk mendapatkan detail guru
     getCurrentGuru: (state) => state.currentGuru,
+  // Getter untuk mendapatkan id_guru saat ini
+  getCurrentGuruId: (state) => state.currentGuru?.id_guru || null,
     // Getter untuk status loading
     isLoading: (state) => state.loading,
     // Getter untuk error
@@ -121,6 +125,58 @@ export const useGuruStore = defineStore('guru', {
       } catch (error) {
         console.error('Error fetching guru detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail guru'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Mengambil current guru berdasarkan user_id di JWT
+     * Prioritas: user_id dari token -> endpoint /filter/guru/user/:user_id
+     * Fallback: cari berdasarkan email jika 404
+     */
+    async fetchCurrentGuruFromToken() {
+      this.loading = true
+      this.error = null
+
+      try {
+        const token = Cookies.get('auth_token') || Cookies.get('token') || localStorage.getItem('token')
+        if (!token) throw new Error('Token tidak ditemukan, silakan login kembali')
+        const decoded = parseJWT(token) || {}
+        const userId = decoded?.id || decoded?.user_id || null
+        const email = decoded?.email || null
+        if (!userId && !email) throw new Error('Klaim user pada token tidak lengkap')
+
+        // Coba ambil via user_id terlebih dahulu
+        if (userId) {
+          try {
+            const res = await axios.get(`/filter/guru/user/${userId}`)
+            if (res?.data?.success) {
+              this.currentGuru = res.data.data
+              return this.currentGuru
+            }
+          } catch (err) {
+            if (err?.response?.status !== 404) throw err
+            // jika 404, lanjut fallback by email
+          }
+        }
+
+        // Fallback: cari berdasarkan email dari /list/guru
+        if (email) {
+          const listRes = await axios.get('/list/guru')
+          const rows = listRes?.data?.data || []
+          const found = rows.find((g) => String(g.email).toLowerCase() === String(email).toLowerCase())
+          if (found) {
+            this.currentGuru = found
+            return this.currentGuru
+          }
+        }
+
+        throw new Error('Profil guru tidak ditemukan untuk user ini')
+      } catch (error) {
+        console.error('Error resolving current guru from token:', error)
+        this.error = error.message || 'Gagal menentukan profil guru'
         throw error
       } finally {
         this.loading = false

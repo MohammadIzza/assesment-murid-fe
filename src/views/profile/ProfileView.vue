@@ -186,11 +186,16 @@ const saveProfile = async () => {
   isSaving.value = true;
   
   try {
-    const guruId = getGuruIdFromToken();
-    
+    // Ambil id_guru dari profil yang sudah dimuat; fallback ke lookup via user_id
+    let guruId = userProfile.value?.id_guru || null;
     if (!guruId) {
-      throw new Error('Tidak dapat mendapatkan ID guru dari token');
+      const claims = getClaimsFromToken();
+      if (claims.userId) {
+        const res = await getGuruByUserId(claims.userId);
+        guruId = res?.data?.id_guru || null;
+      }
     }
+    if (!guruId) throw new Error('Tidak dapat menentukan ID guru untuk disimpan');
     
     // Kirim perubahan ke API
     const response = await updateGuruById(guruId, editableProfile);

@@ -322,7 +322,7 @@ import axios from '@/plugins/axios'
 import { Teleport } from 'vue'
 import Cookies from 'js-cookie'
 import { parseJWT } from '@/utils/jwt'
-import { getGuruById } from '@/services/api'
+import { getGuruByUserId, getGuruByEmail } from '@/services/api'
 import { useThemeStore } from '@/stores/theme'
 
 // Add theme store
@@ -371,60 +371,38 @@ const showDeleteModal = ref(false)
 const selectedAssessment = ref(null)
 const deleteError = ref(null)
 
-// Fungsi untuk mendapatkan ID guru dari JWT token
-const getGuruIdFromToken = () => {
+// Klaim dari token (id di token = users.id_user)
+const getClaimsFromToken = () => {
   try {
-    // Coba berbagai kemungkinan nama cookie untuk token
-    const token = Cookies.get('auth_token') || 
-                 Cookies.get('token') || 
-                 localStorage.getItem('token')
-    
-    if (!token) {
-      console.error('Token tidak ditemukan')
-      return null
-    }
-    
-    // Parse token untuk mendapatkan payload
+    const token = Cookies.get('auth_token') || Cookies.get('token') || localStorage.getItem('token')
+    if (!token) return { userId: null, email: null }
     const decoded = parseJWT(token)
-    
-    // Cek berbagai kemungkinan field untuk ID user/guru
-    const guruId = decoded?.id || decoded?.id_guru || decoded?.user_id
-    
-    if (!guruId) {
-      console.error('ID guru tidak ditemukan dalam token')
-      return null
-    }
-    
-    return guruId
+    return { userId: decoded?.id || decoded?.user_id || null, email: decoded?.email || null }
   } catch (err) {
-    console.error('Error getting guru ID from token:', err)
-    return null
+    console.error('Error parsing token:', err)
+    return { userId: null, email: null }
   }
 }
 
 // Fungsi untuk mengambil data guru dari API
 const fetchUserData = async () => {
   try {
-    // Dapatkan ID guru dari token
-    const guruId = getGuruIdFromToken()
-    
-    if (!guruId) {
-      // Jika tidak ada ID guru, gunakan data dari localStorage sebagai fallback
-      const user = localStorage.getItem('user')
-      if (user) {
-        userData.value = { ...userData.value, ...JSON.parse(user) }
-      }
-      return
+    const { userId, email } = getClaimsFromToken()
+    let result = null
+    if (userId) result = await getGuruByUserId(userId)
+
+    if ((!result || !result.success) && email) {
+      const found = await getGuruByEmail(email)
+      if (found) result = { success: true, data: found }
     }
-    
-    // Panggil API untuk mendapatkan data guru
-    const response = await getGuruById(guruId)
-    
-    if (response.success) {
-      userData.value = response.data
-      
-      // Update userName di dashboardData untuk konsistensi
-      dashboardData.value.userName = response.data.nama
+
+    if (result?.success) {
+      userData.value = result.data
+      dashboardData.value.userName = result.data?.nama || ''
+    } else {
+      // Fallback ke localStorage
+      const user = localStorage.getItem('user')
+      if (user) userData.value = { ...userData.value, ...JSON.parse(user) }
     }
   } catch (err) {
     console.error('Error fetching user data:', err)
