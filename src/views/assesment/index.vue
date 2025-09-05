@@ -478,6 +478,8 @@ const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const guruStore = useGuruStore()
 const siswaStore = useSiswaStore()
+// Pengampu cache for quick lookup
+const pengampuList = ref([])
 
 // State variables
 const loading = ref(false)
@@ -1370,7 +1372,11 @@ const fetchData = async () => {
     await Promise.all([
       siswaStore.fetchSiswaList(),
       guruStore.fetchGuruList(),
+  // resolve current guru from token (best-effort)
+  guruStore.fetchCurrentGuruFromToken().catch(() => {}),
       assessmentStore.fetchAssessmentList(),
+  // load pengampu list once for id_pengampu resolution
+  axios.get('/list/pengampu').then(res => { if (res.data?.success) pengampuList.value = res.data.data || [] }),
       fetchKelasList(),
       fetchDimensiList(),
       fetchElemenList(),
@@ -1554,18 +1560,35 @@ const saveAssessment = async (formData) => {
       showSuccessToast('Assessment baru berhasil dibuat');
     }
 
-    // Get current user ID from auth store
-    const currentUserId = authStore.user?.id_guru || 1;
+    // Resolve id_pengampu: map current guru + selected kelas to pengampu.id_pengampu
+    // Prefer guruStore.currentGuru if available, else fallback by email
+    let currentGuruId = guruStore.getCurrentGuruId
+    if (!currentGuruId) {
+      // try resolve from email list
+      const email = authStore.getUser?.email
+      const found = guruStore.getGuruList.find(g => String(g.email).toLowerCase() === String(email||'').toLowerCase())
+      currentGuruId = found?.id_guru || null
+    }
+
+    let id_pengampu_resolved = null
+    if (currentGuruId && selectedKelas.value) {
+      const match = pengampuList.value.find(p => p.id_guru == currentGuruId && p.id_kelas == selectedKelas.value)
+      id_pengampu_resolved = match?.id_pengampu || null
+    }
+
+    if (!id_pengampu_resolved) {
+      throw new Error('Pengampu untuk guru/kelas ini tidak ditemukan. Pastikan mapping pengampu sudah ada.');
+    }
 
     // Process nilai submission with better error handling
     if (id_assessment && formData.nilai) {
       const nilaiPromises = [];
       
-      for (const [id_siswa, nilai] of Object.entries(formData.nilai)) {
+  for (const [id_siswa, nilai] of Object.entries(formData.nilai)) {
         if (nilai && nilai.trim() !== '') {
           const nilaiPayload = {
             id_siswa: parseInt(id_siswa),
-            id_pengampu: currentUserId,
+    id_pengampu: id_pengampu_resolved,
             id_assessment: parseInt(id_assessment),
             nilai: nilai.toString(),
             tanggal_input: new Date().toISOString().slice(0, 10)

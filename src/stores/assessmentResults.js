@@ -6,6 +6,8 @@
 
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
+import { useAuthStore } from '@/stores/auth'
+import { useGuruStore } from '@/stores/guru'
 
 export const useAssessmentResultsStore = defineStore('assessmentResults', {
   state: () => ({
@@ -143,9 +145,24 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
         
         // Dapatkan assessment ID
         const assessmentId = await this.getOrCreateAssessmentId(filters)
-        
-        // Ambil id_pengampu dari user yang login (sesuaikan dengan auth store)
-        const id_pengampu = 1 // TODO: Ambil dari auth store
+        // Ambil id_pengampu berdasarkan guru & kelas aktif
+        const authStore = useAuthStore()
+        const guruStore = useGuruStore()
+        let currentGuruId = guruStore.getCurrentGuruId
+        if (!currentGuruId) {
+          const email = authStore.getUser?.email
+          const found = guruStore.getGuruList.find(g => String(g.email).toLowerCase() === String(email||'').toLowerCase())
+          currentGuruId = found?.id_guru || null
+        }
+
+        // Fetch pengampu list and resolve mapping for this kelas
+        const pengampuRes = await axios.get('/list/pengampu')
+        const pengampuList = pengampuRes.data?.data || []
+        const pengampuMatch = pengampuList.find(p => p.id_guru == currentGuruId && p.id_kelas == filters.id_kelas)
+        const id_pengampu = pengampuMatch?.id_pengampu
+        if (!id_pengampu) {
+          throw new Error('Pengampu tidak ditemukan untuk guru/kelas ini')
+        }
         
         // Simpan nilai untuk setiap siswa
         const promises = siswaList.map(siswa => {
@@ -200,7 +217,7 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
         const assessmentId = await this.getOrCreateAssessmentId(filters)
         
         // Ambil semua nilai untuk assessment ini
-        const response = await axios.get(`/list/nilai?id_assessment=${assessmentId}`)
+        const response = await axios.get(`/filter/assessment/${assessmentId}/nilai`)
         
         if (response.data.success) {
           this.results = response.data.data
