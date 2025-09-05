@@ -697,35 +697,35 @@ const scrollToPrevious = () => {
   }
 }
 
-const scrollToResult = (index) => {
+const scrollToResult = async (index) => {
   const result = searchResults.value[index]
   if (!result) return
 
-  // If the student is not in the current class, automatically select their class
+  // If the student is not in the current class, programmatically load that class first
   if (result.siswa.id_kelas != selectedKelas.value) {
-    selectedKelas.value = result.siswa.id_kelas
+    // Inform user
     showInfoToast(`Beralih ke kelas ${result.kelas} untuk menampilkan siswa ${result.siswa.nama}`)
-    
-    // Wait for the class change to complete, then scroll
-    setTimeout(() => {
-      const element = document.getElementById(result.elementId)
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        })
 
-        // Add temporary highlight effect
-        element.classList.add('search-highlight')
-        setTimeout(() => {
-          element.classList.remove('search-highlight')
-        }, 2000)
-      }
-    }, 500) // Wait for data to load
-    return
+    // Load class data without clearing the current global search
+    try {
+      // Set the selected class value so UI reflects the change
+      selectedKelas.value = result.siswa.id_kelas
+
+      // Fetch students for that class and related data
+      await Promise.all([
+        fetchSiswaByKelas(result.siswa.id_kelas),
+        fetchAllCapaianForKelas(),
+        fetchNilaiSiswa()
+      ])
+
+      // After data is available, allow a short delay for DOM render, then scroll
+      await new Promise(res => setTimeout(res, 120))
+    } catch (e) {
+      console.error('Error loading class for search scroll:', e)
+    }
   }
 
+  // Try to locate the element again (now it should exist)
   const element = document.getElementById(result.elementId)
   if (element) {
     element.scrollIntoView({
@@ -739,6 +739,9 @@ const scrollToResult = (index) => {
     setTimeout(() => {
       element.classList.remove('search-highlight')
     }, 2000)
+  } else {
+    // If element still doesn't exist, log for debugging
+    console.warn('Search target element not found after loading class:', result.elementId)
   }
 }
 
