@@ -11,8 +11,57 @@
       </div>
     </div>
   
+     <!-- Tombol -->
+      <div flex>
+        <button 
+          @click="toggleHistory(getGuru(currentEmailUser))"
+          class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-lg font-medium flex items-center gap-2"
+        >
+          History
+          <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" 
+              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M19 9l-7 7-7-7" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" 
+              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+
+        <!-- Data History -->
+        <div v-if="isOpen" class="p-4 border rounded-lg bg-gray-100 mt-3">
+          <h3 class="font-semibold mb-4">Riwayat Assessment</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-300 bg-white rounded-lg shadow-sm">
+              <thead class="bg-yellow-400">
+                <tr>
+                  <th class="px-4 py-2 border text-left">Nama Siswa</th>
+                  <th class="px-4 py-2 border text-left">Assessment</th>
+                  <th class="px-4 py-2 border text-left">Nilai</th>
+                  <th class="px-4 py-2 border text-left">Waktu Input</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border">{{ getSiswa(row.id_siswa) }}</td>
+                  <td class="px-4 py-2 border">{{ getAssessment(row.id_assessment) }}</td>
+                  <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
+                  <td class="px-4 py-2 border">{{ formatDate(row.updated_at) }}</td>
+                </tr>
+
+                 <tr v-if="historyData.length === 0">
+                  <td colspan="4" class="px-4 py-2 text-center text-gray-500">Tidak ada riwayat assesment</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+
     <!-- Global Search Section - Always visible -->
-    <div class="mb-4">
+    <div class="mb-4 mt-8">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center gap-4">
           <div class="flex-1">
@@ -415,6 +464,7 @@ import { useCapaianStore } from '@/stores/capaian'
 import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
+import { useGuruStore } from '@/stores/guru'
 import axios from '@/plugins/axios'
 
 // Store initialization
@@ -426,6 +476,8 @@ const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+const guruStore = useGuruStore()
+const siswaStore = useSiswaStore()
 
 // State variables
 const loading = ref(false)
@@ -453,12 +505,68 @@ let toastTimeout = null
 // New data structure for storing assessment values
 const assessmentValues = ref({}) // {id_capaian: {id_siswa: {assessmentNumber: nilai}}}
 
+const user = computed(() => authStore.getUser)
+console.log("Current User:", user)
+const currentEmailUser = computed(() => user.value?.email || '')
+
 // Track current editing assessment
 const currentEditingAssessment = ref({
   capaian: null,
   siswa: null,
   assessmentNumber: null
 })
+
+// State History
+const isOpen = ref(false)
+const historyData = ref([])
+
+const toggleHistory = async (id) => {
+  console.log("CEK ID:", id);
+  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    try {
+      await assessmentStore.fetchAssessmentHistory(id)
+      historyData.value = assessmentStore.assessmentHistoryList
+      console.log("Processed data:", assessmentStore.assessmentHistoryList)
+    } catch (error) {
+      console.error("Error fetching history list:", error)
+    }
+  }
+}
+
+function formatDate(isoDate) {
+  if (!isoDate) return "-";
+  return new Date(isoDate).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta"
+  }).replace("pukul ", ", ");
+}
+
+const getAssessment = (id) => {
+  const assessment = assessmentStore.assessmentList.find(a => a.id_assessment == id)
+  console.log("ASSESSMENT CEK ", assessment)
+  console.log("ASSESSMENT CEK ID", id)
+  return assessment ? assessment.nama_assessment : 'N/A'
+
+}
+
+const getSiswa = (id) => {
+  const siswa = siswaStore.siswaList.find(s => s.id_siswa == id)
+  console.log("SISWA CEK ", siswaStore.siswaList)
+  return siswa ? siswa.nama : 'N/A'
+}
+
+const getGuru = (email) => {
+  const guru = guruStore.guruList.find(g => g.email == email)
+  console.log("GURU CEK ", guruStore.guruList)
+  return guru ? guru.id_guru : 'N/A'
+}
+
 
 // Filter selections
 const selectedKelas = ref('')
@@ -1257,6 +1365,8 @@ const fetchData = async () => {
   loading.value = true
   try {
     await Promise.all([
+      siswaStore.fetchSiswaList(),
+      guruStore.fetchGuruList(),
       assessmentStore.fetchAssessmentList(),
       fetchKelasList(),
       fetchDimensiList(),
