@@ -37,3 +37,42 @@ export const updateGuruById = async (id, data) => {
     throw error;
   }
 };
+
+/**
+ * Ambil guru berdasarkan user_id (kolom relasi di tabel guru)
+ * @param {number|string} userId
+ * @returns {Promise<object|null>} - response.data atau null jika tidak ditemukan
+ */
+export const getGuruByUserId = async (userId) => {
+  try {
+    if (!userId) throw new Error('userId tidak ditemukan');
+    const response = await axios.get(`/filter/guru/user/${userId}`);
+    return response.data;
+  } catch (err) {
+    // jika resource tidak ditemukan, kembalikan null agar caller bisa fallback
+    if (err?.response?.status === 404) return null;
+  // Untuk kasus 500 atau network error kita juga kembalikan null supaya caller bisa mencoba fallback
+  console.warn('getGuruByUserId failed (will fallback):', err?.response?.status || err.message || err);
+  return null;
+  }
+};
+
+/**
+ * Cari guru berdasarkan email (implementasi: fetch /list/guru lalu filter client-side)
+ * Berguna sebagai fallback bila lookup berdasarkan userId gagal.
+ * @param {string} email
+ * @returns {Promise<object|null>} - objek guru atau null jika tidak ditemukan
+ */
+export const getGuruByEmail = async (email) => {
+  try {
+    if (!email) throw new Error('email tidak diberikan');
+    const response = await axios.get(`/list/guru`);
+    if (!response?.data?.success) return null;
+    const rows = response.data.data || [];
+    const found = rows.find((g) => String(g.email).toLowerCase() === String(email).toLowerCase());
+    return found || null;
+  } catch (err) {
+    console.error('Error fetching guru list for email lookup', err.message || err);
+    throw err;
+  }
+};

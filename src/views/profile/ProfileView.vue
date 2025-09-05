@@ -101,6 +101,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import Cookies from 'js-cookie';
 import { getGuruById, updateGuruById } from '@/services/api';
+import { getGuruByUserId, getGuruByEmail } from '@/services/api';
 import { parseJWT } from '@/utils/jwt';
 
 // State variables
@@ -124,43 +125,20 @@ const userInitials = computed(() => {
 });
 
 // Fungsi untuk mendapatkan ID guru dari JWT token
-const getGuruIdFromToken = () => {
+// Fungsi untuk mendapatkan klaim dari JWT token (id adalah users.id_user)
+const getClaimsFromToken = () => {
   try {
-    // PENTING: Di sini kita coba berbagai kemungkinan nama cookie untuk token
-    const token = Cookies.get('auth_token') || 
-                 Cookies.get('token') || 
-                 localStorage.getItem('token');
-    
-    // Remove cookie debugging
-    // console.log("Cookies available:", Object.keys(Cookies.get()));
-    
-    if (!token) {
-      throw new Error('Token tidak ditemukan. Silakan login kembali.');
-    }
-    
-    // Remove token found logging
-    // console.log('Token found!');
-    
-    // Parse token untuk mendapatkan payload
+    const token = Cookies.get('auth_token') || Cookies.get('token') || localStorage.getItem('token');
+    if (!token) throw new Error('Token tidak ditemukan. Silakan login kembali.');
     const decoded = parseJWT(token);
-    
-    
-    // Cek berbagai kemungkinan field untuk ID user/guru
-    const guruId = decoded?.id || decoded?.id_guru || decoded?.user_id;
-    
-    if (!guruId) {
-      // Sanitize the error to not show full token content
-      throw new Error('ID guru tidak ditemukan dalam token.');
-    }
-    
-    // Remove ID logging
-    // console.log('Found guru ID in token:', guruId);
-    userId.value = guruId;
-    return guruId;
+    // klaim utama: id -> users.id_user, email -> user email
+    const userIdClaim = decoded?.id || decoded?.user_id || null;
+    const emailClaim = decoded?.email || null;
+    return { userId: userIdClaim, email: emailClaim };
   } catch (err) {
-    console.error('Error getting guru ID from token:', err.message);
+    console.error('Error parsing token:', err.message);
     error.value = err.message;
-    return null;
+    return { userId: null, email: null };
   }
 };
 
@@ -170,28 +148,31 @@ const fetchGuruData = async () => {
   error.value = null;
   
   try {
-    // Dapatkan ID guru dari token
-    const guruId = getGuruIdFromToken();
-    
-    if (!guruId) {
-      throw new Error('Tidak dapat mendapatkan ID guru dari token');
+    const claims = getClaimsFromToken();
+    if (!claims.userId && !claims.email) {
+      throw new Error('Tidak dapat mendapatkan klaim user dari token');
     }
-    
-    // Panggil API untuk mendapatkan data guru
-    const response = await getGuruById(guruId);
-    
-    if (!response.success) {
-      throw new Error(response.message || 'Gagal mengambil data profil');
+
+    // 1) Coba lookup berdasarkan user_id yang ada di token (direkomendasikan)
+    let result = null;
+    if (claims.userId) {
+      result = await getGuruByUserId(claims.userId);
     }
-    
-    // Set data profil
-    userProfile.value = response.data;
-    
-    // Copy data ke editable profile
+
+    // 2) Jika tidak ditemukan, fallback: ambil list guru dan cari berdasarkan email
+    if (!result && claims.email) {
+      const found = await getGuruByEmail(claims.email);
+      if (found) {
+        result = { success: true, data: found };
+      }
+    }
+
+    if (!result || !result.success) {
+      throw new Error('Profil guru tidak ditemukan. Pastikan Anda sudah verifikasi NIP.');
+    }
+
+    userProfile.value = result.data;
     Object.assign(editableProfile, userProfile.value);
-    
-    // Remove data logging
-    // console.log('Guru data loaded:', userProfile.value);
   } catch (err) {
     console.error('Error fetching guru data:', err.message);
     error.value = 'Gagal memuat data profil: ' + err.message;
