@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
+import { parseJWT } from '@/utils/jwt'
 import Cookies from 'js-cookie'
 
 // Constants for cookie names and options
@@ -26,9 +27,9 @@ export const useAuthStore = defineStore('auth', {
       console.error('Error parsing user cookie:', e);
     }
 
-    const token = Cookies.get(TOKEN_COOKIE);
-    const sessionId = Cookies.get(SESSION_COOKIE);
-    const isAuthenticated = !!token && !!user && !!sessionId;
+  const token = Cookies.get(TOKEN_COOKIE);
+  const sessionId = Cookies.get(SESSION_COOKIE);
+  const isAuthenticated = !!token && !!user && !!sessionId;
 
     return {
       user,
@@ -62,7 +63,21 @@ export const useAuthStore = defineStore('auth', {
           
           // Set axios default headers
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          axios.defaults.headers.common['Session-Id'] = sessionId
+          if (sessionId) axios.defaults.headers.common['Session-Id'] = sessionId
+
+          // Parse token and enrich user object with claims if available
+          try {
+            const decoded = parseJWT(token) || {}
+            // Merge decoded claims into user state if not present
+            this.user = Object.assign({}, this.user || {}, {
+              id: decoded.id || this.user?.id || null,
+              email: decoded.email || this.user?.email || null,
+              is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : this.user?.is_verified,
+              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : this.user?.is_verified_nip
+            })
+          } catch (e) {
+            // ignore parse errors
+          }
           
           // Verify the token silently, but don't logout if it fails to prevent refresh issues
           try {
@@ -98,9 +113,12 @@ export const useAuthStore = defineStore('auth', {
           throw new Error('Failed to set token cookie');
         }
 
-        Cookies.set(SESSION_COOKIE, sessionId, COOKIE_OPTIONS);
-        if (!Cookies.get(SESSION_COOKIE)) {
-          throw new Error('Failed to set session cookie');
+        // Set session cookie only if provided (backend may not return sessionId)
+        if (typeof sessionId !== 'undefined' && sessionId !== null) {
+          Cookies.set(SESSION_COOKIE, sessionId, COOKIE_OPTIONS);
+          if (!Cookies.get(SESSION_COOKIE)) {
+            throw new Error('Failed to set session cookie');
+          }
         }
 
         const userStr = JSON.stringify(user);
@@ -201,27 +219,35 @@ export const useAuthStore = defineStore('auth', {
         })
         
         if (response.data.success && response.data.token) {
-          const { token, sessionId } = response.data
-          const user = { 
-            name: credentials.email.split('@')[0], 
-            email: credentials.email,
-            lastLogin: new Date().toISOString()
-          }
-          
-          // Store in state
-          this.token = token
-          this.user = user
-          this.sessionId = sessionId
-          this.isAuthenticated = true
-          
-          // Store in secure cookies
-          this.setAuthCookies(token, user, sessionId)
-          
-          // Set axios default headers
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          axios.defaults.headers.common['Session-Id'] = sessionId
-          
-          return response.data
+            const { token } = response.data
+            // Fallback sessionId if backend didn't provide one
+            const sessionId = response.data.sessionId || String(Date.now())
+
+            // Parse token for user claims
+            const decoded = parseJWT(token) || {}
+            const user = {
+              id: decoded.id || null,
+              email: decoded.email || credentials.email,
+              name: decoded.email ? (decoded.email.split('@')[0]) : credentials.email.split('@')[0],
+              lastLogin: new Date().toISOString(),
+              is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : 1,
+              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : 0
+            }
+
+            // Store in state
+            this.token = token
+            this.user = user
+            this.sessionId = sessionId
+            this.isAuthenticated = true
+
+            // Store in secure cookies
+            this.setAuthCookies(token, user, sessionId)
+
+            // Set axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            axios.defaults.headers.common['Session-Id'] = sessionId
+
+            return response.data
         } else {
           throw new Error(response.data.message || 'Login failed')
         }

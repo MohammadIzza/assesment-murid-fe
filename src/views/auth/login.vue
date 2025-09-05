@@ -149,6 +149,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/common/Toast.vue'
+import { parseJWT } from '@/utils/jwt'
 
 export default {
   name: 'Login',
@@ -213,20 +214,25 @@ export default {
           email: form.value.email,
           password: form.value.password
         })
-        
+
+        // Parse token to check is_verified_nip flag
+        const token = authStore.token || ''
+        const decoded = parseJWT(token) || {}
+
         success.value = 'Login berhasil! Mengalihkan...'
-        
+
         // Show success notification with redirect countdown
         closeToast()
         setTimeout(() => {
-          showNotification('success', 'Login Berhasil!', 'Selamat datang! Anda akan diarahkan ke dashboard', 1500)
+          showNotification('success', 'Login Berhasil!', 'Selamat datang! Anda akan diarahkan ke halaman berikutnya', 1500)
         }, 100)
-        
-        // Redirect ke halaman sebelumnya atau dashboard
+
+        // Decide redirect: if NIP not verified -> verifikasi page, else normal redirect
         const redirectTo = route.query.redirect || '/dashboard'
-        
+        const goTo = (decoded.is_verified_nip === 1) ? redirectTo : '/verifikasiNIP'
+
         setTimeout(() => {
-          router.push(redirectTo)
+          router.push(goTo)
         }, 1500)
         
       } catch (err) {
