@@ -411,7 +411,7 @@
                   </svg>
                   Aksi & Tools
                 </label>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
                   <button 
                     @click="loadGuruData" 
                     :disabled="guruStore.isLoading"
@@ -425,6 +425,32 @@
                     </svg>
                     <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
                     {{ guruStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
+                  </button>
+                  <button 
+                    @click="triggerImport" 
+                    :disabled="guruStore.isLoading"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
+                    </svg>
+                    Import Excel
+                  </button>
+                  <button 
+                    @click="downloadTemplate" 
+                    :disabled="guruStore.isLoading"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
+                    </svg>
+                    Template Excel
                   </button>
                   <button 
                     @click="exportData" 
@@ -596,6 +622,8 @@
           </div>
         </div>
       </div>
+  <!-- Hidden file input for import -->
+  <input ref="fileInputRef" class="hidden" type="file" accept=".xlsx,.xls" @change="onFileChange" />
 
       <!-- Loading State -->
       <div v-if="guruStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -839,6 +867,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
+import ExcelJS from 'exceljs'
 
 export default {
   name: 'GuruList',
@@ -862,6 +891,11 @@ export default {
     const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
+  // Import state
+  const isImporting = ref(false)
+  const importError = ref('')
+  const importedCount = ref(0)
+  const fileInputRef = ref(null)
 
     // Computed properties
     const filteredGuruList = computed(() => {
@@ -1059,6 +1093,252 @@ export default {
 
     const refreshData = async () => {
       await loadGuruData()
+    }
+
+    // Import: trigger file picker
+    const triggerImport = () => {
+      importError.value = ''
+      if (fileInputRef.value) fileInputRef.value.value = ''
+      fileInputRef.value?.click()
+    }
+
+    // Import: handle file change
+    const onFileChange = async (e) => {
+      const file = e.target.files && e.target.files[0]
+      if (!file) return
+      if (!/\.xlsx?$/.test(file.name.toLowerCase())) {
+        alert('Format file tidak didukung. Gunakan file .xlsx')
+        return
+      }
+      try {
+        isImporting.value = true
+        importedCount.value = 0
+        const rows = await parseExcelFile(file)
+        if (!rows.length) {
+          alert('Tidak ada baris data yang valid di file')
+          return
+        }
+        // Kirim ke backend via store (mendukung array)
+        const res = await guruStore.addGuru(rows)
+        importedCount.value = res?.insertedCount || rows.length
+        await loadGuruData()
+        alert(`Import selesai. Berhasil menambahkan ${importedCount.value} data.`)
+      } catch (err) {
+        console.error('Import error:', err)
+        importError.value = err?.message || 'Gagal mengimpor data.'
+        alert(importError.value)
+      } finally {
+        isImporting.value = false
+      }
+    }
+
+    // Parse Excel (.xlsx) to array of guru objects
+    const normalizeHeader = (h) => String(h || '').toLowerCase().replace(/\s+/g, '_').trim()
+    const toNumberOrNull = (v) => {
+      if (v === null || v === undefined || v === '') return null
+      const n = Number(v)
+      return Number.isFinite(n) ? n : null
+    }
+    const toStringOrNull = (v) => {
+      if (v === null || v === undefined) return null
+      return String(v).trim() || null
+    }
+    const parseExcelFile = async (file) => {
+      const arrayBuffer = await file.arrayBuffer()
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(arrayBuffer)
+      const worksheet = workbook.worksheets[0]
+      if (!worksheet) throw new Error('Sheet pertama tidak ditemukan')
+
+      // Ambil header row (baris 1)
+      const headerRow = worksheet.getRow(1)
+      const headerMap = {}
+      headerRow.eachCell((cell, colNumber) => {
+        const key = normalizeHeader(cell.value)
+        if (key) headerMap[key] = colNumber
+      })
+
+  // Kolom yang didukung backend
+  // Minimal: nama atau nip sebaiknya ada agar baris dianggap valid
+  const supported = ['id_sekolah', 'nama', 'nip', 'id_role']
+
+      const data = []
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return // skip header
+        const record = {}
+
+        // Map only supported fields if present in headers
+        for (const key of supported) {
+          const col = headerMap[key]
+          if (!col) continue
+          const raw = row.getCell(col).value
+          if (key === 'id_sekolah' || key === 'id_role') record[key] = toNumberOrNull(raw)
+          else if (key === 'nip' || key === 'nama') record[key] = toStringOrNull(raw)
+        }
+
+        // Consider valid if has at least a name or NIP
+        if (record.nama || record.nip) data.push(record)
+      })
+
+      return data
+    }
+
+    const downloadTemplate = async () => {
+      const wb = new ExcelJS.Workbook()
+      wb.created = new Date()
+
+      // Sheet 1: ImportGuru (utama)
+      const ws = wb.addWorksheet('ImportGuru', {
+        views: [{ state: 'frozen', ySplit: 1 }]
+      })
+      const headers = ['id_sekolah', 'nama', 'nip', 'id_role']
+      ws.addRow(headers)
+
+      // Style header
+      const headerRow = ws.getRow(1)
+      headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+      headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
+      headerRow.height = 24
+      headerRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+        }
+      })
+      // Emphasize required columns (at least one of them): nama (B1) and nip (C1)
+      const requiredHeaderStyle = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF59E0B' } // amber
+      }
+      ws.getCell('B1').fill = requiredHeaderStyle
+      ws.getCell('C1').fill = requiredHeaderStyle
+
+      // Column widths
+      ws.columns = [
+        { key: 'id_sekolah', width: 14 },
+        { key: 'nama', width: 32 },
+        { key: 'nip', width: 22 },
+        { key: 'id_role', width: 12 }
+      ]
+
+      // Sample row
+      ws.addRow([1, 'Nama Guru Contoh', '1234567890', 2])
+      ws.getRow(2).eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        }
+      })
+
+      // Data validations for rows 2..201
+      for (let r = 2; r <= 201; r++) {
+        // id_sekolah: angka >= 1
+        ws.getCell(`A${r}`).dataValidation = {
+          type: 'whole',
+          operator: 'greaterThanOrEqual',
+          formulae: [1],
+          allowBlank: true,
+          showInputMessage: true,
+          promptTitle: 'id_sekolah',
+          prompt: 'Masukkan angka >= 1'
+        }
+        // nip: minimal 5 karakter
+        ws.getCell(`C${r}`).dataValidation = {
+          type: 'textLength',
+          operator: 'greaterThanOrEqual',
+          formulae: [5],
+          allowBlank: true,
+          showInputMessage: true,
+          promptTitle: 'NIP',
+          prompt: 'Minimal 5 karakter'
+        }
+        // id_role: pilih dari daftar referensi
+        ws.getCell(`D${r}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: ['=Referensi!$A$2:$A$4'],
+          showErrorMessage: true,
+          errorTitle: 'Nilai tidak valid',
+          error: 'Pilih salah satu nilai yang tersedia di daftar.'
+        }
+        // Wajib minimal salah satu: nama (B) atau nip (C)
+        // Terapkan di kedua sel agar Excel menampilkan pesan pada sel aktif
+        const orFormula = `OR(LEN(B${r})>0, LEN(C${r})>0)`
+        ws.getCell(`B${r}`).dataValidation = {
+          type: 'custom',
+          allowBlank: true,
+          formulae: [orFormula],
+          showErrorMessage: true,
+          errorTitle: 'Isian wajib',
+          error: "Isi 'nama' atau 'nip' minimal salah satu."
+        }
+        ws.getCell(`C${r}`).dataValidation = {
+          type: 'custom',
+          allowBlank: true,
+          formulae: [orFormula],
+          showErrorMessage: true,
+          errorTitle: 'Isian wajib',
+          error: "Isi 'nama' atau 'nip' minimal salah satu."
+        }
+      }
+
+      // Sheet 2: Referensi
+      const ref = wb.addWorksheet('Referensi')
+      ref.getColumn(1).width = 12
+      ref.getColumn(2).width = 24
+      ref.getCell('A1').value = 'id_role'
+      ref.getCell('B1').value = 'nama_role'
+      ref.getRow(1).font = { bold: true }
+      ref.getCell('A2').value = 1
+      ref.getCell('B2').value = 'Admin'
+      ref.getCell('A3').value = 2
+      ref.getCell('B3').value = 'Guru'
+      // ref.getCell('A4').value = 3
+      // ref.getCell('B4').value = 'Kepala Sekolah'
+      // Contoh id_sekolah
+      ref.getColumn(4).width = 14
+      ref.getColumn(5).width = 32
+      ref.getCell('D1').value = 'id_sekolah'
+      ref.getCell('E1').value = 'nama_sekolah'
+      ref.getRow(1).alignment = { horizontal: 'center' }
+      ref.getCell('D2').value = 1
+      ref.getCell('E2').value = 'SMA Negeri 1 Semarang'
+
+      // Sheet 3: Petunjuk
+      const help = wb.addWorksheet('Petunjuk')
+      help.getColumn(1).width = 100
+      help.mergeCells('A1:A20')
+      help.getCell('A1').value =
+        'Petunjuk Pengisian Template Import Guru:\n\n' +
+        'Kolom & Aturan:\n' +
+        '1) id_sekolah (opsional): angka ID sekolah. Contoh: 1, 2. Lihat sheet Referensi.\n' +
+        "2) nama (wajib salah satu dengan 'nip'): isi nama lengkap guru.\n" +
+        "3) nip (wajib salah satu dengan 'nama'): isi NIP minimal 5 karakter.\n" +
+        '4) id_role (opsional, disarankan): pilih dari daftar (1 = Admin, 2 = guru).\n\n' +
+        'Ketentuan Pengisian:\n' +
+        '- Isi data pada sheet ImportGuru mulai baris ke-2 (baris pertama adalah header).\n' +
+        "- Kolom 'nama' atau 'nip' harus diisi. Jika keduanya kosong, baris akan ditolak.\n" +
+        '- id_sekolah membantu mengelompokkan guru ke sekolah terkait.\n' +
+        '- Simpan file sebagai .xlsx lalu lakukan import di aplikasi.'
+      help.getCell('A1').alignment = { wrapText: true, vertical: 'top' }
+
+      // Export file
+      const buf = await wb.xlsx.writeBuffer()
+      const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `template-import-guru-${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
     }
 
     const clearAllFilters = () => {
@@ -1378,7 +1658,16 @@ export default {
       getRoleClass,
       getStatusText,
       getStatusClass,
-      getInitials
+  getInitials,
+  // import bindings
+  isImporting,
+  importError,
+  importedCount,
+  fileInputRef,
+  triggerImport,
+  onFileChange
+  ,
+  downloadTemplate
     }
   }
 }
