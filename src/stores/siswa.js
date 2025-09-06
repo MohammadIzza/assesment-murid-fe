@@ -303,11 +303,13 @@ export const useSiswaStore = defineStore('siswa', {
       this.error = null
       
       try {
-        // Use the filter API endpoint if available
-        const response = await axios.get(`/list/siswa?id_kelas=${id_kelas}`)
+        // Ambil semua siswa dan filter berdasarkan id_kelas
+        const response = await axios.get(`/list/siswa`)
         
         if (response.data.success) {
-          this.siswaList = response.data.data
+          // Filter siswa berdasarkan id_kelas
+          const siswaInKelas = response.data.data.filter(siswa => siswa.id_kelas === id_kelas)
+          this.siswaList = siswaInKelas
         } else {
           throw new Error('Gagal mengambil data siswa berdasarkan kelas')
         }

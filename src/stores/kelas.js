@@ -99,6 +99,7 @@ export const useKelasStore = defineStore('kelas', {
         
         if (response.data.success) {
           this.currentKelas = response.data.data
+          return response.data.data
         } else {
           throw new Error('Gagal mengambil detail kelas')
         }
@@ -112,17 +113,200 @@ export const useKelasStore = defineStore('kelas', {
     },
 
     /**
-     * Membersihkan error
+     * Menambahkan kelas baru
+     * @param {Object} kelasData - Data kelas yang akan ditambahkan
      */
-    clearError() {
-      this.error = null
+    async createKelas(kelasData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await axios.post('/add/kelas', kelasData);
+        
+        if (response.data.success) {
+          // Refresh data kelas setelah berhasil menambahkan
+          await this.fetchKelasList();
+          return response.data.data;
+        } else {
+          throw new Error(response.data.message || 'Gagal menambahkan kelas');
+        }
+      } catch (error) {
+        console.error('Error creating kelas:', error);
+        this.error = error.message || 'Terjadi kesalahan saat menambahkan kelas';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     },
 
     /**
-     * Membersihkan data kelas yang sedang dilihat
+     * Alias untuk createKelas (untuk kompatibilitas)
+     * @param {Object|Array} kelasData - Data kelas yang akan ditambahkan
+     */
+    async addKelas(kelasData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        // Handle array data (untuk import)
+        if (Array.isArray(kelasData)) {
+          const sanitizedData = kelasData.map(kelas => ({
+            id_sekolah: kelas.id_sekolah || null,
+            nama_kelas: kelas.nama_kelas || '',
+            tingkat: kelas.tingkat || null,
+            tahun_ajaran: kelas.tahun_ajaran || null,
+            id_wali_kelas: kelas.id_wali_kelas || null
+          })).filter(kelas => kelas.nama_kelas); // Hanya data yang memiliki nama_kelas
+          
+          const response = await axios.post('/add/kelas', { data: sanitizedData });
+          
+          if (response.data.success) {
+            await this.fetchKelasList();
+            return { insertedCount: response.data.insertedCount || sanitizedData.length };
+          } else {
+            throw new Error(response.data.message || 'Gagal menambahkan kelas');
+          }
+        } else {
+          // Handle single data
+          return this.createKelas(kelasData);
+        }
+      } catch (error) {
+        console.error('Error adding kelas:', error);
+        this.error = error.message || 'Terjadi kesalahan saat menambahkan kelas';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Mengupdate data kelas
+     * @param {string|number} id - ID kelas yang akan diupdate
+     * @param {Object} kelasData - Data kelas yang akan diupdate
+     */
+    async updateKelas(id, kelasData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        // Hanya kirim field yang didukung backend
+        const sanitizedData = {
+          nama_kelas: kelasData.nama_kelas,
+          tingkat: kelasData.tingkat,
+          tahun_ajaran: kelasData.tahun_ajaran,
+          id_sekolah: kelasData.id_sekolah,
+          id_wali_kelas: kelasData.id_wali_kelas
+        };
+        
+        const response = await axios.put(`/edit/kelas/${id}`, sanitizedData);
+        
+        if (response.data.success) {
+          // Refresh data kelas setelah berhasil mengupdate
+          await this.fetchKelasList();
+          return response.data.data;
+        } else {
+          throw new Error(response.data.message || 'Gagal mengupdate kelas');
+        }
+      } catch (error) {
+        console.error('Error updating kelas:', error);
+        this.error = error.message || 'Terjadi kesalahan saat mengupdate kelas';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Menghapus kelas
+     * @param {number} id - ID kelas yang akan dihapus
+     */
+    async deleteKelas(id) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await axios.delete(`/delete/kelas/${id}`);
+        
+        if (response.data.success) {
+          // Refresh data kelas setelah berhasil menghapus
+          await this.fetchKelasList();
+          return true;
+        } else {
+          throw new Error(response.data.message || 'Gagal menghapus kelas');
+        }
+      } catch (error) {
+        console.error('Error deleting kelas:', error);
+        this.error = error.message || 'Terjadi kesalahan saat menghapus kelas';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Mengambil jumlah siswa per kelas
+     * @param {number} id_kelas - ID kelas
+     */
+    async fetchSiswaCountByKelas(id_kelas) {
+      try {
+        const response = await axios.get(`/list/siswa`)
+        
+        if (response.data.success) {
+          // Filter siswa berdasarkan id_kelas
+          const siswaInKelas = response.data.data.filter(siswa => siswa.id_kelas === id_kelas)
+          return siswaInKelas.length
+        } else {
+          return 0
+        }
+      } catch (error) {
+        console.error('Error fetching siswa count by kelas:', error)
+        return 0
+      }
+    },
+
+    /**
+     * Mengambil daftar kelas dengan jumlah siswa
+     */
+    async fetchKelasListWithSiswaCount() {
+      this.loading = true
+      this.error = null
+      
+      try {
+        // Ambil daftar kelas
+        const kelasResponse = await axios.get('/list/kelas')
+        
+        if (kelasResponse.data.success) {
+          const kelasList = kelasResponse.data.data
+          
+          // Untuk setiap kelas, hitung jumlah siswa
+          const kelasWithCount = await Promise.all(
+            kelasList.map(async (kelas) => {
+              const siswaCount = await this.fetchSiswaCountByKelas(kelas.id_kelas)
+              return {
+                ...kelas,
+                jumlah_siswa: siswaCount
+              }
+            })
+          )
+          
+          this.kelasList = kelasWithCount
+        } else {
+          throw new Error('Gagal mengambil data kelas')
+        }
+      } catch (error) {
+        console.error('Error fetching kelas list with siswa count:', error)
+        this.error = error.message || 'Terjadi kesalahan saat mengambil data kelas'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Membersihkan data currentKelas
      */
     clearCurrentKelas() {
-      this.currentKelas = null
+      this.currentKelas = null;
     }
   }
 })

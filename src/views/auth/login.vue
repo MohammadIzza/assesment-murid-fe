@@ -4,10 +4,10 @@
       <!-- Logo -->
       <div class="text-center">
         <h2 class="text-3xl font-extrabold text-blue-600">
-          Assessment Murid
+          ARASIT
         </h2>
         <p :class="['text-xs', {'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode}]">
-          Sistem Manajemen Guru
+          Asessment Rapor SKL Islam Terpadu
         </p>
       </div>
 

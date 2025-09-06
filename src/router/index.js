@@ -28,6 +28,12 @@ import SiswaList from '@/views/siswa/SiswaList.vue'
 import SiswaEdit from '@/views/siswa/SiswaEdit.vue'
 import SiswaDetail from '@/views/siswa/SiswaDetail.vue'
 
+// Import komponen kelas
+import KelasList from '@/views/kelas/KelasList.vue'
+import KelasDetail from '@/views/kelas/KelasDetail.vue'
+import KelasEdit from '@/views/kelas/KelasEdit.vue'
+import KelasIndex from '@/views/kelas/index.vue'
+
 // Import komponen assessment
 import AssignmentDetail from '@/views/assesment/AssignmentDetail.vue'
 
@@ -239,6 +245,52 @@ const router = createRouter({
             requiresAuth: true,
             title: 'Laporan Nilai'
           }
+        },
+        // Kelas routes
+        {
+          path: 'kelas',
+          name: 'kelas-index',
+          component: KelasIndex,
+          meta: {
+            requiresAuth: true,
+            title: 'Kelas Management',
+          },
+        },
+        {
+          path: 'kelas/list',
+          name: 'kelas-list',
+          component: KelasList,
+          meta: {
+            requiresAuth: true,
+            title: 'Daftar Kelas',
+          },
+        },
+        {
+          path: 'kelas/add',
+          name: 'kelas-add',
+          component: KelasEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Tambah Kelas',
+          },
+        },
+        {
+          path: 'kelas/:id',
+          name: 'kelas-detail',
+          component: KelasDetail,
+          meta: {
+            requiresAuth: true,
+            title: 'Detail Kelas',
+          },
+        },
+        {
+          path: 'kelas/:id/edit',
+          name: 'kelas-edit',
+          component: KelasEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Edit Kelas',
+          },
         },
       ],
     },
