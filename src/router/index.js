@@ -34,6 +34,12 @@ import KelasDetail from '@/views/kelas/KelasDetail.vue'
 import KelasEdit from '@/views/kelas/KelasEdit.vue'
 import KelasIndex from '@/views/kelas/index.vue'
 
+// Import komponen capaian kelas
+import CapaianKelasList from '@/views/capaian_kelas/CapaianKelasList.vue'
+import CapaianKelasDetail from '@/views/capaian_kelas/CapaianKelasDetail.vue'
+import CapaianKelasEdit from '@/views/capaian_kelas/CapaianKelasEdit.vue'
+import CapaianKelasIndex from '@/views/capaian_kelas/index.vue'
+
 // Import komponen assessment
 import AssignmentDetail from '@/views/assesment/AssignmentDetail.vue'
 
@@ -290,6 +296,52 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Edit Kelas',
+          },
+        },
+        // Capaian Kelas routes
+        {
+          path: 'capaian-kelas',
+          name: 'capaian-kelas-index',
+          component: CapaianKelasIndex,
+          meta: {
+            requiresAuth: true,
+            title: 'Capaian Kelas Management',
+          },
+        },
+        {
+          path: 'capaian-kelas/list',
+          name: 'capaian-kelas-list',
+          component: CapaianKelasList,
+          meta: {
+            requiresAuth: true,
+            title: 'Daftar Capaian Kelas',
+          },
+        },
+        {
+          path: 'capaian-kelas/add',
+          name: 'capaian-kelas-add',
+          component: CapaianKelasEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Tambah Capaian Kelas',
+          },
+        },
+        {
+          path: 'capaian-kelas/:id',
+          name: 'capaian-kelas-detail',
+          component: CapaianKelasDetail,
+          meta: {
+            requiresAuth: true,
+            title: 'Detail Capaian Kelas',
+          },
+        },
+        {
+          path: 'capaian-kelas/:id/edit',
+          name: 'capaian-kelas-edit',
+          component: CapaianKelasEdit,
+          meta: {
+            requiresAuth: true,
+            title: 'Edit Capaian Kelas',
           },
         },
       ],
