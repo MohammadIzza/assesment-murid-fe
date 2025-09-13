@@ -3,6 +3,13 @@
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
   ]">
+    <Toast 
+      :show="showToast" 
+      :type="toastType" 
+      :title="toastTitle" 
+      :message="toastMessage" 
+      @close="showToast = false" 
+    />
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div :class="[
@@ -49,7 +56,7 @@
         'rounded-xl shadow-lg border mb-6 p-6',
         isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
       ]">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-col gap-4">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
               <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +74,38 @@
               ]">Tambah capaian kelas baru atau kelola data yang sudah ada</p>
             </div>
           </div>
-          <div class="flex flex-col sm:flex-row gap-3">
+          <!-- Filters -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-xs font-medium mb-1" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Kelas</label>
+              <select v-model="selectedKelas" @change="applyFilters" :class="['w-full px-3 py-2 rounded-lg border', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300']">
+                <option value="">Semua Kelas</option>
+                <option v-for="kls in kelasStore.getSortedKelasList" :key="kls.id_kelas" :value="kls.id_kelas">{{ kls.nama_kelas }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium mb-1" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Dimensi</label>
+              <select v-model="selectedDimensi" @change="onDimensiChange" :class="['w-full px-3 py-2 rounded-lg border', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300']">
+                <option value="">Semua Dimensi</option>
+                <option v-for="d in dimensiStore.getDimensiList" :key="d.id_dimensi" :value="d.id_dimensi">{{ d.nama_dimensi }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium mb-1" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Elemen</label>
+              <select v-model="selectedElemen" @change="onElemenChange" :disabled="!selectedDimensi" :class="['w-full px-3 py-2 rounded-lg border', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300']">
+                <option value="">Semua Elemen</option>
+                <option v-for="e in elemenStore.getElemenList" :key="e.id_elemen" :value="e.id_elemen">{{ e.nama_elemen }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium mb-1" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Sub Elemen</label>
+              <select v-model="selectedSubElemen" @change="applyFilters" :disabled="!selectedElemen" :class="['w-full px-3 py-2 rounded-lg border', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300']">
+                <option value="">Semua Sub Elemen</option>
+                <option v-for="se in subElemenStore.getSubElemenList" :key="se.id_sub_elemen" :value="se.id_sub_elemen">{{ se.nama_sub_elemen }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 justify-end">
             <button 
               @click="goToAddCapaianKelas"
               :class="[
@@ -138,7 +176,11 @@
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID Capaian</th>
+                ]">ID Sub Elemen</th>
+                <th :class="[
+                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">Indikator</th>
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -171,7 +213,13 @@
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ capaianKelas.id_capaian }}</td>
+                ]">{{ capaianKelas.id_sub_elemen || capaianKelas.id_capaian }}</td>
+                <td :class="[
+                  'px-6 py-4 text-sm max-w-xs truncate',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">
+                  <span :title="capaianKelas.indikator">{{ capaianKelas.indikator || '-' }}</span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex items-center space-x-2">
                     <button @click="editCapaianKelas(capaianKelas.id)" :class="[
@@ -180,14 +228,6 @@
                     ]">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                      </svg>
-                    </button>
-                    <button @click="copyCapaianKelas(capaianKelas.id)" :class="[
-                      'text-green-600 hover:text-green-900 px-2 py-1 rounded transition-colors',
-                      isDarkMode ? 'bg-green-900/30 hover:bg-green-900/50' : 'bg-green-50 hover:bg-green-100'
-                    ]">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                       </svg>
                     </button>
                     <button @click="deleteCapaianKelas(capaianKelas.id)" :class="[
@@ -202,7 +242,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedCapaianKelasList.length === 0">
-                <td colspan="6" :class="[
+                <td colspan="7" :class="[
                   'px-6 py-12 text-center',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 ]">
@@ -222,23 +262,41 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCapaianKelasStore } from '@/stores/capaianKelas'
 import { useThemeStore } from '@/stores/theme'
+import { useKelasStore } from '@/stores/kelas'
+import { useDimensiStore } from '@/stores/dimensi'
+import { useElemenStore } from '@/stores/elemen'
+import { useSubElemenStore } from '@/stores/subElemen'
+import Toast from '@/components/common/Toast.vue'
 
 export default {
   name: 'CapaianKelasList',
+  components: { Toast },
   setup() {
     const router = useRouter()
     const capaianKelasStore = useCapaianKelasStore()
-    const themeStore = useThemeStore()
+  const themeStore = useThemeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
+  const kelasStore = useKelasStore()
+  const dimensiStore = useDimensiStore()
+  const elemenStore = useElemenStore()
+  const subElemenStore = useSubElemenStore()
     
     // Reactive data
-    const currentPage = ref(1)
+  const currentPage = ref(1)
     const itemsPerPage = ref(10)
+  // Filters
+  const selectedKelas = ref('')
+  const selectedDimensi = ref('')
+  const selectedElemen = ref('')
+  const selectedSubElemen = ref('')
+  // Toast
+  const showToast = ref(false)
+  const toastType = ref('info')
+  const toastTitle = ref('')
+  const toastMessage = ref('')
 
     // Computed properties
-    const filteredCapaianKelasList = computed(() => {
-      return [...capaianKelasStore.getCapaianKelasList]
-    })
+    const filteredCapaianKelasList = computed(() => [...capaianKelasStore.getCapaianKelasList])
 
     const totalPages = computed(() => {
       return Math.ceil(filteredCapaianKelasList.value.length / itemsPerPage.value)
@@ -253,6 +311,10 @@ export default {
     // Methods
     const loadCapaianKelasData = async () => {
       try {
+        await Promise.all([
+          kelasStore.fetchKelasList(),
+          dimensiStore.fetchDimensiList(),
+        ])
         await capaianKelasStore.fetchCapaianKelasList()
       } catch (error) {
         console.error('Failed to load capaian kelas data:', error)
@@ -267,28 +329,58 @@ export default {
       router.push({ name: 'capaian-kelas-edit', params: { id } })
     }
 
-    const copyCapaianKelas = async (id) => {
-      if (confirm('Apakah Anda yakin ingin menyalin data capaian kelas ini?')) {
-        try {
-          await capaianKelasStore.copyCapaianKelas(id)
-          alert('Data capaian kelas berhasil disalin!')
-        } catch (error) {
-          console.error('Failed to copy capaian kelas:', error)
-          alert('Gagal menyalin data capaian kelas')
-        }
-      }
-    }
-
     const deleteCapaianKelas = async (id) => {
       if (confirm('Apakah Anda yakin ingin menghapus data capaian kelas ini?')) {
         try {
           await capaianKelasStore.deleteCapaianKelas(id)
-          alert('Data capaian kelas berhasil dihapus!')
+          showToast.value = true
+          toastType.value = 'success'
+          toastTitle.value = 'Berhasil'
+          toastMessage.value = 'Data capaian kelas berhasil dihapus'
         } catch (error) {
           console.error('Failed to delete capaian kelas:', error)
-          alert('Gagal menghapus data capaian kelas')
+          showToast.value = true
+          toastType.value = 'error'
+          toastTitle.value = 'Gagal'
+          toastMessage.value = 'Gagal menghapus data capaian kelas'
         }
       }
+    }
+
+    const onDimensiChange = async () => {
+      if (!selectedDimensi.value) {
+        elemenStore.elemenList = []
+        subElemenStore.subElemenList = []
+        selectedElemen.value = ''
+        selectedSubElemen.value = ''
+        await applyFilters()
+        return
+      }
+      await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
+      selectedElemen.value = ''
+      selectedSubElemen.value = ''
+      subElemenStore.subElemenList = []
+      await applyFilters()
+    }
+
+    const onElemenChange = async () => {
+      if (!selectedElemen.value) {
+        subElemenStore.subElemenList = []
+        selectedSubElemen.value = ''
+        await applyFilters()
+        return
+      }
+      await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
+      selectedSubElemen.value = ''
+      await applyFilters()
+    }
+
+    const applyFilters = async () => {
+      await capaianKelasStore.fetchCapaianKelasFiltered({
+        id_kelas: selectedKelas.value || undefined,
+        id_sub_elemen: selectedSubElemen.value || undefined,
+      })
+      currentPage.value = 1
     }
 
     // Lifecycle
@@ -308,8 +400,25 @@ export default {
       loadCapaianKelasData,
       goToAddCapaianKelas,
       editCapaianKelas,
-      copyCapaianKelas,
-      deleteCapaianKelas
+      deleteCapaianKelas,
+      // filters
+      kelasStore,
+      dimensiStore,
+      elemenStore,
+      subElemenStore,
+      selectedKelas,
+      selectedDimensi,
+      selectedElemen,
+      selectedSubElemen,
+      onDimensiChange,
+      onElemenChange,
+      applyFilters,
+      // toast
+      Toast,
+      showToast,
+      toastType,
+      toastTitle,
+      toastMessage
     }
   }
 }

@@ -3,6 +3,14 @@
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gradient-to-br from-purple-50 via-white to-indigo-50'
   ]">
+    <!-- Toast Notifications -->
+    <Toast 
+      :show="showToast" 
+      :type="toastType" 
+      :title="toastTitle" 
+      :message="toastMessage" 
+      @close="showToast = false" 
+    />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
@@ -177,6 +185,33 @@
                   placeholder="Masukkan nama capaian kelas (contoh: tes capaian)"
                 />
               </div>
+
+              <!-- Indikator (opsional) -->
+              <div class="group">
+                <label for="indikator" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Indikator <span class="text-xs ml-1 text-gray-400">(opsional)</span>
+                  </span>
+                </label>
+                <textarea
+                  v-model="form.indikator"
+                  id="indikator"
+                  rows="4"
+                  @input="watchFormChanges"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
+                  placeholder="Tuliskan indikator capaian jika tersedia"
+                />
+                <p :class="['mt-1 text-xs', isDarkMode ? 'text-gray-400' : 'text-gray-500']">Catatan: Server saat ini mungkin belum menyimpan field ini saat tambah/edit.</p>
+              </div>
             </div>
 
             <!-- Additional Information -->
@@ -226,34 +261,7 @@
                 />
               </div>
 
-              <!-- ID Capaian -->
-              <div class="group">
-                <label for="id_capaian" :class="[
-                  'block text-sm font-medium mb-2',
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                ]">
-                  <span class="flex items-center">
-                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    ID Capaian <span class="text-red-500 ml-1">*</span>
-                  </span>
-                </label>
-                <input
-                  v-model="form.id_capaian"
-                  type="number"
-                  id="id_capaian"
-                  required
-                  @input="watchFormChanges"
-                  :class="[
-                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
-                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
-                  ]"
-                  placeholder="Masukkan ID capaian (contoh: 1)"
-                />
-              </div>
-
-              <!-- ID Kelas -->
+              <!-- Pilih Kelas -->
               <div class="group">
                 <label for="id_kelas" :class="[
                   'block text-sm font-medium mb-2',
@@ -261,23 +269,118 @@
                 ]">
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253"></path>
                     </svg>
-                    ID Kelas <span class="text-red-500 ml-1">*</span>
+                    Kelas <span class="text-red-500 ml-1">*</span>
                   </span>
                 </label>
-                <input
+                <select
                   v-model="form.id_kelas"
-                  type="number"
                   id="id_kelas"
                   required
-                  @input="watchFormChanges"
+                  @change="watchFormChanges"
                   :class="[
-                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
-                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
                   ]"
-                  placeholder="Masukkan ID kelas (contoh: 1)"
-                />
+                >
+                  <option value="" disabled>Pilih Kelas</option>
+                  <option v-for="kls in kelasStore.getSortedKelasList" :key="kls.id_kelas" :value="kls.id_kelas">
+                    {{ kls.nama_kelas }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Pilih Dimensi -->
+              <div class="group">
+                <label for="id_dimensi" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Dimensi <span class="text-red-500 ml-1">*</span>
+                  </span>
+                </label>
+                <select
+                  v-model="selectedDimensi"
+                  id="id_dimensi"
+                  required
+                  @change="onDimensiChange"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
+                  ]"
+                >
+                  <option value="" disabled>Pilih Dimensi</option>
+                  <option v-for="d in dimensiStore.getDimensiList" :key="d.id_dimensi" :value="d.id_dimensi">
+                    {{ d.nama_dimensi }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Pilih Elemen -->
+              <div class="group">
+                <label for="id_elemen" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Elemen <span class="text-red-500 ml-1">*</span>
+                  </span>
+                </label>
+                <select
+                  v-model="selectedElemen"
+                  id="id_elemen"
+                  required
+                  :disabled="!selectedDimensi"
+                  @change="onElemenChange"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
+                  ]"
+                >
+                  <option value="" disabled>Pilih Elemen</option>
+                  <option v-for="e in elemenStore.getElemenList" :key="e.id_elemen" :value="e.id_elemen">
+                    {{ e.nama_elemen }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Pilih Sub Elemen -->
+              <div class="group">
+                <label for="id_sub_elemen" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Sub Elemen <span class="text-red-500 ml-1">*</span>
+                  </span>
+                </label>
+                <select
+                  v-model="form.id_sub_elemen"
+                  id="id_sub_elemen"
+                  required
+                  :disabled="!selectedElemen"
+                  @change="watchFormChanges"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
+                  ]"
+                >
+                  <option value="" disabled>Pilih Sub Elemen</option>
+                  <option v-for="se in subElemenStore.getSubElemenList" :key="se.id_sub_elemen" :value="se.id_sub_elemen">
+                    {{ se.nama_sub_elemen }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -343,9 +446,16 @@ import { reactive, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCapaianKelasStore } from '@/stores/capaianKelas'
 import { useThemeStore } from '@/stores/theme'
+import { useKelasStore } from '@/stores/kelas'
+import { useDimensiStore } from '@/stores/dimensi'
+import { useElemenStore } from '@/stores/elemen'
+import { useSubElemenStore } from '@/stores/subElemen'
+import axios from '@/plugins/axios'
+import Toast from '@/components/common/Toast.vue'
 
 export default {
   name: 'CapaianKelasEdit',
+  components: { Toast },
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -358,15 +468,32 @@ export default {
       kode_ck: '',
       nama_ck: '',
       id_sekolah: '',
-      id_capaian: '',
-      id_kelas: ''
+      id_kelas: '',
+      // gunakan id_sub_elemen untuk pemilihan; store akan memetakan ke id_capaian bila perlu
+      id_sub_elemen: '',
+      indikator: ''
     })
 
-    const isSubmitting = ref(false)
+  const isSubmitting = ref(false)
     const formValid = ref(false)
+  // Toast state
+  const showToast = ref(false)
+  const toastType = ref('info')
+  const toastTitle = ref('')
+  const toastMessage = ref('')
 
     // Computed
     const isAddMode = computed(() => !route.params.id)
+
+    // Stores for cascading
+    const kelasStore = useKelasStore()
+    const dimensiStore = useDimensiStore()
+    const elemenStore = useElemenStore()
+    const subElemenStore = useSubElemenStore()
+
+    // Cascading selections
+    const selectedDimensi = ref('')
+    const selectedElemen = ref('')
 
     // Watch form changes for validation
     const checkFormValidity = () => {
@@ -374,7 +501,7 @@ export default {
         form.kode_ck.trim() &&
         form.nama_ck.trim() &&
         form.id_sekolah &&
-        form.id_capaian &&
+        form.id_sub_elemen &&
         form.id_kelas
       )
     }
@@ -388,18 +515,45 @@ export default {
           form.kode_ck = capaianKelas.kode_ck || ''
           form.nama_ck = capaianKelas.nama_ck || ''
           form.id_sekolah = capaianKelas.id_sekolah || ''
-          form.id_capaian = capaianKelas.id_capaian || ''
           form.id_kelas = capaianKelas.id_kelas || ''
+          form.id_sub_elemen = capaianKelas.id_sub_elemen || capaianKelas.id_capaian || ''
+          form.indikator = capaianKelas.indikator || ''
+
+          // Prefill cascading chains using backend lookups
+          if (form.id_sub_elemen) {
+            try {
+              const { data: seRes } = await axios.get(`/view/sub_elemen/${form.id_sub_elemen}`)
+              const id_elemen = seRes?.data?.id_elemen
+              if (id_elemen) {
+                const { data: eRes } = await axios.get(`/view/elemen/${id_elemen}`)
+                const id_dimensi = eRes?.data?.id_dimensi
+                if (id_dimensi) {
+                  selectedDimensi.value = String(id_dimensi)
+                  await elemenStore.fetchElemenByDimensi(id_dimensi)
+                  selectedElemen.value = String(id_elemen)
+                  await subElemenStore.fetchSubElemenByElemen(id_elemen)
+                }
+              }
+            } catch (e) {
+              console.warn('Gagal prefill chain dimensi/elemen:', e)
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load capaian kelas detail:', error)
-        alert('Gagal memuat data capaian kelas')
+        showToast.value = true
+        toastType.value = 'error'
+        toastTitle.value = 'Gagal'
+        toastMessage.value = 'Gagal memuat data capaian kelas'
       }
     }
 
     const submitForm = async () => {
-      if (!form.kode_ck || !form.nama_ck || !form.id_sekolah || !form.id_capaian || !form.id_kelas) {
-        alert('Mohon lengkapi semua field yang wajib diisi')
+      if (!form.kode_ck || !form.nama_ck || !form.id_sekolah || !form.id_sub_elemen || !form.id_kelas) {
+        showToast.value = true
+        toastType.value = 'warning'
+        toastTitle.value = 'Validasi'
+        toastMessage.value = 'Mohon lengkapi semua field yang wajib diisi'
         return
       }
 
@@ -410,25 +564,35 @@ export default {
           kode_ck: form.kode_ck,
           nama_ck: form.nama_ck,
           id_sekolah: parseInt(form.id_sekolah),
-          id_capaian: parseInt(form.id_capaian),
-          id_kelas: parseInt(form.id_kelas)
+          id_sub_elemen: parseInt(form.id_sub_elemen),
+          id_kelas: parseInt(form.id_kelas),
+          indikator: form.indikator,
         }
 
         if (isAddMode.value) {
           // Add new capaian kelas
           await capaianKelasStore.addCapaianKelas(formData)
-          alert('Capaian kelas baru berhasil ditambahkan!')
-          router.push({ name: 'capaian-kelas-list' })
+          showToast.value = true
+          toastType.value = 'success'
+          toastTitle.value = 'Berhasil'
+          toastMessage.value = 'Capaian kelas baru berhasil ditambahkan'
+          setTimeout(() => router.push({ name: 'capaian-kelas-list' }), 800)
         } else {
           // Update existing capaian kelas
           await capaianKelasStore.updateCapaianKelas(route.params.id, formData)
-          alert('Data capaian kelas berhasil diperbarui!')
-          router.push({ name: 'capaian-kelas-detail', params: { id: route.params.id } })
+          showToast.value = true
+          toastType.value = 'success'
+          toastTitle.value = 'Berhasil'
+          toastMessage.value = 'Data capaian kelas berhasil diperbarui'
+          setTimeout(() => router.push({ name: 'capaian-kelas-detail', params: { id: route.params.id } }), 800)
         }
 
       } catch (error) {
         console.error('Failed to save capaian kelas:', error)
-        alert(isAddMode.value ? 'Gagal menambahkan capaian kelas baru' : 'Gagal menyimpan data capaian kelas')
+        showToast.value = true
+        toastType.value = 'error'
+        toastTitle.value = 'Gagal'
+        toastMessage.value = isAddMode.value ? 'Gagal menambahkan capaian kelas baru' : 'Gagal menyimpan data capaian kelas'
       } finally {
         isSubmitting.value = false
       }
@@ -448,9 +612,31 @@ export default {
     }
 
     // Lifecycle
-    onMounted(() => {
+    const onDimensiChange = async () => {
+      if (!selectedDimensi.value) return
+      await elemenStore.fetchElemenByDimensi(selectedDimensi.value)
+      selectedElemen.value = ''
+      form.id_sub_elemen = ''
+      // clear sub elemen list when dimensi changes
+      subElemenStore.subElemenList = []
+      watchFormChanges()
+    }
+
+    const onElemenChange = async () => {
+      if (!selectedElemen.value) return
+      await subElemenStore.fetchSubElemenByElemen(selectedElemen.value)
+      form.id_sub_elemen = ''
+      watchFormChanges()
+    }
+
+    onMounted(async () => {
+      // load initial lists
+      await Promise.all([
+        kelasStore.fetchKelasList(),
+        dimensiStore.fetchDimensiList()
+      ])
       if (!isAddMode.value) {
-        loadCapaianKelasDetail()
+        await loadCapaianKelasDetail()
       }
       checkFormValidity()
     })
@@ -465,7 +651,21 @@ export default {
       isDarkMode,
       submitForm,
       goBack,
-      watchFormChanges
+      watchFormChanges,
+      // cascading bindings
+      kelasStore,
+      dimensiStore,
+      elemenStore,
+      subElemenStore,
+      selectedDimensi,
+      selectedElemen,
+      onDimensiChange,
+      onElemenChange,
+      // toast
+      showToast,
+      toastType,
+      toastTitle,
+      toastMessage
     }
   }
 }

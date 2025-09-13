@@ -28,13 +28,57 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
         const response = await axios.get('/list/capaian_kelas')
         
         if (response.data.success) {
-          this.capaianKelasList = response.data.data
+          // Normalisasi field agar konsisten di UI
+          this.capaianKelasList = (response.data.data || []).map((row) => ({
+            ...row,
+            // Beberapa versi backend menyimpan relasi sebagai id_sub_elemen,
+            // sebagian kode lama menggunakan nama id_capaian. Samakan di UI.
+            id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
+            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
+            indikator: row.indikator ?? row.indicator ?? '',
+          }))
         } else {
           throw new Error('Gagal mengambil data capaian kelas')
         }
       } catch (error) {
         console.error('Error fetching capaian kelas list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data capaian kelas'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Mengambil daftar capaian_kelas berdasarkan filter berantai
+     * - Jika id_kelas dan id_sub_elemen tersedia, gunakan endpoint filter backend
+     * - Jika hanya id_kelas tersedia, fallback ambil semua lalu filter client-side
+     */
+    async fetchCapaianKelasFiltered({ id_kelas, id_sub_elemen }) {
+      this.loading = true
+      this.error = null
+      try {
+        if (id_kelas && id_sub_elemen) {
+          const res = await axios.get(`/filter/capaian_kelas/${id_sub_elemen}/${id_kelas}`)
+          if (!res.data?.success) throw new Error('Gagal mengambil data capaian kelas terfilter')
+          this.capaianKelasList = (res.data.data || []).map((row) => ({
+            ...row,
+            id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
+            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
+            indikator: row.indikator ?? row.indicator ?? '',
+          }))
+          return this.capaianKelasList
+        }
+        // Fallback: ambil semua lalu filter lokal
+        await this.fetchCapaianKelasList()
+        let list = [...this.capaianKelasList]
+        if (id_kelas) list = list.filter((r) => String(r.id_kelas) === String(id_kelas))
+        if (id_sub_elemen) list = list.filter((r) => String(r.id_sub_elemen) === String(id_sub_elemen))
+        this.capaianKelasList = list
+        return list
+      } catch (error) {
+        console.error('Error fetching filtered capaian_kelas:', error)
+        this.error = error.message || 'Terjadi kesalahan saat mengambil data (filter)'
         throw error
       } finally {
         this.loading = false
@@ -53,7 +97,13 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
         const response = await axios.get(`/view/capaian_kelas/${id}`)
         
         if (response.data.success) {
-          this.currentCapaianKelas = response.data.data
+          const row = response.data.data
+          this.currentCapaianKelas = {
+            ...row,
+            id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
+            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
+            indikator: row.indikator ?? row.indicator ?? '',
+          }
         } else {
           throw new Error('Gagal mengambil detail capaian kelas')
         }
@@ -75,7 +125,14 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
       this.error = null
       
       try {
-        const response = await axios.post('/add/capaian_kelas', capaianKelasData)
+        // Backend addRouter mengharapkan field id_capaian,
+        // sementara secara domain kita memilih Sub Elemen. Map aman di sini.
+        const payload = {
+          ...capaianKelasData,
+          id_capaian: capaianKelasData.id_capaian ?? capaianKelasData.id_sub_elemen,
+          indikator: capaianKelasData.indikator ?? '',
+        }
+        const response = await axios.post('/add/capaian_kelas', payload)
         
         if (response.data.success) {
           // Refresh list setelah berhasil menambah
@@ -103,12 +160,18 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
       this.error = null
       
       try {
-        const response = await axios.put(`/update/capaian_kelas/${id}`, capaianKelasData)
+        // Samakan mapping seperti add
+        const payload = {
+          ...capaianKelasData,
+          id_capaian: capaianKelasData.id_capaian ?? capaianKelasData.id_sub_elemen,
+          indikator: capaianKelasData.indikator ?? this.currentCapaianKelas?.indikator ?? '',
+        }
+        const response = await axios.put(`/update/capaian_kelas/${id}`, payload)
         
         if (response.data.success) {
           // Update current capaian kelas jika sedang melihat detail
           if (this.currentCapaianKelas && this.currentCapaianKelas.id === id) {
-            this.currentCapaianKelas = { ...this.currentCapaianKelas, ...capaianKelasData }
+            this.currentCapaianKelas = { ...this.currentCapaianKelas, ...payload }
           }
           // Refresh list
           await this.fetchCapaianKelasList()
@@ -156,32 +219,8 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
       }
     },
 
-    /**
-     * Menyalin capaian kelas
-     * @param {number} id - ID capaian kelas yang akan disalin
-     */
-    async copyCapaianKelas(id) {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await axios.post(`/copy/capaian_kelas/${id}`)
-        
-        if (response.data.success) {
-          // Refresh list setelah berhasil menyalin
-          await this.fetchCapaianKelasList()
-          return response.data
-        } else {
-          throw new Error(response.data.message || 'Gagal menyalin capaian kelas')
-        }
-      } catch (error) {
-        console.error('Error copying capaian kelas:', error)
-        this.error = error.message || 'Terjadi kesalahan saat menyalin capaian kelas'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
+    // Catatan: backend tidak menyediakan endpoint copy capaian_kelas.
+    // Fitur copy dihapus dari store untuk mencegah error.
 
     /**
      * Membersihkan data currentCapaianKelas
