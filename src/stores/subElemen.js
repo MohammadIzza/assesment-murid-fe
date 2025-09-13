@@ -22,7 +22,8 @@ export const useSubElemenStore = defineStore('subElemen', {
       this.error = null
       
       try {
-        const response = await axios.get(`/list/sub_elemen?id_elemen=${id_elemen}`)
+        // Backend menyediakan endpoint filter khusus: /filter/elemen/:id/sub-elemen
+        const response = await axios.get(`/filter/elemen/${id_elemen}/sub-elemen`)
         
         if (response.data.success) {
           this.subElemenList = response.data.data

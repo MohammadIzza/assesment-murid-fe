@@ -22,7 +22,8 @@ export const useElemenStore = defineStore('elemen', {
       this.error = null
       
       try {
-        const response = await axios.get(`/list/elemen?id_dimensi=${id_dimensi}`)
+        // Backend menyediakan endpoint filter khusus: /filter/dimensi/:id/elemen
+        const response = await axios.get(`/filter/dimensi/${id_dimensi}/elemen`)
         
         if (response.data.success) {
           this.elemenList = response.data.data

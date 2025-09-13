@@ -488,25 +488,22 @@ const onSubElemenChange = async () => {
   capaianList.value = []
   
   if (form.value.id_sub_elemen && form.value.id_kelas) {
-    const kelas = kelasList.value.find(k => k.id_kelas == form.value.id_kelas)
-    const id_fase = getIdFaseFromKelas(kelas?.nama_kelas || '')
-    
-    if (id_fase) {
-      try {
-        const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${form.value.id_sub_elemen}`)
-        
-        if (response.data.success) {
-          capaianList.value = response.data.data || []
-        } else {
-          console.warn('No capaian data returned from API')
-          capaianList.value = []
-        }
-      } catch (error) {
-        console.error('Error fetching capaian list:', error)
-        capaianList.value = []
-      }
-    } else {
-      console.warn('Tidak bisa menentukan id_fase dari kelas:', kelas?.nama_kelas)
+    try {
+      // Use list endpoint directly and filter client-side to avoid 404s on filter endpoints
+      const listRes = await axios.get('/list/capaian_kelas')
+      const rows = (listRes.data?.success ? listRes.data.data : [])
+        .filter(r => r.id_kelas == form.value.id_kelas && r.id_sub_elemen == form.value.id_sub_elemen)
+
+      // Normalize options: id_capaian, deskripsi (nama_ck/kode_ck), id_ck (primary key), id_sub_elemen
+      capaianList.value = (rows || []).map(r => ({
+        id_capaian: r.id_capaian,
+        deskripsi: r.nama_ck || `Capaian ${r.kode_ck || r.id_capaian}`,
+        id_ck: r.id,
+        id_sub_elemen: r.id_sub_elemen
+      }))
+    } catch (error) {
+      console.error('Error fetching capaian_kelas list:', error)
+      capaianList.value = []
     }
   }
   updateAssessmentName()
@@ -516,21 +513,21 @@ const onCapaianChange = async () => {
   // When capaian changes, fetch the assessment count for this capaian
   if (form.value.id_capaian) {
     try {
-      const response = await axios.get(`/list/assessment?id_capaian=${form.value.id_capaian}`)
-      if (response.data.success) {
-        // Count how many assessments already exist for this capaian
-        const existingAssessments = response.data.data.filter(a => a.id_capaian == form.value.id_capaian)
-        
-        // If editing, don't count the current assessment
-        if (props.isEdit && props.selectedAssessment) {
-          const filteredAssessments = existingAssessments.filter(
-            a => a.id_assessment != props.selectedAssessment.id_assessment
-          )
-          assessmentNumber.value = filteredAssessments.length + 1
-        } else {
-          assessmentNumber.value = existingAssessments.length + 1
-        }
+      // Need to count by capaian_kelas, so map selected id_capaian to its ck id for this kelas+sub elemen
+      const rows = capaianList.value || []
+      const ck = rows.find(r => r.id_capaian == form.value.id_capaian)
+      if (!ck) { assessmentNumber.value = 1; updateAssessmentName(); return }
+      // Prefer list endpoint directly to avoid 404s on filter endpoints
+      let existing = []
+      const listRes = await axios.get('/list/assessment')
+      if (listRes.data?.success) {
+        existing = (listRes.data.data || []).filter(a => a.id_capaian_kelas == ck.id_ck)
       }
+      // If editing, exclude current assessment id if present
+      const count = props.isEdit && props.selectedAssessment
+        ? existing.filter(a => a.id_assessment != props.selectedAssessment.id_assessment).length
+        : existing.length
+      assessmentNumber.value = (count || 0) + 1
     } catch (error) {
       console.error('Error fetching assessment count:', error)
       assessmentNumber.value = 1

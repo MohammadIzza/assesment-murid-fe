@@ -252,6 +252,33 @@
                   placeholder="Masukkan ID capaian (contoh: 1)"
                 />
               </div>
+
+              <!-- ID Kelas -->
+              <div class="group">
+                <label for="id_kelas" :class="[
+                  'block text-sm font-medium mb-2',
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                ]">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    ID Kelas <span class="text-red-500 ml-1">*</span>
+                  </span>
+                </label>
+                <input
+                  v-model="form.id_kelas"
+                  type="number"
+                  id="id_kelas"
+                  required
+                  @input="watchFormChanges"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
+                  ]"
+                  placeholder="Masukkan ID kelas (contoh: 1)"
+                />
+              </div>
             </div>
           </div>
 
@@ -331,7 +358,8 @@ export default {
       kode_ck: '',
       nama_ck: '',
       id_sekolah: '',
-      id_capaian: ''
+      id_capaian: '',
+      id_kelas: ''
     })
 
     const isSubmitting = ref(false)
@@ -346,7 +374,8 @@ export default {
         form.kode_ck.trim() &&
         form.nama_ck.trim() &&
         form.id_sekolah &&
-        form.id_capaian
+        form.id_capaian &&
+        form.id_kelas
       )
     }
 
@@ -360,6 +389,7 @@ export default {
           form.nama_ck = capaianKelas.nama_ck || ''
           form.id_sekolah = capaianKelas.id_sekolah || ''
           form.id_capaian = capaianKelas.id_capaian || ''
+          form.id_kelas = capaianKelas.id_kelas || ''
         }
       } catch (error) {
         console.error('Failed to load capaian kelas detail:', error)
@@ -368,7 +398,7 @@ export default {
     }
 
     const submitForm = async () => {
-      if (!form.kode_ck || !form.nama_ck || !form.id_sekolah || !form.id_capaian) {
+      if (!form.kode_ck || !form.nama_ck || !form.id_sekolah || !form.id_capaian || !form.id_kelas) {
         alert('Mohon lengkapi semua field yang wajib diisi')
         return
       }
@@ -380,7 +410,8 @@ export default {
           kode_ck: form.kode_ck,
           nama_ck: form.nama_ck,
           id_sekolah: parseInt(form.id_sekolah),
-          id_capaian: parseInt(form.id_capaian)
+          id_capaian: parseInt(form.id_capaian),
+          id_kelas: parseInt(form.id_kelas)
         }
 
         if (isAddMode.value) {

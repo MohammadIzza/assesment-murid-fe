@@ -1101,22 +1101,11 @@ const getSubElemenForElemen = (id_elemen) => {
   return subElemenList.value.filter(se => se.id_elemen == id_elemen);
 }
 
-// Get Capaian for a Sub Elemen, filtered by the current fase
+// Get Capaian for a Sub Elemen
 const getCapaianForSubElemen = (id_sub_elemen) => {
   if (!id_sub_elemen || !selectedKelas.value) return [];
-  
-  // Get the fase from the selected kelas
-  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
-  if (!kelas) return [];
-  
-  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
-  if (!id_fase) return [];
-  
-  // Filter capaian by both sub_elemen and fase
-  return capaianList.value.filter(c => 
-    c.id_sub_elemen == id_sub_elemen && 
-    c.id_fase == id_fase
-  );
+  // Filter by sub elemen saja; fase diasumsikan dari kelas saat fetch
+  return capaianList.value.filter(c => c.id_sub_elemen == id_sub_elemen);
 }
 
 // Fetch data functions
@@ -1158,9 +1147,17 @@ const fetchSubElemenList = async () => {
 
 const fetchCapaianList = async (id_fase, id_sub_elemen) => {
   try {
-    const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${id_sub_elemen}`)
-    if (response.data.success) {
-      capaianList.value = response.data.data || []
+    const res = await axios.get('/list/capaian_kelas')
+    if (res.data.success) {
+      let list = res.data.data || []
+      if (selectedKelas.value) list = list.filter(x => x.id_kelas == selectedKelas.value)
+      if (id_sub_elemen) list = list.filter(x => x.id_sub_elemen == id_sub_elemen)
+      capaianList.value = list.map(x => ({
+        id_capaian: x.id_capaian,
+        deskripsi: x.nama_ck || `Capaian ${x.kode_ck || x.id_capaian}`,
+        id_sub_elemen: x.id_sub_elemen,
+        id_ck: x.id
+      }))
     } else {
       capaianList.value = []
     }
@@ -1218,6 +1215,12 @@ const fetchNilaiSiswa = async () => {
     const allAssessments = responseAssessments.data.data || [];
     console.log('All assessments:', allAssessments.length);
     
+    // Step 1.5: Fetch capaian_kelas map for current kelas to translate id_capaian_kelas -> id_capaian
+    const resCk = await axios.get('/list/capaian_kelas');
+    const ckList = (resCk.data?.success ? resCk.data.data : [])
+      .filter(ck => ck.id_kelas == selectedKelas.value);
+    const ckIdToCapaianId = new Map(ckList.map(ck => [ck.id, ck.id_capaian]));
+
     // Step 2: Fetch all nilai
     const responseNilai = await axios.get(`/list/nilai`);
     
@@ -1252,15 +1255,17 @@ const fetchNilaiSiswa = async () => {
     });
     
     // Step 5: Process each capaian to get assessment values
-    const capaianIds = [...new Set(assessmentList.map(a => a.id_capaian))];
+    // Translate assessment.id_capaian_kelas -> id_capaian using ck map
+    const capaianIds = [...new Set(assessmentList
+      .map(a => ckIdToCapaianId.get?.(a.id_capaian_kelas))
+      .filter(Boolean))];
     
     capaianIds.forEach(id_capaian => {
       // Get all assessments for this capaian that have nilai data
-      const assessmentsForCapaian = assessmentList.filter(a =>
-        a.id_capaian == id_capaian &&
-        a.nilai &&
-        Object.keys(a.nilai).length > 0
-      );
+      const assessmentsForCapaian = assessmentList.filter(a => {
+        const capId = ckIdToCapaianId.get?.(a.id_capaian_kelas);
+        return capId == id_capaian && a.nilai && Object.keys(a.nilai).length > 0;
+      });
       
       // Sort by creation date or ID to maintain order
       assessmentsForCapaian.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
@@ -1335,31 +1340,12 @@ function getIdFaseFromKelas(namaKelas) {
 
 const fetchAllCapaianForKelas = async () => {
   if (!selectedKelas.value) return;
-  
   const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
   if (!kelas) return;
-  
   const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
   if (!id_fase) return;
-  
   try {
-    // If sub_elemen is selected, fetch capaian for that specific sub_elemen and fase
-    if (selectedSubElemen.value) {
-      const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
-      if (response.data.success) {
-        capaianList.value = response.data.data || [];
-      } else {
-        capaianList.value = [];
-      }
-    } else {
-      // Fetch all capaian for this fase
-      const response = await axios.get(`/list/capaian?id_fase=${id_fase}`);
-      if (response.data.success) {
-        capaianList.value = response.data.data.filter(c => c.id_fase == id_fase) || [];
-      } else {
-        capaianList.value = [];
-      }
-    }
+    await fetchCapaianList(id_fase, selectedSubElemen.value)
   } catch (error) {
     console.error('Error fetching capaian list:', error);
     capaianList.value = [];
@@ -1433,15 +1419,7 @@ const onSubElemenChange = async () => {
       const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
       if (id_fase) {
         try {
-          // Fetch capaian filtered by both fase and sub_elemen
-          const response = await axios.get(`/filter/capaian?id_fase=${id_fase}&id_sub_elemen=${selectedSubElemen.value}`);
-          
-          if (response.data.success) {
-            capaianList.value = response.data.data || [];
-          } else {
-            capaianList.value = [];
-            console.warn('No capaian data returned from API');
-          }
+          await fetchCapaianList(id_fase, selectedSubElemen.value)
         } catch (error) {
           console.error('Error fetching capaian list:', error);
           capaianList.value = [];
@@ -1540,16 +1518,58 @@ const saveAssessment = async (formData) => {
       showSuccessToast('Assessment berhasil diperbarui')
     } else {
       // Prepare assessment data with proper validation
+      // Resolve id_capaian_kelas (ck) based on selected kelas + sub elemen + id_capaian
+      const id_kelas = selectedKelas.value || formData.id_kelas
+      const id_sub_elemen = selectedSubElemen.value || formData.id_sub_elemen
+      const id_capaian = parseInt(formData.id_capaian)
+
+      if (!id_kelas || !id_sub_elemen || !id_capaian) {
+        throw new Error('Kelas, Sub Elemen, dan Capaian wajib dipilih')
+      }
+
+      // Try resolve CK locally from current capaianList first (fast path)
+      let targetCkId = null
+      const localMatch = capaianList.value.find(c =>
+        c.id_capaian == id_capaian && c.id_sub_elemen == id_sub_elemen && c.id_ck
+      )
+      if (localMatch) {
+        targetCkId = localMatch.id_ck
+      } else {
+        // Fallback 1: Try filter endpoint (if available)
+        let ckRows = []
+        try {
+          const ckRes = await axios.get(`/filter/capaian_kelas/${id_sub_elemen}/${id_kelas}`)
+          if (ckRes.data?.success) ckRows = ckRes.data.data || []
+        } catch (e) {
+          // Ignore and proceed to final fallback
+        }
+
+        if (!ckRows.length) {
+          // Fallback 2: Use list endpoint and filter client-side
+          const listRes = await axios.get('/list/capaian_kelas')
+          if (!listRes.data?.success) {
+            throw new Error('Gagal mengambil data capaian_kelas')
+          }
+          ckRows = (listRes.data.data || []).filter(r => r.id_kelas == id_kelas && r.id_sub_elemen == id_sub_elemen)
+        }
+
+        const found = ckRows.find(r => r.id_capaian == id_capaian)
+        if (!found) {
+          throw new Error('Capaian terpilih tidak terdaftar pada kelas/sub elemen ini')
+        }
+        targetCkId = found.id
+      }
+
       const assessmentPayload = {
-        id_capaian: parseInt(formData.id_capaian),
+        id_capaian_kelas: targetCkId,
         nama_assessment: formData.nama_assessment || `Assessment ${Date.now()}`,
         deskripsi: formData.deskripsi || 'Assessment otomatis',
         bobot: parseInt(formData.bobot) || 20
       };
 
       console.log('Sending assessment data:', assessmentPayload);
-      
-      // Fix: Use correct endpoint with leading slash
+
+      // Use correct endpoint
       const res = await axios.post('/add/assessment', assessmentPayload);
       
       if (!res.data.success) {
