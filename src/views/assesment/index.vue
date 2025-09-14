@@ -1506,7 +1506,7 @@ const saveAssessment = async (formData) => {
       formData.assessmentNumber = currentEditingAssessment.value.assessmentNumber;
     }
     
-    let id_assessment = null; // Initialize id_assessment
+  let id_assessment = null; // Initialize id_assessment
 
     if (isEditMode.value) {
       await assessmentStore.updateAssessment(selectedAssessment.value.id_assessment, formData)
@@ -1578,23 +1578,66 @@ const saveAssessment = async (formData) => {
     }
 
     // Resolve id_pengampu: map current guru + selected kelas to pengampu.id_pengampu
-    // Prefer guruStore.currentGuru if available, else fallback by email
+    // Prefer guruStore.currentGuru if available, else fallback by email, else attempt to create mapping
     let currentGuruId = guruStore.getCurrentGuruId
+    try {
+      if (!currentGuruId) {
+        await guruStore.fetchCurrentGuruFromToken()
+        currentGuruId = guruStore.getCurrentGuruId
+      }
+    } catch (e) {
+      // ignore, fallback next
+    }
+
     if (!currentGuruId) {
-      // try resolve from email list
       const email = authStore.getUser?.email
-      const found = guruStore.getGuruList.find(g => String(g.email).toLowerCase() === String(email||'').toLowerCase())
+      const found = guruStore.getGuruList.find(g => String(g.email || '').toLowerCase() === String(email || '').toLowerCase())
       currentGuruId = found?.id_guru || null
     }
 
+    const kelasIdForMapping = selectedKelas.value || formData.id_kelas
+
     let id_pengampu_resolved = null
-    if (currentGuruId && selectedKelas.value) {
-      const match = pengampuList.value.find(p => p.id_guru == currentGuruId && p.id_kelas == selectedKelas.value)
+    if (currentGuruId && kelasIdForMapping) {
+      const match = pengampuList.value.find(p => p.id_guru == currentGuruId && p.id_kelas == kelasIdForMapping)
       id_pengampu_resolved = match?.id_pengampu || null
     }
 
+    // Helper to derive tahun ajaran when creating a mapping
+    const deriveTahunAjaran = () => {
+      const kelasObj = kelasList.value?.find?.(k => k.id_kelas == kelasIdForMapping)
+      if (kelasObj?.tahun_ajaran) return kelasObj.tahun_ajaran
+      const now = new Date()
+      const year = now.getFullYear()
+      const startYear = now.getMonth() + 1 >= 7 ? year : year - 1
+      return `${startYear}/${startYear + 1}`
+    }
+
+    // If pengampu mapping not found, attempt to create one automatically
     if (!id_pengampu_resolved) {
-      throw new Error('Pengampu untuk guru/kelas ini tidak ditemukan. Pastikan mapping pengampu sudah ada.');
+      if (!currentGuruId || !kelasIdForMapping) {
+        throw new Error('Pengampu untuk guru/kelas ini tidak ditemukan dan tidak bisa dibuat otomatis (guru/kelas tidak valid).')
+      }
+      try {
+        const payloadPengampu = {
+          id_guru: Number(currentGuruId),
+          id_kelas: Number(kelasIdForMapping),
+          tahun_ajaran: deriveTahunAjaran()
+        }
+        const resPeng = await axios.post('/add/pengampu', payloadPengampu)
+        if (resPeng?.data?.success && resPeng?.data?.id) {
+          id_pengampu_resolved = resPeng.data.id
+          // Update local cache for future resolutions
+          pengampuList.value = [
+            ...pengampuList.value,
+            { id_pengampu: id_pengampu_resolved, ...payloadPengampu }
+          ]
+        } else {
+          throw new Error(resPeng?.data?.message || 'Gagal membuat mapping pengampu')
+        }
+      } catch (e) {
+        throw new Error(`Pengampu untuk guru/kelas ini tidak ditemukan. Otomatis membuat mapping gagal: ${e.message || e}`)
+      }
     }
 
   // Process nilai submission with better error handling
