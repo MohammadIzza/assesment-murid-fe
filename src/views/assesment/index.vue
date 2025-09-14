@@ -48,7 +48,7 @@
                   <td class="px-4 py-2 border">{{ getSiswa(row.id_siswa) }}</td>
                   <td class="px-4 py-2 border">{{ getAssessment(row.id_assessment) }}</td>
                   <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
-                  <td class="px-4 py-2 border">{{ formatDate(row.updated_at) }}</td>
+                  <td class="px-4 py-2 border">{{ formatDate(row.tanggal_input) }}</td>
                 </tr>
 
                  <tr v-if="historyData.length === 0">
@@ -257,9 +257,9 @@
             <tr class="bg-gray-800 text-white border-b border-gray-600">
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">Dimensi</th>
               <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-12 border-r border-gray-700">Elemen</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">SKL</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Kompetensi</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700 bg-gray-700">Capaian Kelas</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700">Sub Element</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Capaian</th>
+              <!-- <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider w-16 border-r border-gray-700 bg-gray-700">Capaian Kelas</th> -->
               
               <!-- Student headers - Dynamic based on loaded students -->
               <template v-for="siswa in siswaList" :key="siswa.id_siswa">
@@ -335,7 +335,7 @@
                       </td>
                       
                       <!-- Additional empty column for spacing -->
-                      <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300"></td>
+                      <!-- <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-300"></td> -->
                       
                       <!-- Student assessment cells -->
                       <template v-for="siswa in siswaList" :key="`${capaian.id_capaian}-${siswa.id_siswa}`">
@@ -375,7 +375,7 @@
                   <td class="border border-gray-300 dark:border-gray-700"></td>
                   
                   <!-- Additional empty cell for spacing column -->
-                  <td class="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-750"></td>
+                  <!-- <td class="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-750"></td> -->
                   
                   <!-- Average for each student -->
                   <template v-for="siswa in siswaList" :key="`avg-${elemen.id_elemen}-${siswa.id_siswa}`">
@@ -522,12 +522,12 @@ const currentEditingAssessment = ref({
 const isOpen = ref(false)
 const historyData = ref([])
 
-const toggleHistory = async (id) => {
-  console.log("CEK ID:", id);
+const toggleHistory = async (id_guru) => {
+  console.log("CEK ID:", id_guru);
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     try {
-      await assessmentStore.fetchAssessmentHistory(id)
+      await assessmentStore.fetchAssessmentHistory(id_guru)
       historyData.value = assessmentStore.assessmentHistoryList
       console.log("Processed data:", assessmentStore.assessmentHistoryList)
     } catch (error) {

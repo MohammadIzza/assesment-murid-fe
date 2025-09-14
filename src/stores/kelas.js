@@ -198,7 +198,8 @@ export const useKelasStore = defineStore('kelas', {
           id_wali_kelas: kelasData.id_wali_kelas
         };
         
-        const response = await axios.put(`/edit/kelas/${id}`, sanitizedData);
+  // Backend uses /update/kelas/:id
+  const response = await axios.put(`/update/kelas/${id}`, sanitizedData);
         
         if (response.data.success) {
           // Refresh data kelas setelah berhasil mengupdate

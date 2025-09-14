@@ -80,24 +80,8 @@ export const useAuthStore = defineStore('auth', {
             // ignore parse errors
           }
           
-          // Verify the token silently, but don't logout if it fails to prevent refresh issues
-          try {
-            const response = await axios.get('/user/profile')
-            if (response.data.success) {
-              // Update user if needed
-              this.user = response.data.data || response.data.user || this.user
-              
-              // If a new token is provided, update it
-              if (response.data.token) {
-                this.token = response.data.token
-                Cookies.set(TOKEN_COOKIE, this.token, COOKIE_OPTIONS)
-                axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-              }
-            }
-          } catch (error) {
-            console.warn('Token verification warning:', error.message)
-            // Don't logout here, let the user continue with the session
-          }
+          // Best-effort token verification: backend doesn't expose /user/profile; rely on token claims
+          // Keep session active without remote verification to avoid breaking refresh
 
           // Resolve current guru based on token (best-effort)
           try {
@@ -321,28 +305,9 @@ export const useAuthStore = defineStore('auth', {
       }
       
       try {
-        const response = await axios.post('/auth/verify', {
-          sessionId: this.sessionId,
-          deviceInfo: {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language
-          }
-        })
-        
-        if (response.data.success && response.data.user) {
-          // Update user data and session if needed
-          this.user = response.data.user
-          if (response.data.newToken) {
-            this.token = response.data.newToken
-            this.setAuthCookies(this.token, this.user, this.sessionId)
-            axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-          }
-          this.isAuthenticated = true
-          return true
-        } else {
-          throw new Error('Invalid session')
-        }
+        // No server-side verify endpoint; consider the presence of token+session as valid
+        this.isAuthenticated = !!this.token && !!this.sessionId
+        return this.isAuthenticated
       } catch (error) {
         console.error('Session verification failed:', error)
         // Session/token is invalid, logout

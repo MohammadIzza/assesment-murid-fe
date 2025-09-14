@@ -307,6 +307,7 @@
                         <td class="px-3 py-4 text-center">
                           <span 
                             :class="[
+
                               'px-2 py-1 text-xs font-medium rounded-full',
                               calculateAverageForCapaian(capaian.id) >= 3 
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
@@ -323,6 +324,109 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Preview Modal -->
+    <div v-if="showPreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Preview Cetak Rapor - {{ selectedSiswaName }}
+          </h2>
+          <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6">
+          <!-- PDF Preview content -->
+          <div class="border border-gray-300 dark:border-gray-600 rounded-lg bg-white text-black p-10 min-h-[60vh]">
+            <!-- Header -->
+            <div class="text-center mb-8">
+              <h1 class="text-2xl font-bold mb-2">RAPOR SKL KEKHASAN SEKOLAH ISLAM TERPADU</h1>
+              <h2 class="text-xl font-semibold mb-4">SDIT QURDUL QUDWAH</h2>
+              <p class="text-sm">Jl Imam Bonjol Kota A, Lingkungan Sudimulyo Kelurahan Bina Wirausaha Kodya Bandar Lampung Barat</p>
+            </div>
+            
+            <!-- Student Info -->
+            <div class="mb-8 flex justify-between">
+              <div>
+                <p><span class="font-semibold">Nama Siswa:</span> {{ selectedSiswa?.nama }}</p>
+                <p><span class="font-semibold">NISN:</span> {{ selectedSiswa?.nisn || '-' }}</p>
+                <p><span class="font-semibold">Kelas:</span> {{ getNamaKelas(selectedSiswa?.id_kelas) }}</p>
+              </div>
+              <div>
+                <p><span class="font-semibold">Semester / Tahap:</span> {{ selectedSemester === '1' ? 'Semester Ganjil' : 'Semester Genap' }}</p>
+                <p><span class="font-semibold">Tahun Ajaran:</span> 2024/2025</p>
+              </div>
+            </div>
+            
+            <!-- Assessment Table -->
+            <table class="min-w-full border border-gray-300">
+              <thead>
+                <tr class="bg-blue-100">
+                  <th class="border border-gray-300 px-4 py-2 text-left">No</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Dimensi</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Elemen</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Sub Elemen</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Kode</th>
+                  <th class="border border-gray-300 px-4 py-2 text-left">Capaian Kelas</th>
+                  <th class="border border-gray-300 px-4 py-2 text-center">Nilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Debug info -->
+                <tr v-if="siswaCapaianList.length === 0" class="border-b border-gray-300">
+                  <td colspan="7" class="border-r border-gray-300 px-4 py-2 text-center text-red-500">
+                    Tidak ada data penilaian yang ditemukan untuk siswa ini.
+                    <br><small>Total capaian: {{ capaianList.length }}, Selected Siswa: {{ selectedSiswa?.nama }}</small>
+                  </td>
+                </tr>
+                
+                <tr v-for="(capaian, index) in siswaCapaianList" :key="index" class="border-b border-gray-300">
+                  <td class="border-r border-gray-300 px-4 py-2">{{ index + 1 }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_dimensi }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.indikator || capaian.nama_ck, 80) }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50"></td>
+                  <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
+                    {{ capaian.nilai_average || getNilaiAverage(capaian.id) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <!-- Signature Section -->
+            <div class="mt-10 flex justify-between">
+              <div class="text-center">
+                <p>Orang Tua/Wali</p>
+                <div class="h-20"></div>
+                <p>____________________</p>
+              </div>
+              <div class="text-center">
+                <p>Wali Kelas</p>
+                <div class="h-20"></div>
+                <p>____________________</p>
+              </div>
+              <div class="text-center">
+                <p>Kepala Sekolah</p>
+                <div class="h-20"></div>
+                <p>____________________</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+          <button @click="printRapor" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
+            </svg>
+            Cetak Rapor
+          </button>
         </div>
       </div>
     </div>
@@ -535,6 +639,19 @@ const filteredDimensiForSiswa = computed(() => {
   return filtered;
 });
 
+// Restrict capaian to selected kelas (if any)
+const capaianListByKelas = computed(() => {
+  if (!selectedKelas.value) return capaianList.value;
+  return (capaianList.value || []).filter(c => String(c.id_kelas) == String(selectedKelas.value));
+});
+
+// Restrict assessments to those whose capaian belong to the selected kelas
+const assessmentListByKelas = computed(() => {
+  if (!capaianListByKelas.value?.length) return [];
+  const allowedCapaianIds = new Set(capaianListByKelas.value.map(c => c.id));
+  return (assessmentList.value || []).filter(a => allowedCapaianIds.has(a.id_capaian_kelas));
+});
+
 // Helper methods
 const truncateText = (text, maxLength) => {
   if (!text) return '';
@@ -571,14 +688,14 @@ const getCapaianForSiswa = (id_elemen) => {
   // Get all capaian for these sub elements
   let allCapaian = [];
   subElems.forEach(se => {
-    // capaianList berisi capaian_kelas; filter berdasarkan id_sub_elemen
-    const capaianForSubElem = capaianList.value.filter(c => c.id_sub_elemen == se.id_sub_elemen);
+    // capaianListByKelas berisi capaian_kelas terfilter kelas; filter berdasarkan id_sub_elemen
+    const capaianForSubElem = capaianListByKelas.value.filter(c => c.id_sub_elemen == se.id_sub_elemen);
     allCapaian = [...allCapaian, ...capaianForSubElem];
   });
   
   // Return only capaian that have assessments for this student
   return allCapaian.filter(c => {
-    const assessmentsForCapaian = assessmentList.value.filter(a => a.id_capaian_kelas == c.id);
+    const assessmentsForCapaian = assessmentListByKelas.value.filter(a => a.id_capaian_kelas == c.id);
     return assessmentsForCapaian.some(a => a.nilai && a.nilai[selectedSiswa.value.id_siswa]);
   });
 };
@@ -591,7 +708,7 @@ const getAssessmentValue = (id_capaian_kelas, index) => {
   if (!selectedSiswa.value || !id_capaian_kelas) return null;
   
   // Get all assessments for this capaian
-  const assessmentsForCapaian = assessmentList.value.filter(a => 
+  const assessmentsForCapaian = assessmentListByKelas.value.filter(a => 
     a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
@@ -639,7 +756,7 @@ const calculateAverageForCapaian = (id_capaian_kelas) => {
   if (!selectedSiswa.value || !id_capaian_kelas) return 0;
   
   // Get all assessments for this capaian
-  const assessmentsForCapaian = assessmentList.value.filter(a => 
+  const assessmentsForCapaian = assessmentListByKelas.value.filter(a => 
     a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
@@ -665,7 +782,7 @@ const calculateModusForCapaian = (id_capaian_kelas) => {
   if (!selectedSiswa.value || !id_capaian_kelas) return 0;
   
   // Get all assessments for this capaian
-  const assessmentsForCapaian = assessmentList.value.filter(a => 
+  const assessmentsForCapaian = assessmentListByKelas.value.filter(a => 
     a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
@@ -699,11 +816,11 @@ const calculateModusForCapaian = (id_capaian_kelas) => {
 };
 
 const getSiswaStatus = (siswa) => {
-  if (!siswa || !capaianList.value.length) return 'Belum Tuntas';
+  if (!siswa || !capaianListByKelas.value.length) return 'Belum Tuntas';
   
   // Only count capaian that actually have assessments for this student
-  const relevantCapaian = capaianList.value.filter(c => {
-    return assessmentList.value.some(a => 
+  const relevantCapaian = capaianListByKelas.value.filter(c => {
+    return assessmentListByKelas.value.some(a => 
       a.id_capaian_kelas == c.id && 
       a.nilai && 
       a.nilai[siswa.id_siswa] !== undefined && 
@@ -740,7 +857,7 @@ const getSiswaStatusClass = (siswa) => {
 
 const calculateStudentAvgForCapaian = (id_capaian_kelas, id_siswa) => {
   // Get all assessments for this capaian and student
-  const assessmentsForCapaian = assessmentList.value.filter(a => 
+  const assessmentsForCapaian = assessmentListByKelas.value.filter(a => 
     a.id_capaian_kelas == id_capaian_kelas && 
     a.nilai && 
     a.nilai[id_siswa] !== undefined && 
@@ -781,7 +898,7 @@ const updateDistributionChart = () => {
   let total = 0;
   
   // For each capaian, get the average value for this student
-  capaianList.value.forEach(ck => {
+  capaianListByKelas.value.forEach(ck => {
     const avg = calculateStudentAvgForCapaian(ck.id, selectedSiswa.value.id_siswa);
     if (avg <= 0) return; // Skip if no assessments
     
@@ -955,12 +1072,13 @@ const fetchSiswaByKelas = async () => {
 const fetchAssessmentData = async () => {
   try {
     // Fetch all assessment data
-  const url = selectedKelas.value ? `/list/assessment?id_kelas=${selectedKelas.value}` : '/list/assessment';
+    const url = selectedKelas.value ? `/list/assessment?id_kelas=${selectedKelas.value}` : '/list/assessment';
     const response = await axios.get(url);
     
     if (response.data.success) {
       assessmentList.value = response.data.data || [];
-      totalAssessments.value = assessmentList.value.length;
+      // Recompute totals using filtered list by kelas
+      totalAssessments.value = assessmentListByKelas.value.length;
       
       // Fetch nilai data for the selected student if available
       if (selectedSiswa.value) {
@@ -976,12 +1094,12 @@ const fetchAssessmentData = async () => {
         }
       }
       
-      // Calculate sudahDinilai and totalMaksimal
-  const uniqueCapaian = new Set();
-  const assessedCapaian = new Set();
+      // Calculate sudahDinilai and totalMaksimal (by kelas)
+      const uniqueCapaian = new Set();
+      const assessedCapaian = new Set();
       
       // Count total unique capaian
-      assessmentList.value.forEach(assessment => {
+      assessmentListByKelas.value.forEach(assessment => {
         uniqueCapaian.add(assessment.id_capaian_kelas);
         if (assessment.nilai && Object.keys(assessment.nilai).length > 0) {
           assessedCapaian.add(assessment.id_capaian_kelas);
@@ -1019,7 +1137,7 @@ const prepareCapaianList = async () => {
     // Create a list of capaian that have assessments for this student
     siswaCapaianList.value = capaianList.value
       .filter(c => {
-        const assessments = assessmentList.value.filter(a => 
+        const assessments = assessmentListByKelas.value.filter(a => 
           a.id_capaian_kelas == c.id && 
           a.nilai && 
           a.nilai[selectedSiswa.value.id_siswa] !== undefined &&
@@ -1035,7 +1153,7 @@ const prepareCapaianList = async () => {
         const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi == elemen.id_dimensi) : null;
         
         // Calculate the nilai average for this capaian
-        const assessmentsForCapaian = assessmentList.value.filter(a => 
+        const assessmentsForCapaian = assessmentListByKelas.value.filter(a => 
           a.id_capaian_kelas == c.id && 
           a.nilai && 
           a.nilai[selectedSiswa.value.id_siswa] !== undefined &&

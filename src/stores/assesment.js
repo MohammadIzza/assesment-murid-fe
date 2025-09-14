@@ -109,18 +109,17 @@ export const useAssesmentStore = defineStore("assesment", {
       }
     },
 
-    async fetchAssessmentHistory(id) {
+    async fetchAssessmentHistory(id_guru) {
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await axios.get(`/filter/history/${id}`);
-        console.log("Full response:", response);
-        console.log("response.data", response.data);
+        // Backend returns array directly (no { success } wrapper)
+        const response = await axios.get(`/filter/history/${id_guru}`);
         if (response.status === 200) {
-          this.assessmentHistoryList = this.processAssessmentData(
-            response.data
-          );
+          this.assessmentHistoryList = Array.isArray(response.data)
+            ? response.data
+            : [];
         } else {
           throw new Error("Gagal mengambil data history assessment");
         }
