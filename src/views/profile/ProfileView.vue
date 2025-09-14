@@ -68,13 +68,25 @@
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Role</label>
-            <div class="px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm">
+            <div v-if="isEditing" class="flex items-center">
+              <select v-model="editableProfile.id_role" class="block w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                <option disabled value="">Pilih Role</option>
+                <option v-for="r in roleList" :key="r.id_role" :value="r.id_role">{{ r.nama_role }}</option>
+              </select>
+            </div>
+            <div v-else class="px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm">
               {{ getRoleName(userProfile.id_role) }}
             </div>
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Sekolah</label>
-            <div class="px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm">
+            <div v-if="isEditing" class="flex items-center">
+              <select v-model="editableProfile.id_sekolah" class="block w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                <option disabled value="">Pilih Sekolah</option>
+                <option v-for="s in sekolahList" :key="s.id_sekolah" :value="s.id_sekolah">{{ s.nama_sekolah }}</option>
+              </select>
+            </div>
+            <div v-else class="px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm">
               {{ getSchoolName(userProfile.id_sekolah) }}
             </div>
           </div>
@@ -93,6 +105,38 @@
           </div>
         </div>
       </div>
+      <!-- Relations & Stats -->
+      <div class="bg-white shadow rounded-xl border border-gray-100 overflow-hidden mt-6">
+        <div class="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-indigo-100">
+          <h4 class="text-sm font-semibold text-gray-800">Statistik & Pengampu</h4>
+        </div>
+        <div class="p-4 sm:p-6">
+          <!-- Stats -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div class="rounded-lg border border-gray-200 p-3 bg-gray-50">
+              <div class="text-xs text-gray-500">Jumlah Kelas Diampu</div>
+              <div class="text-xl font-bold text-gray-800">{{ jumlahKelas }}</div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-3 bg-gray-50">
+              <div class="text-xs text-gray-500">Jumlah Siswa Diajar</div>
+              <div class="text-xl font-bold text-gray-800">{{ jumlahSiswa }}</div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-3 bg-gray-50">
+              <div class="text-xs text-gray-500">Total Assessment Terkait</div>
+              <div class="text-xl font-bold text-gray-800">{{ jumlahAssessment }}</div>
+            </div>
+          </div>
+
+          <!-- Pengampu list -->
+          <div>
+            <div class="text-xs font-medium text-gray-700 mb-2">Kelas yang Diampu</div>
+            <div v-if="pengampuForGuru.length === 0" class="text-sm text-gray-500">Belum ada data pengampu untuk guru ini.</div>
+            <ul v-else class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+              <li v-for="p in pengampuForGuru" :key="p.id_pengampu">{{ p.nama_kelas }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -100,7 +144,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import Cookies from 'js-cookie';
-import { getGuruById, updateGuruById } from '@/services/api';
+import axios from '@/plugins/axios';
+import { updateGuruById } from '@/services/api';
 import { getGuruByUserId, getGuruByEmail } from '@/services/api';
 import { parseJWT } from '@/utils/jwt';
 
@@ -112,6 +157,15 @@ const isSaving = ref(false);
 const isLoading = ref(true);
 const error = ref(null);
 const userId = ref(null);
+// Reference lists & relations
+const roleList = ref([]);
+const sekolahList = ref([]);
+const kelasList = ref([]);
+const pengampuForGuru = ref([]);
+// Quick counts
+const jumlahKelas = ref(0);
+const jumlahSiswa = ref(0);
+const jumlahAssessment = ref(0);
 
 // Helper function untuk user initials
 const userInitials = computed(() => {
@@ -173,11 +227,62 @@ const fetchGuruData = async () => {
 
     userProfile.value = result.data;
     Object.assign(editableProfile, userProfile.value);
+
+    // After profile, fetch relations and counts in parallel
+    await Promise.all([
+      fetchReferenceLists(),
+      fetchRelations(userProfile.value?.id_guru)
+    ]);
   } catch (err) {
     console.error('Error fetching guru data:', err.message);
     error.value = 'Gagal memuat data profil: ' + err.message;
   } finally {
     isLoading.value = false;
+  }
+};
+
+// Fetch role, sekolah, kelas lists
+const fetchReferenceLists = async () => {
+  try {
+    const [rolesRes, sekolahRes, kelasRes] = await Promise.all([
+      axios.get('/list/role'),
+      axios.get('/list/sekolah'),
+      axios.get('/list/kelas')
+    ]);
+    roleList.value = rolesRes.data?.data || [];
+    sekolahList.value = sekolahRes.data?.data || [];
+    kelasList.value = kelasRes.data?.data || [];
+  } catch (e) {
+    console.warn('Reference lists fetch failed:', e?.message || e);
+  }
+};
+
+// Fetch pengampu for this guru, resolve kelas names, and counts
+const fetchRelations = async (id_guru) => {
+  if (!id_guru) return;
+  try {
+    const [pengampuRes, kelasCountRes, siswaCountRes, assessRes] = await Promise.allSettled([
+      axios.get('/list/pengampu'),
+      axios.get(`/filter/guru/${id_guru}/jumlah-kelas`),
+      axios.get(`/filter/guru/${id_guru}/jumlah-siswa`),
+      axios.get(`/filter/assessment/guru/${id_guru}`)
+    ]);
+
+    const pengampuData = pengampuRes.status === 'fulfilled' ? (pengampuRes.value?.data?.data || []) : [];
+    pengampuForGuru.value = pengampuData
+      .filter(p => p.id_guru == id_guru)
+      .map(p => ({
+        ...p,
+        nama_kelas: kelasList.value.find(k => k.id_kelas == p.id_kelas)?.nama_kelas || `Kelas #${p.id_kelas}`
+      }));
+
+    jumlahKelas.value = kelasCountRes.status === 'fulfilled' ? (kelasCountRes.value?.data?.jumlah_kelas || 0) : 0;
+    jumlahSiswa.value = siswaCountRes.status === 'fulfilled' ? (siswaCountRes.value?.data?.jumlah_siswa || 0) : 0;
+    jumlahAssessment.value = assessRes.status === 'fulfilled' && assessRes.value?.data?.success
+      ? (assessRes.value?.data?.data?.length || 0)
+      : 0;
+  } catch (e) {
+    console.warn('Failed fetching relations:', e?.message || e);
   }
 };
 
@@ -197,8 +302,14 @@ const saveProfile = async () => {
     }
     if (!guruId) throw new Error('Tidak dapat menentukan ID guru untuk disimpan');
     
-    // Kirim perubahan ke API
-    const response = await updateGuruById(guruId, editableProfile);
+    // Kirim perubahan ke API (only allowed fields)
+    const payload = {
+      nama: editableProfile.nama,
+      nip: editableProfile.nip,
+      id_role: editableProfile.id_role,
+      id_sekolah: editableProfile.id_sekolah,
+    };
+    const response = await updateGuruById(guruId, payload);
     
     if (!response.success) {
       throw new Error(response.message || 'Gagal menyimpan perubahan');
@@ -213,7 +324,8 @@ const saveProfile = async () => {
     alert('Profil berhasil diperbarui!');
   } catch (err) {
     console.error('Error saving profile:', err);
-    alert('Gagal menyimpan profil: ' + err.message);
+    const msg = err?.response?.data?.message || err.message || 'Gagal menyimpan profil';
+    alert('Gagal menyimpan profil: ' + msg);
   } finally {
     isSaving.value = false;
   }
@@ -228,23 +340,15 @@ const toggleEdit = () => {
   isEditing.value = !isEditing.value;
 };
 
-// Helper function untuk role name
+// Helper functions mapping with backend lists
 const getRoleName = (roleId) => {
-  const roles = {
-    1: 'Super Admin',
-    2: 'Guru',
-    3: 'Kepala Sekolah'
-  };
-  return roles[roleId] || 'Tidak Diketahui';
+  const item = roleList.value.find(r => r.id_role == roleId);
+  return item?.nama_role || 'Tidak Diketahui';
 };
 
-// Helper function untuk school name
 const getSchoolName = (schoolId) => {
-  const schools = {
-    1: 'SMA Negeri 1 Semarang',
-    2: 'SMA Negeri 2 Semarang'
-  };
-  return schools[schoolId] || 'Tidak Diketahui';
+  const item = sekolahList.value.find(s => s.id_sekolah == schoolId);
+  return item?.nama_sekolah || 'Tidak Diketahui';
 };
 
 // Helper function untuk reload page
