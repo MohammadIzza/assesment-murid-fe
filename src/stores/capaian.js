@@ -23,16 +23,14 @@ export const useCapaianStore = defineStore('capaian', {
       this.loading = true
       this.error = null
       try {
-        // Tidak ada endpoint /list/capaian di backend saat ini; gunakan capaian_kelas sebagai sumber dan de-dupe id_capaian
+        // Tidak ada endpoint /list/capaian di backend saat ini; gunakan capaian_kelas sebagai sumber dan de-dupe id_sub_elemen
         const ckRes = await axios.get('/list/capaian_kelas')
         if (ckRes.data.success) {
           this.capaianKelasList = ckRes.data.data || []
-          // Bentuk daftar pseudo-capaian minimal: { id_capaian, deskripsi?, id_sub_elemen? }
-          // Catatan: backend tidak expose tabel capaian secara langsung; field deskripsi tidak tersedia di capaian_kelas.
-          // Biarkan UI menggunakan capaian_kelas langsung ketika butuh menampilkan kode/nama_ck.
-          const uniqueIds = [...new Set(this.capaianKelasList.map(x => x.id_capaian))]
+          // Bentuk daftar pseudo-capaian minimal: { id_sub_elemen }
+          const uniqueIds = [...new Set(this.capaianKelasList.map(x => x.id_sub_elemen ?? x.id_capaian))]
           // Simpan sebagai shape ringan (tanpa deskripsi)
-          this.capaianList = uniqueIds.map(id => ({ id_capaian: id }))
+          this.capaianList = uniqueIds.map(id => ({ id_sub_elemen: id }))
         } else {
           this.capaianKelasList = []
           this.capaianList = []
@@ -56,7 +54,6 @@ export const useCapaianStore = defineStore('capaian', {
         let list = res.data.data || []
         list = list.filter(x => x.id_kelas == id_kelas)
         if (options.id_sub_elemen) {
-          // Jika skema ck memiliki kolom id_sub_elemen (di filterRouter ada join), filter jika tersedia
           list = list.filter(x => x.id_sub_elemen == options.id_sub_elemen)
         }
         this.capaianKelasList = list
@@ -79,8 +76,8 @@ export const useCapaianStore = defineStore('capaian', {
       try {
         const list = await this.fetchCapaianKelasByKelas(id_kelas)
         // Representasikan capaian berdasarkan capaian_kelas yang relevan
-        const ids = [...new Set(list.map(x => x.id_capaian))]
-        this.capaianList = ids.map(id => ({ id_capaian: id }))
+  const ids = [...new Set(list.map(x => x.id_sub_elemen ?? x.id_capaian))]
+  this.capaianList = ids.map(id => ({ id_sub_elemen: id }))
         return this.capaianList
       } catch (error) {
         console.error('Error fetching capaian kelas:', error)
@@ -99,8 +96,25 @@ export const useCapaianStore = defineStore('capaian', {
       this.error = null
       
       try {
-        // Backend tidak expose /add/capaian, gunakan capaian_kelas untuk membuat mapping di kelas
-        const response = await axios.post('/add/capaian_kelas', capaianData)
+        // Backend hanya menerima: kode_ck, nama_ck, id_kelas, id_sub_elemen, id_sekolah, indikator (opsional)
+        const payload = {
+          kode_ck: String(capaianData.kode_ck ?? '').trim(),
+          nama_ck: String(capaianData.nama_ck ?? '').trim(),
+          id_kelas: capaianData.id_kelas != null ? Number(capaianData.id_kelas) : undefined,
+          id_sub_elemen: capaianData.id_sub_elemen != null
+            ? Number(capaianData.id_sub_elemen)
+            : (capaianData.id_capaian != null ? Number(capaianData.id_capaian) : undefined),
+          id_sekolah: capaianData.id_sekolah != null ? Number(capaianData.id_sekolah) : undefined,
+          indikator: capaianData.indikator != null ? String(capaianData.indikator).trim() : undefined,
+        }
+
+        Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k])
+
+        if (!payload.kode_ck || !payload.nama_ck || !payload.id_kelas || !payload.id_sub_elemen || !payload.id_sekolah) {
+          throw new Error('Field wajib belum lengkap (kode_ck, nama_ck, id_kelas, id_sub_elemen, id_sekolah)')
+        }
+
+        const response = await axios.post('/add/capaian_kelas', payload)
         
         if (response.data.success) {
           return response.data.data
@@ -124,8 +138,20 @@ export const useCapaianStore = defineStore('capaian', {
       this.error = null
       
       try {
-        // Update record capaian_kelas (bukan tabel capaian master)
-        const response = await axios.put(`/update/capaian_kelas/${capaianData.id}`, capaianData)
+        // Update record capaian_kelas - kirim hanya field yang didukung backend
+        const payload = {
+          kode_ck: capaianData.kode_ck != null ? String(capaianData.kode_ck).trim() : undefined,
+          nama_ck: capaianData.nama_ck != null ? String(capaianData.nama_ck).trim() : undefined,
+          id_kelas: capaianData.id_kelas != null ? Number(capaianData.id_kelas) : undefined,
+          id_sub_elemen: (capaianData.id_sub_elemen != null
+            ? Number(capaianData.id_sub_elemen)
+            : (capaianData.id_capaian != null ? Number(capaianData.id_capaian) : undefined)),
+          id_sekolah: capaianData.id_sekolah != null ? Number(capaianData.id_sekolah) : undefined,
+          indikator: capaianData.indikator != null ? String(capaianData.indikator).trim() : undefined,
+        }
+        Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k])
+
+        const response = await axios.put(`/update/capaian_kelas/${capaianData.id}`, payload)
         
         if (response.data.success) {
           return response.data.data
@@ -149,8 +175,7 @@ export const useCapaianStore = defineStore('capaian', {
       this.error = null
       
       try {
-        // Hapus semua mapping capaian_kelas yang refer ke id_capaian tertentu di kelas saat ini (opsional: butuh id)
-        // Untuk amannya, ekspektasi caller mengirim id (primary key) dari capaian_kelas saat menghapus
+        // Ekspektasi menerima id (primary key) dari capaian_kelas saat menghapus
         const response = await axios.delete(`/delete/capaian_kelas/${id_capaian}`)
         
         if (response.data.success) {

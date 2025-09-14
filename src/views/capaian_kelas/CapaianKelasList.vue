@@ -180,10 +180,6 @@
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">Indikator</th>
-                <th :class="[
-                  'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 ]">Aksi</th>
               </tr>
             </thead>
@@ -214,12 +210,6 @@
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
                 ]">{{ capaianKelas.id_sub_elemen || capaianKelas.id_capaian }}</td>
-                <td :class="[
-                  'px-6 py-4 text-sm max-w-xs truncate',
-                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">
-                  <span :title="capaianKelas.indikator">{{ capaianKelas.indikator || '-' }}</span>
-                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex items-center space-x-2">
                     <button @click="editCapaianKelas(capaianKelas.id)" :class="[
@@ -242,7 +232,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedCapaianKelasList.length === 0">
-                <td colspan="7" :class="[
+                <td colspan="6" :class="[
                   'px-6 py-12 text-center',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 ]">
@@ -251,6 +241,27 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination & Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t" :class="isDarkMode ? 'border-dark-border' : 'border-gray-200'">
+          <div :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'" class="text-sm">
+            Menampilkan {{ displayRangeStart }}–{{ displayRangeEnd }} dari {{ filteredCapaianKelasList.length }} data
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'" class="text-sm">Per halaman:</span>
+              <select v-model.number="itemsPerPage" @change="onItemsPerPageChange" :class="['px-2 py-1 rounded-md border text-sm', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300']">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <button @click="prevPage" :disabled="currentPage === 1" :class="['px-3 py-1 rounded-md text-sm border', currentPage === 1 ? 'opacity-50 cursor-not-allowed' : '', isDarkMode ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' : 'bg-white border-gray-300 hover:bg-gray-50']">Sebelumnya</button>
+              <span :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'" class="text-sm">Hal {{ currentPage }} / {{ totalPages || 1 }}</span>
+              <button @click="nextPage" :disabled="currentPage >= totalPages" :class="['px-3 py-1 rounded-md text-sm border', currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : '', isDarkMode ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600' : 'bg-white border-gray-300 hover:bg-gray-50']">Berikutnya</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -306,6 +317,15 @@ export default {
       const start = (currentPage.value - 1) * itemsPerPage.value
       const end = start + itemsPerPage.value
       return filteredCapaianKelasList.value.slice(start, end)
+    })
+
+    const displayRangeStart = computed(() => {
+      if (filteredCapaianKelasList.value.length === 0) return 0
+      return (currentPage.value - 1) * itemsPerPage.value + 1
+    })
+
+    const displayRangeEnd = computed(() => {
+      return Math.min(currentPage.value * itemsPerPage.value, filteredCapaianKelasList.value.length)
     })
 
     // Methods
@@ -383,6 +403,18 @@ export default {
       currentPage.value = 1
     }
 
+    const onItemsPerPageChange = () => {
+      currentPage.value = 1
+    }
+
+    const prevPage = () => {
+      if (currentPage.value > 1) currentPage.value--
+    }
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) currentPage.value++
+    }
+
     // Lifecycle
     onMounted(() => {
       loadCapaianKelasData()
@@ -397,6 +429,8 @@ export default {
       filteredCapaianKelasList,
       totalPages,
       paginatedCapaianKelasList,
+  displayRangeStart,
+  displayRangeEnd,
       loadCapaianKelasData,
       goToAddCapaianKelas,
       editCapaianKelas,
@@ -413,6 +447,9 @@ export default {
       onDimensiChange,
       onElemenChange,
       applyFilters,
+  onItemsPerPageChange,
+  prevPage,
+  nextPage,
       // toast
       Toast,
       showToast,

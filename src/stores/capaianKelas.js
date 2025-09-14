@@ -28,14 +28,10 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
         const response = await axios.get('/list/capaian_kelas')
         
         if (response.data.success) {
-          // Normalisasi field agar konsisten di UI
+          // Normalisasi field agar konsisten di UI (gunakan id_sub_elemen sebagai sumber kebenaran)
           this.capaianKelasList = (response.data.data || []).map((row) => ({
             ...row,
-            // Beberapa versi backend menyimpan relasi sebagai id_sub_elemen,
-            // sebagian kode lama menggunakan nama id_capaian. Samakan di UI.
             id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
-            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
-            indikator: row.indikator ?? row.indicator ?? '',
           }))
         } else {
           throw new Error('Gagal mengambil data capaian kelas')
@@ -64,8 +60,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           this.capaianKelasList = (res.data.data || []).map((row) => ({
             ...row,
             id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
-            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
-            indikator: row.indikator ?? row.indicator ?? '',
           }))
           return this.capaianKelasList
         }
@@ -101,8 +95,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           this.currentCapaianKelas = {
             ...row,
             id_sub_elemen: row.id_sub_elemen ?? row.id_capaian ?? row.id_subElemen,
-            id_capaian: row.id_capaian ?? row.id_sub_elemen ?? row.id_subElemen,
-            indikator: row.indikator ?? row.indicator ?? '',
           }
         } else {
           throw new Error('Gagal mengambil detail capaian kelas')
@@ -125,13 +117,26 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
       this.error = null
       
       try {
-        // Backend addRouter mengharapkan field id_capaian,
-        // sementara secara domain kita memilih Sub Elemen. Map aman di sini.
+        // Backend menerima: kode_ck, nama_ck, id_kelas, id_sub_elemen, id_sekolah, indikator (opsional)
         const payload = {
-          ...capaianKelasData,
-          id_capaian: capaianKelasData.id_capaian ?? capaianKelasData.id_sub_elemen,
-          indikator: capaianKelasData.indikator ?? '',
+          kode_ck: String(capaianKelasData.kode_ck ?? '').trim(),
+          nama_ck: String(capaianKelasData.nama_ck ?? '').trim(),
+          id_kelas: capaianKelasData.id_kelas != null ? Number(capaianKelasData.id_kelas) : undefined,
+          id_sub_elemen: capaianKelasData.id_sub_elemen != null
+            ? Number(capaianKelasData.id_sub_elemen)
+            : (capaianKelasData.id_capaian != null ? Number(capaianKelasData.id_capaian) : undefined),
+          id_sekolah: capaianKelasData.id_sekolah != null ? Number(capaianKelasData.id_sekolah) : undefined,
+          indikator: capaianKelasData.indikator != null ? String(capaianKelasData.indikator).trim() : undefined,
         }
+
+        // Hapus properti undefined agar tidak mengirim field kosong
+        Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k])
+
+        // Validasi sisi frontend: semua field wajib harus ada (menggunakan id_sub_elemen sesuai backend)
+        if (!payload.kode_ck || !payload.nama_ck || !payload.id_kelas || !payload.id_sub_elemen || !payload.id_sekolah) {
+          throw new Error('Field wajib belum lengkap (kode_ck, nama_ck, id_kelas, id_sub_elemen, id_sekolah)')
+        }
+
         const response = await axios.post('/add/capaian_kelas', payload)
         
         if (response.data.success) {
@@ -160,12 +165,21 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
       this.error = null
       
       try {
-        // Samakan mapping seperti add
+        // Samakan mapping seperti add, kirim hanya field yang didukung backend
         const payload = {
-          ...capaianKelasData,
-          id_capaian: capaianKelasData.id_capaian ?? capaianKelasData.id_sub_elemen,
-          indikator: capaianKelasData.indikator ?? this.currentCapaianKelas?.indikator ?? '',
+          kode_ck: capaianKelasData.kode_ck != null ? String(capaianKelasData.kode_ck).trim() : undefined,
+          nama_ck: capaianKelasData.nama_ck != null ? String(capaianKelasData.nama_ck).trim() : undefined,
+          id_kelas: capaianKelasData.id_kelas != null ? Number(capaianKelasData.id_kelas) : undefined,
+          id_sub_elemen: (capaianKelasData.id_sub_elemen != null
+            ? Number(capaianKelasData.id_sub_elemen)
+            : (capaianKelasData.id_capaian != null ? Number(capaianKelasData.id_capaian) : undefined)),
+          id_sekolah: capaianKelasData.id_sekolah != null ? Number(capaianKelasData.id_sekolah) : undefined,
+          indikator: capaianKelasData.indikator != null ? String(capaianKelasData.indikator).trim() : undefined,
         }
+
+        // Hapus properti undefined agar tidak mengirim field kosong
+        Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k])
+
         const response = await axios.put(`/update/capaian_kelas/${id}`, payload)
         
         if (response.data.success) {

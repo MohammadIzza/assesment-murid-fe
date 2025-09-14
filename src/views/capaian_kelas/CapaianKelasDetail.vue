@@ -196,16 +196,6 @@
                         isDarkMode ? 'text-gray-100' : 'text-gray-900'
                       ]">{{ capaianKelasStore.getCurrentCapaianKelas.nama_ck || 'Tidak Tersedia' }}</span>
                     </div>
-                    <div class="py-2 border-b border-gray-200 last:border-b-0">
-                      <div :class="[
-                        'text-sm font-medium mb-1',
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      ]">Indikator</div>
-                      <div :class="[
-                        'text-sm whitespace-pre-wrap',
-                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                      ]">{{ capaianKelasStore.getCurrentCapaianKelas.indikator || 'Tidak Tersedia' }}</div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -234,9 +224,9 @@
                       <span :class="[
                         'text-sm font-medium',
                         isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      ]">ID Sub Elemen</span>
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getCapaianClass(capaianKelasStore.getCurrentCapaianKelas.id_sub_elemen || capaianKelasStore.getCurrentCapaianKelas.id_capaian)">
-                        {{ capaianKelasStore.getCurrentCapaianKelas.id_sub_elemen || capaianKelasStore.getCurrentCapaianKelas.id_capaian || 'Tidak Tersedia' }}
+                      ]">ID Capaian</span>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getCapaianClass(capaianKelasStore.getCurrentCapaianKelas.id_capaian)">
+                        {{ capaianKelasStore.getCurrentCapaianKelas.id_capaian || 'Tidak Tersedia' }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center py-2">

@@ -186,7 +186,7 @@
                 />
               </div>
 
-              <!-- Indikator (opsional) -->
+              <!-- Indikator (opsional sesuai backend) -->
               <div class="group">
                 <label for="indikator" :class="[
                   'block text-sm font-medium mb-2',
@@ -196,21 +196,20 @@
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z"></path>
                     </svg>
-                    Indikator <span class="text-xs ml-1 text-gray-400">(opsional)</span>
+                    Indikator <span class="ml-1 text-xs text-gray-400">(opsional)</span>
                   </span>
                 </label>
                 <textarea
                   v-model="form.indikator"
                   id="indikator"
-                  rows="4"
+                  rows="3"
                   @input="watchFormChanges"
                   :class="[
                     'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
                     isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
                   ]"
-                  placeholder="Tuliskan indikator capaian jika tersedia"
-                />
-                <p :class="['mt-1 text-xs', isDarkMode ? 'text-gray-400' : 'text-gray-500']">Catatan: Server saat ini mungkin belum menyimpan field ini saat tambah/edit.</p>
+                  placeholder="Masukkan indikator capaian (opsional)"
+                ></textarea>
               </div>
             </div>
 
@@ -467,11 +466,11 @@ export default {
     const form = reactive({
       kode_ck: '',
       nama_ck: '',
+      indikator: '',
       id_sekolah: '',
       id_kelas: '',
       // gunakan id_sub_elemen untuk pemilihan; store akan memetakan ke id_capaian bila perlu
-      id_sub_elemen: '',
-      indikator: ''
+      id_sub_elemen: ''
     })
 
   const isSubmitting = ref(false)
@@ -514,10 +513,10 @@ export default {
           const capaianKelas = capaianKelasStore.getCurrentCapaianKelas
           form.kode_ck = capaianKelas.kode_ck || ''
           form.nama_ck = capaianKelas.nama_ck || ''
+          form.indikator = capaianKelas.indikator || ''
           form.id_sekolah = capaianKelas.id_sekolah || ''
           form.id_kelas = capaianKelas.id_kelas || ''
           form.id_sub_elemen = capaianKelas.id_sub_elemen || capaianKelas.id_capaian || ''
-          form.indikator = capaianKelas.indikator || ''
 
           // Prefill cascading chains using backend lookups
           if (form.id_sub_elemen) {
@@ -560,30 +559,31 @@ export default {
       isSubmitting.value = true
 
       try {
+        // Hanya kirim field yang dibutuhkan backend. id_sub_elemen akan dipetakan di store -> id_capaian
         const formData = {
-          kode_ck: form.kode_ck,
-          nama_ck: form.nama_ck,
-          id_sekolah: parseInt(form.id_sekolah),
-          id_sub_elemen: parseInt(form.id_sub_elemen),
-          id_kelas: parseInt(form.id_kelas),
-          indikator: form.indikator,
+          kode_ck: String(form.kode_ck).trim(),
+          nama_ck: String(form.nama_ck).trim(),
+          id_sekolah: parseInt(form.id_sekolah, 10),
+          id_sub_elemen: parseInt(form.id_sub_elemen, 10),
+          id_kelas: parseInt(form.id_kelas, 10),
+          indikator: form.indikator ? String(form.indikator).trim() : undefined,
         }
 
         if (isAddMode.value) {
           // Add new capaian kelas
-          await capaianKelasStore.addCapaianKelas(formData)
+          const res = await capaianKelasStore.addCapaianKelas(formData)
           showToast.value = true
           toastType.value = 'success'
           toastTitle.value = 'Berhasil'
-          toastMessage.value = 'Capaian kelas baru berhasil ditambahkan'
+          toastMessage.value = res?.message || 'Capaian kelas baru berhasil ditambahkan'
           setTimeout(() => router.push({ name: 'capaian-kelas-list' }), 800)
         } else {
           // Update existing capaian kelas
-          await capaianKelasStore.updateCapaianKelas(route.params.id, formData)
+          const res = await capaianKelasStore.updateCapaianKelas(route.params.id, formData)
           showToast.value = true
           toastType.value = 'success'
           toastTitle.value = 'Berhasil'
-          toastMessage.value = 'Data capaian kelas berhasil diperbarui'
+          toastMessage.value = res?.message || 'Data capaian kelas berhasil diperbarui'
           setTimeout(() => router.push({ name: 'capaian-kelas-detail', params: { id: route.params.id } }), 800)
         }
 
@@ -592,7 +592,9 @@ export default {
         showToast.value = true
         toastType.value = 'error'
         toastTitle.value = 'Gagal'
-        toastMessage.value = isAddMode.value ? 'Gagal menambahkan capaian kelas baru' : 'Gagal menyimpan data capaian kelas'
+        // Ambil pesan backend jika ada
+        const msg = error?.response?.data?.message || error?.message
+        toastMessage.value = msg || (isAddMode.value ? 'Gagal menambahkan capaian kelas baru' : 'Gagal menyimpan data capaian kelas')
       } finally {
         isSubmitting.value = false
       }
