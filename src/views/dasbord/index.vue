@@ -489,7 +489,11 @@ const getNamaKelas = id => kelasList.value.find(k => k.id_kelas == id)?.nama_kel
 const getNamaDimensi = id => dimensiList.value.find(d => d.id_dimensi == id)?.nama_dimensi || '-';
 const getNamaElemen = id => elemenList.value.find(e => e.id_elemen == id)?.nama_elemen || '-';
 const getNamaSubElemen = id => subElemenList.value.find(se => se.id_sub_elemen == id)?.nama_sub_elemen || '-';
-const getNamaCapaian = id => capaianList.value.find(c => c.id_capaian == id)?.deskripsi || '-';
+// capaianList now holds rows from capaian_kelas: { id, id_sub_elemen, id_kelas, indikator, nama_ck, kode_ck }
+const getNamaCapaian = id => {
+  const ck = capaianList.value.find(c => c.id == id)
+  return ck?.indikator || ck?.nama_ck || '-'
+}
 const getJumlahSiswa = id_kelas => siswaList.value.filter(s => s.id_kelas == id_kelas).length;
 
 // Computed property for active filters
@@ -564,19 +568,16 @@ watch(filterDimensi, (newDimensi) => {
 
 // Helper relasi assessment (dimensi, elemen, sub elemen, capaian)
 const getRelasiAssessment = (ass) => {
-  // 1. Dapatkan capaian
-  const capaian = capaianList.value.find(c => c.id_capaian == ass.id_capaian);
-  // 2. Dapatkan sub elemen
-  const subElemen = capaian ? subElemenList.value.find(se => se.id_sub_elemen == capaian.id_sub_elemen) : null;
-  // 3. Dapatkan elemen
-  const elemen = subElemen ? elemenList.value.find(e => e.id_elemen == subElemen.id_elemen) : null;
-  // 4. Dapatkan dimensi
-  const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi == elemen.id_dimensi) : null;
+  // Assessment sekarang mengacu ke capaian_kelas melalui id_capaian_kelas
+  const ck = capaianList.value.find(c => c.id == ass.id_capaian_kelas)
+  const subElemen = ck ? subElemenList.value.find(se => se.id_sub_elemen == ck.id_sub_elemen) : null
+  const elemen = subElemen ? elemenList.value.find(e => e.id_elemen == subElemen.id_elemen) : null
+  const dimensi = elemen ? dimensiList.value.find(d => d.id_dimensi == elemen.id_dimensi) : null
   return {
     dimensi: dimensi ? dimensi.nama_dimensi : '-',
     elemen: elemen ? elemen.nama_elemen : '-',
     subElemen: subElemen ? subElemen.nama_sub_elemen : '-',
-    capaian: capaian ? capaian.deskripsi : '-'
+    capaian: ck ? (ck.indikator || ck.nama_ck || '-') : '-'
   }
 }
 
@@ -630,7 +631,7 @@ const fetchReferenceData = async () => {
     axios.get('/list/dimensi'),
     axios.get('/list/elemen'),
     axios.get('/list/sub_elemen'),
-    axios.get('/list/capaian'),
+    axios.get('/list/capaian_kelas'),
     axios.get('/list/siswa'),
     axios.get('/list/nilai'),
     axios.get('/list/pengampu')

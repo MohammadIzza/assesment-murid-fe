@@ -270,7 +270,7 @@
                   <!-- Display elemen groups -->
                   <template v-for="(elemen, elemIndex) in getElemenForDimensi(dimensi.id_dimensi)" :key="elemen.id_elemen">
                     <!-- Display each capaian within the elemen -->
-                    <template v-for="(capaian, capIndex) in getCapaianForSiswa(elemen.id_elemen)" :key="capaian.id_capaian">
+                    <template v-for="(capaian, capIndex) in getCapaianForSiswa(elemen.id_elemen)" :key="capaian.id">
                       <tr :class="capIndex % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'">
                         <!-- For first row in this elemen, show the dimension letter (A, B, etc) -->
                         <td v-if="capIndex === 0" :rowspan="getCapaianCountForElemen(elemen.id_elemen)" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-700 dark:text-green-300 align-top">
@@ -285,22 +285,22 @@
                         
                         <!-- Kompetensi description -->
                         <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                          {{ capaian.deskripsi }}
+                          {{ capaian.indikator || capaian.nama_ck }}
                         </td>
                         
                         <!-- Assessment columns (6 columns) -->
                         <template v-for="n in 6" :key="n">
                           <td class="px-3 py-4 text-center">
                             <div class="inline-flex items-center justify-center w-10 h-10 rounded-full"
-                              :class="getNilaiClass(getAssessmentValue(capaian.id_capaian, n-1))">
-                              {{ getAssessmentValue(capaian.id_capaian, n-1) || '-' }}
+                              :class="getNilaiClass(getAssessmentValue(capaian.id, n-1))">
+                              {{ getAssessmentValue(capaian.id, n-1) || '-' }}
                             </div>
                           </td>
                         </template>
                         
                         <!-- Average score -->
                         <td class="px-3 py-4 text-center font-medium text-gray-900 dark:text-gray-100">
-                          {{ calculateAverageForCapaian(capaian.id_capaian).toFixed(1) }}
+                          {{ calculateAverageForCapaian(capaian.id).toFixed(1) }}
                         </td>
                         
                         <!-- Status (Tuntas/Belum Tuntas) -->
@@ -308,12 +308,12 @@
                           <span 
                             :class="[
                               'px-2 py-1 text-xs font-medium rounded-full',
-                              calculateAverageForCapaian(capaian.id_capaian) >= 3 
+                              calculateAverageForCapaian(capaian.id) >= 3 
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                                 : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
                             ]"
                           >
-                            {{ calculateAverageForCapaian(capaian.id_capaian) >= 3 ? 'Tuntas' : 'Belum Tuntas' }}
+                            {{ calculateAverageForCapaian(capaian.id) >= 3 ? 'Tuntas' : 'Belum Tuntas' }}
                           </span>
                         </td>
                       </tr>
@@ -390,10 +390,10 @@
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_dimensi }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.deskripsi, 80) }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.indikator || capaian.nama_ck, 80) }}</td>
                   <td class="border-r border-gray-300 px-4 py-2 bg-gray-50"></td>
                   <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
-                    {{ capaian.nilai_average || getNilaiAverage(capaian.id_capaian) }}
+                    {{ capaian.nilai_average || getNilaiAverage(capaian.id) }}
                   </td>
                 </tr>
               </tbody>
@@ -571,13 +571,14 @@ const getCapaianForSiswa = (id_elemen) => {
   // Get all capaian for these sub elements
   let allCapaian = [];
   subElems.forEach(se => {
+    // capaianList berisi capaian_kelas; filter berdasarkan id_sub_elemen
     const capaianForSubElem = capaianList.value.filter(c => c.id_sub_elemen == se.id_sub_elemen);
     allCapaian = [...allCapaian, ...capaianForSubElem];
   });
   
   // Return only capaian that have assessments for this student
   return allCapaian.filter(c => {
-    const assessmentsForCapaian = assessmentList.value.filter(a => a.id_capaian == c.id_capaian);
+    const assessmentsForCapaian = assessmentList.value.filter(a => a.id_capaian_kelas == c.id);
     return assessmentsForCapaian.some(a => a.nilai && a.nilai[selectedSiswa.value.id_siswa]);
   });
 };
@@ -586,12 +587,12 @@ const getCapaianCountForElemen = (id_elemen) => {
   return getCapaianForSiswa(id_elemen).length;
 };
 
-const getAssessmentValue = (id_capaian, index) => {
-  if (!selectedSiswa.value || !id_capaian) return null;
+const getAssessmentValue = (id_capaian_kelas, index) => {
+  if (!selectedSiswa.value || !id_capaian_kelas) return null;
   
   // Get all assessments for this capaian
   const assessmentsForCapaian = assessmentList.value.filter(a => 
-    a.id_capaian == id_capaian && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
+    a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
   // Sort by date created
@@ -626,20 +627,20 @@ const getNilaiClass = (nilai) => {
   }
 };
 
-const getNilaiAverage = (id_capaian) => {
-  const avg = calculateAverageForCapaian(id_capaian);
+const getNilaiAverage = (id_capaian_kelas) => {
+  const avg = calculateAverageForCapaian(id_capaian_kelas);
   if (avg < 1.5) return 'MB';
   if (avg < 2.5) return 'SB';
   if (avg < 3.5) return 'BSH';
   return 'SAB';
 };
 
-const calculateAverageForCapaian = (id_capaian) => {
-  if (!selectedSiswa.value || !id_capaian) return 0;
+const calculateAverageForCapaian = (id_capaian_kelas) => {
+  if (!selectedSiswa.value || !id_capaian_kelas) return 0;
   
   // Get all assessments for this capaian
   const assessmentsForCapaian = assessmentList.value.filter(a => 
-    a.id_capaian == id_capaian && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
+    a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
   if (assessmentsForCapaian.length === 0) return 0;
@@ -660,12 +661,12 @@ const calculateAverageForCapaian = (id_capaian) => {
   return sum / values.length;
 };
 
-const calculateModusForCapaian = (id_capaian) => {
-  if (!selectedSiswa.value || !id_capaian) return 0;
+const calculateModusForCapaian = (id_capaian_kelas) => {
+  if (!selectedSiswa.value || !id_capaian_kelas) return 0;
   
   // Get all assessments for this capaian
   const assessmentsForCapaian = assessmentList.value.filter(a => 
-    a.id_capaian == id_capaian && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
+    a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
   if (assessmentsForCapaian.length === 0) return 0;
@@ -703,7 +704,7 @@ const getSiswaStatus = (siswa) => {
   // Only count capaian that actually have assessments for this student
   const relevantCapaian = capaianList.value.filter(c => {
     return assessmentList.value.some(a => 
-      a.id_capaian == c.id_capaian && 
+      a.id_capaian_kelas == c.id && 
       a.nilai && 
       a.nilai[siswa.id_siswa] !== undefined && 
       a.nilai[siswa.id_siswa] !== null && 
@@ -716,8 +717,8 @@ const getSiswaStatus = (siswa) => {
   let totalAvg = 0;
   let count = 0;
   
-  relevantCapaian.forEach(c => {
-    const avg = calculateStudentAvgForCapaian(c.id_capaian, siswa.id_siswa);
+  relevantCapaian.forEach(ck => {
+    const avg = calculateStudentAvgForCapaian(ck.id, siswa.id_siswa);
     if (avg > 0) {
       totalAvg += avg;
       count++;
@@ -737,10 +738,10 @@ const getSiswaStatusClass = (siswa) => {
     : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
 };
 
-const calculateStudentAvgForCapaian = (id_capaian, id_siswa) => {
+const calculateStudentAvgForCapaian = (id_capaian_kelas, id_siswa) => {
   // Get all assessments for this capaian and student
   const assessmentsForCapaian = assessmentList.value.filter(a => 
-    a.id_capaian == id_capaian && 
+    a.id_capaian_kelas == id_capaian_kelas && 
     a.nilai && 
     a.nilai[id_siswa] !== undefined && 
     a.nilai[id_siswa] !== null && 
@@ -780,8 +781,8 @@ const updateDistributionChart = () => {
   let total = 0;
   
   // For each capaian, get the average value for this student
-  capaianList.value.forEach(c => {
-    const avg = calculateStudentAvgForCapaian(c.id_capaian, selectedSiswa.value.id_siswa);
+  capaianList.value.forEach(ck => {
+    const avg = calculateStudentAvgForCapaian(ck.id, selectedSiswa.value.id_siswa);
     if (avg <= 0) return; // Skip if no assessments
     
     total++;
@@ -919,7 +920,8 @@ const fetchSubElemenList = async () => {
 
 const fetchCapaianList = async () => {
   try {
-    const response = await axios.get('/list/capaian');
+    // Use capaian_kelas as the source of capaian per kelas/sub-elemen
+    const response = await axios.get('/list/capaian_kelas');
     if (response.data.success) {
       capaianList.value = response.data.data || [];
     } else {
@@ -953,7 +955,7 @@ const fetchSiswaByKelas = async () => {
 const fetchAssessmentData = async () => {
   try {
     // Fetch all assessment data
-    const url = selectedKelas.value ? `/list/assessment?id_kelas=${selectedKelas.value}` : '/list/assessment';
+  const url = selectedKelas.value ? `/list/assessment?id_kelas=${selectedKelas.value}` : '/list/assessment';
     const response = await axios.get(url);
     
     if (response.data.success) {
@@ -975,16 +977,14 @@ const fetchAssessmentData = async () => {
       }
       
       // Calculate sudahDinilai and totalMaksimal
-      const uniqueCapaian = new Set();
-      const assessedCapaian = new Set();
+  const uniqueCapaian = new Set();
+  const assessedCapaian = new Set();
       
       // Count total unique capaian
       assessmentList.value.forEach(assessment => {
-        uniqueCapaian.add(assessment.id_capaian);
-        
-        // Check if this capaian has any nilai
+        uniqueCapaian.add(assessment.id_capaian_kelas);
         if (assessment.nilai && Object.keys(assessment.nilai).length > 0) {
-          assessedCapaian.add(assessment.id_capaian);
+          assessedCapaian.add(assessment.id_capaian_kelas);
         }
       });
       
@@ -1020,7 +1020,7 @@ const prepareCapaianList = async () => {
     siswaCapaianList.value = capaianList.value
       .filter(c => {
         const assessments = assessmentList.value.filter(a => 
-          a.id_capaian == c.id_capaian && 
+          a.id_capaian_kelas == c.id && 
           a.nilai && 
           a.nilai[selectedSiswa.value.id_siswa] !== undefined &&
           a.nilai[selectedSiswa.value.id_siswa] !== null &&
@@ -1036,7 +1036,7 @@ const prepareCapaianList = async () => {
         
         // Calculate the nilai average for this capaian
         const assessmentsForCapaian = assessmentList.value.filter(a => 
-          a.id_capaian == c.id_capaian && 
+          a.id_capaian_kelas == c.id && 
           a.nilai && 
           a.nilai[selectedSiswa.value.id_siswa] !== undefined &&
           a.nilai[selectedSiswa.value.id_siswa] !== null &&
