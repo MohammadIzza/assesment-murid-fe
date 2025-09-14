@@ -135,6 +135,30 @@
               <li v-for="p in pengampuForGuru" :key="p.id_pengampu">{{ p.nama_kelas }}</li>
             </ul>
           </div>
+
+          <!-- Siswa diajar -->
+          <div class="mt-5">
+            <div class="text-xs font-medium text-gray-700 mb-2">Siswa yang Diajar</div>
+            <div v-if="siswaForGuru.length === 0" class="text-sm text-gray-500">Belum ada siswa yang terdata untuk pengampu ini.</div>
+            <div v-else class="max-h-64 overflow-auto border border-gray-200 rounded-md">
+              <table class="min-w-full text-sm">
+                <thead class="bg-gray-100 text-gray-700">
+                  <tr>
+                    <th class="text-left px-3 py-2 font-semibold">Nama Siswa</th>
+                    <th class="text-left px-3 py-2 font-semibold">Kelas</th>
+                    <th class="text-left px-3 py-2 font-semibold">NISN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="s in siswaForGuru" :key="s.id_siswa" class="border-t border-gray-100">
+                    <td class="px-3 py-2 text-gray-800">{{ s.nama }}</td>
+                    <td class="px-3 py-2 text-gray-600">{{ s.nama_kelas }}</td>
+                    <td class="px-3 py-2 text-gray-600">{{ s.nisn || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -162,6 +186,7 @@ const roleList = ref([]);
 const sekolahList = ref([]);
 const kelasList = ref([]);
 const pengampuForGuru = ref([]);
+const siswaForGuru = ref([]);
 // Quick counts
 const jumlahKelas = ref(0);
 const jumlahSiswa = ref(0);
@@ -261,11 +286,12 @@ const fetchReferenceLists = async () => {
 const fetchRelations = async (id_guru) => {
   if (!id_guru) return;
   try {
-    const [pengampuRes, kelasCountRes, siswaCountRes, assessRes] = await Promise.allSettled([
+    const [pengampuRes, kelasCountRes, siswaCountRes, assessRes, siswaRes] = await Promise.allSettled([
       axios.get('/list/pengampu'),
       axios.get(`/filter/guru/${id_guru}/jumlah-kelas`),
       axios.get(`/filter/guru/${id_guru}/jumlah-siswa`),
-      axios.get(`/filter/assessment/guru/${id_guru}`)
+      axios.get(`/filter/assessment/guru/${id_guru}`),
+      axios.get('/list/siswa')
     ]);
 
     const pengampuData = pengampuRes.status === 'fulfilled' ? (pengampuRes.value?.data?.data || []) : [];
@@ -281,6 +307,23 @@ const fetchRelations = async (id_guru) => {
     jumlahAssessment.value = assessRes.status === 'fulfilled' && assessRes.value?.data?.success
       ? (assessRes.value?.data?.data?.length || 0)
       : 0;
+
+    // Compute siswa diajar guru: filter siswa by kelas yang diampu guru
+    const siswaDataAll = siswaRes.status === 'fulfilled' ? (siswaRes.value?.data?.data || []) : [];
+    const kelasIds = new Set(pengampuForGuru.value.map(p => p.id_kelas));
+    const uniq = new Map();
+    siswaDataAll.forEach(s => {
+      if (kelasIds.has(s.id_kelas)) {
+        // ensure uniqueness by id_siswa
+        if (!uniq.has(s.id_siswa)) {
+          uniq.set(s.id_siswa, {
+            ...s,
+            nama_kelas: kelasList.value.find(k => k.id_kelas == s.id_kelas)?.nama_kelas || `Kelas #${s.id_kelas}`
+          });
+        }
+      }
+    });
+    siswaForGuru.value = Array.from(uniq.values());
   } catch (e) {
     console.warn('Failed fetching relations:', e?.message || e);
   }
