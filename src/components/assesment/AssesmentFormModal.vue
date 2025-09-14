@@ -407,6 +407,35 @@ const loadFormData = () => {
     if (form.value.id_sub_elemen) {
       onSubElemenChange()
     }
+  } else if (!props.isEdit && props.selectedAssessment) {
+    // Prefill form for create mode using selection passed from parent filters
+    const sel = props.selectedAssessment
+    form.value = {
+      nama_assessment: sel.nama_assessment || '',
+      id_kelas: sel.id_kelas || '',
+      id_dimensi: sel.id_dimensi || '',
+      id_elemen: sel.id_elemen || '',
+      id_sub_elemen: sel.id_sub_elemen || '',
+      id_capaian: sel.id_capaian || '',
+      nilai: sel.nilai || {}
+    }
+
+    // Load dependent data chains based on preselected values
+    if (form.value.id_kelas) {
+      onKelasChange()
+    }
+    if (form.value.id_dimensi) {
+      onDimensiChange()
+    }
+    if (form.value.id_elemen) {
+      onElemenChange()
+    }
+    if (form.value.id_sub_elemen) {
+      onSubElemenChange()
+    }
+
+    // Generate default name if enabled
+    updateAssessmentName()
   }
 }
 
@@ -494,10 +523,11 @@ const onSubElemenChange = async () => {
       const rows = (listRes.data?.success ? listRes.data.data : [])
         .filter(r => r.id_kelas == form.value.id_kelas && r.id_sub_elemen == form.value.id_sub_elemen)
 
-      // Normalize options: id_capaian, deskripsi (nama_ck/kode_ck), id_ck (primary key), id_sub_elemen
+      // Normalize options: use capaian_kelas primary key (ck.id) consistently as id_capaian
+      // so downstream logic can resolve id_capaian_kelas without ambiguity
       capaianList.value = (rows || []).map(r => ({
-        id_capaian: r.id_capaian,
-        deskripsi: r.nama_ck || `Capaian ${r.kode_ck || r.id_capaian}`,
+        id_capaian: r.id ?? r.id_capaian, // prefer ck.id, fallback to legacy field if exists
+        deskripsi: r.nama_ck || `Capaian ${r.kode_ck || r.id}`,
         id_ck: r.id,
         id_sub_elemen: r.id_sub_elemen
       }))
@@ -646,13 +676,8 @@ onMounted(async () => {
       dimensiStore.fetchDimensiList()
     ])
     
-    // If edit mode, load the assessment data
-    if (props.isEdit) {
-      loadFormData()
-    } else {
-      // Set default assessment name
-      updateAssessmentName()
-    }
+    // Load initial form (both edit and create when parent preselects)
+    loadFormData()
   } catch (error) {
     console.error('Error loading initial data:', error)
   }
@@ -660,7 +685,7 @@ onMounted(async () => {
 
 // Watchers
 watch(() => props.selectedAssessment, () => {
-  if (props.isEdit && props.selectedAssessment) {
+  if (props.selectedAssessment) {
     loadFormData()
   }
 })

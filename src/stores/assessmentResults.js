@@ -78,6 +78,10 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
      */
     async getOrCreateAssessmentId(filters) {
       try {
+        // filters must include id_capaian_kelas
+        if (!filters?.id_capaian_kelas) {
+          throw new Error('id_capaian_kelas wajib ada pada filters');
+        }
         // Cek apakah sudah ada assessment untuk kombinasi ini
         const existingAssessment = await this.findAssessmentByFilters(filters)
         
@@ -86,7 +90,8 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
         } else {
           // Buat assessment baru
           const assessmentData = {
-            id_capaian: filters.id_capaian,
+            // backend expects id_capaian_kelas
+            id_capaian_kelas: filters.id_capaian_kelas,
             nama_assessment: `${filters.nama_kelas} - ${filters.nama_dimensi} - ${filters.nama_elemen} - ${filters.nama_sub_elemen}`,
             deskripsi: `Assessment untuk ${filters.nama_kelas} pada ${filters.nama_dimensi}`,
             bobot: 1
@@ -119,7 +124,7 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
           
           // Cari assessment yang sesuai dengan filter
           return assessments.find(assessment => 
-            assessment.id_capaian == filters.id_capaian &&
+            assessment.id_capaian_kelas == filters.id_capaian_kelas &&
             assessment.nama_assessment.includes(filters.nama_kelas) &&
             assessment.nama_assessment.includes(filters.nama_dimensi)
           )
@@ -144,7 +149,7 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
         const { siswaList, nilaiSiswa, filters } = data
         
         // Dapatkan assessment ID
-        const assessmentId = await this.getOrCreateAssessmentId(filters)
+  const assessmentId = await this.getOrCreateAssessmentId(filters)
         // Ambil id_pengampu berdasarkan guru & kelas aktif
         const authStore = useAuthStore()
         const guruStore = useGuruStore()
@@ -181,7 +186,7 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
           }
         }).filter(Boolean)
         
-        const responses = await Promise.all(promises)
+  const responses = await Promise.all(promises)
         
         // Update progress
         this.progress.current++
@@ -214,7 +219,7 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
       
       try {
         // Dapatkan assessment ID
-        const assessmentId = await this.getOrCreateAssessmentId(filters)
+  const assessmentId = await this.getOrCreateAssessmentId(filters)
         
         // Ambil semua nilai untuk assessment ini
         const response = await axios.get(`/filter/assessment/${assessmentId}/nilai`)

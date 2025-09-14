@@ -874,20 +874,12 @@ const getCapaianForElemen = (id_elemen) => {
   // Get all sub-elemens for this elemen
   const relevantSubElems = getSubElemenForElemen(id_elemen);
   if (relevantSubElems.length === 0) return [];
-  
-  // Get the fase from the selected kelas
-  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
-  if (!kelas) return [];
-  
-  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
-  if (!id_fase) return [];
-  
-  // Get all capaian for all sub-elemens of this elemen, filtered by fase
+
+  // capaianList already filtered by selected kelas in fetchCapaianList
   let allCapaian = [];
   relevantSubElems.forEach(se => {
     const capaianForSubElem = capaianList.value.filter(c => 
-      c.id_sub_elemen == se.id_sub_elemen && 
-      c.id_fase == id_fase
+      c.id_sub_elemen == se.id_sub_elemen
     );
     allCapaian = [...allCapaian, ...capaianForSubElem];
   });
@@ -1152,9 +1144,11 @@ const fetchCapaianList = async (id_fase, id_sub_elemen) => {
       let list = res.data.data || []
       if (selectedKelas.value) list = list.filter(x => x.id_kelas == selectedKelas.value)
       if (id_sub_elemen) list = list.filter(x => x.id_sub_elemen == id_sub_elemen)
+      // Map capaian to capaian_kelas contract used by backend (ck.id is the key)
       capaianList.value = list.map(x => ({
-        id_capaian: x.id_capaian,
-        deskripsi: x.nama_ck || `Capaian ${x.kode_ck || x.id_capaian}`,
+        // preserve existing field name for template usage but hold ck id
+        id_capaian: x.id_capaian ?? x.id, // legacy fallback
+        deskripsi: x.nama_ck || `Capaian ${x.kode_ck || x.id}`,
         id_sub_elemen: x.id_sub_elemen,
         id_ck: x.id
       }))
@@ -1219,7 +1213,8 @@ const fetchNilaiSiswa = async () => {
     const resCk = await axios.get('/list/capaian_kelas');
     const ckList = (resCk.data?.success ? resCk.data.data : [])
       .filter(ck => ck.id_kelas == selectedKelas.value);
-    const ckIdToCapaianId = new Map(ckList.map(ck => [ck.id, ck.id_capaian]));
+    // Map ck.id directly for translation later
+    const ckIdSet = new Set(ckList.map(ck => ck.id));
 
     // Step 2: Fetch all nilai
     const responseNilai = await axios.get(`/list/nilai`);
@@ -1256,16 +1251,17 @@ const fetchNilaiSiswa = async () => {
     
     // Step 5: Process each capaian to get assessment values
     // Translate assessment.id_capaian_kelas -> id_capaian using ck map
+    // Use capaian_kelas ids directly (ck.id)
     const capaianIds = [...new Set(assessmentList
-      .map(a => ckIdToCapaianId.get?.(a.id_capaian_kelas))
-      .filter(Boolean))];
+      .map(a => a.id_capaian_kelas)
+      .filter(id => id && ckIdSet.has(id))
+    )];
     
     capaianIds.forEach(id_capaian => {
       // Get all assessments for this capaian that have nilai data
-      const assessmentsForCapaian = assessmentList.filter(a => {
-        const capId = ckIdToCapaianId.get?.(a.id_capaian_kelas);
-        return capId == id_capaian && a.nilai && Object.keys(a.nilai).length > 0;
-      });
+      const assessmentsForCapaian = assessmentList.filter(a => 
+        a.id_capaian_kelas == id_capaian && a.nilai && Object.keys(a.nilai).length > 0
+      );
       
       // Sort by creation date or ID to maintain order
       assessmentsForCapaian.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
@@ -1303,12 +1299,12 @@ const fetchNilaiSiswa = async () => {
     console.log('Final assessment values structure:', assessmentValues.value);
     
     // Also maintain the existing nilaiSiswa structure for backward compatibility
-    Object.keys(assessmentValues.value).forEach(id_capaian => {
-      nilaiSiswa.value[id_capaian] = {};
+    Object.keys(assessmentValues.value).forEach(id_ck => {
+      nilaiSiswa.value[id_ck] = {};
       
-      Object.keys(assessmentValues.value[id_capaian]).forEach(id_siswa => {
+      Object.keys(assessmentValues.value[id_ck]).forEach(id_siswa => {
         // Use the mode value as the representative value
-        nilaiSiswa.value[id_capaian][id_siswa] = getModusNilai(id_capaian, id_siswa);
+        nilaiSiswa.value[id_ck][id_siswa] = getModusNilai(id_ck, id_siswa);
       });
     });
     
@@ -1553,7 +1549,8 @@ const saveAssessment = async (formData) => {
           ckRows = (listRes.data.data || []).filter(r => r.id_kelas == id_kelas && r.id_sub_elemen == id_sub_elemen)
         }
 
-        const found = ckRows.find(r => r.id_capaian == id_capaian)
+        // pick the first ck row for this kelas+sub_elemen if multiple
+        const found = ckRows.find(r => true)
         if (!found) {
           throw new Error('Capaian terpilih tidak terdaftar pada kelas/sub elemen ini')
         }
@@ -1600,7 +1597,7 @@ const saveAssessment = async (formData) => {
       throw new Error('Pengampu untuk guru/kelas ini tidak ditemukan. Pastikan mapping pengampu sudah ada.');
     }
 
-    // Process nilai submission with better error handling
+  // Process nilai submission with better error handling
     if (id_assessment && formData.nilai) {
       const nilaiPromises = [];
       

@@ -211,14 +211,22 @@ export const useAssesmentStore = defineStore("assesment", {
       this.error = null;
 
       try {
-        // Make sure assessmentData includes nama_assessment
-        const formData = {
-          ...assessmentData,
+        // Validate required field mapping to backend contract
+        const { id_capaian_kelas, deskripsi, bobot } = assessmentData || {};
+        if (!id_capaian_kelas) {
+          throw new Error("id_capaian_kelas wajib diisi untuk membuat assessment");
+        }
+
+        // Ensure payload matches backend fields exactly
+        const payload = {
+          id_capaian_kelas: Number(id_capaian_kelas),
           nama_assessment:
             assessmentData.nama_assessment || `Assessment ${Date.now()}`,
+          deskripsi: deskripsi || "",
+          bobot: typeof bobot === "number" ? bobot : parseInt(bobot || 0) || 0,
         };
 
-        const response = await axios.post("/add/assessment", formData);
+        const response = await axios.post("/add/assessment", payload);
 
         if (response.data.success) {
           // Reload assessment list to get latest data

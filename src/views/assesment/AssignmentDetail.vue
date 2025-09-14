@@ -176,15 +176,16 @@ onMounted(async () => {
     return
   }
 
-  // 2. Trace relasi dari id_capaian assessment
-  const capaianList = (await axios.get('/list/capaian')).data.data
-  capaian.value = capaianList.find(c => c.id_capaian == assessment.value.id_capaian)
+  // 2. Trace relasi via capaian_kelas -> sub_elemen -> elemen -> dimensi
+  const ckList = (await axios.get('/list/capaian_kelas')).data.data
+  const ck = ckList.find(x => x.id === assessment.value.id_capaian_kelas)
   const subElemenList = (await axios.get('/list/sub_elemen')).data.data
-  subElemen.value = capaian.value ? subElemenList.find(se => se.id_sub_elemen == capaian.value.id_sub_elemen) : null
+  subElemen.value = ck ? subElemenList.find(se => se.id_sub_elemen == ck.id_sub_elemen) : null
   const elemenList = (await axios.get('/list/elemen')).data.data
   elemen.value = subElemen.value ? elemenList.find(e => e.id_elemen == subElemen.value.id_elemen) : null
   const dimensiList = (await axios.get('/list/dimensi')).data.data
   dimensi.value = elemen.value ? dimensiList.find(d => d.id_dimensi == elemen.value.id_dimensi) : null
+  capaian.value = ck ? { deskripsi: ck.nama_ck, id_sub_elemen: ck.id_sub_elemen } : null
 
   // 3. Fetch nilai & siswa
   const nilaiList = (await axios.get('/list/nilai')).data.data.filter(n => n.id_assessment == idAssessment)
