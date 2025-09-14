@@ -2,18 +2,19 @@
   <div class="fixed inset-0 z-50 overflow-y-auto" 
     :class="{'bg-gray-900/50': !isDarkMode, 'bg-black/70': isDarkMode}">
     <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center">
-      <div class="relative w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all"
-        :class="{'bg-white': !isDarkMode, 'bg-gray-800': isDarkMode}">
+      <div class="relative w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl ring-1 transform transition-all"
+        role="dialog" aria-modal="true" aria-labelledby="assessment-modal-title"
+        :class="{'bg-white ring-slate-200/70': !isDarkMode, 'bg-gray-800 ring-gray-700/60': isDarkMode}">
         
         <!-- Modal Header -->
-        <div class="px-6 py-4 border-b"
-          :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
+        <div class="px-6 py-4 border-b sticky top-0 z-20 backdrop-blur"
+          :class="{'border-slate-200/80 bg-white/90': !isDarkMode, 'border-gray-700/80 bg-gray-800/90': isDarkMode}">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold"
+            <h3 id="assessment-modal-title" class="text-lg font-semibold"
               :class="{'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode}">
               {{ isEdit ? 'Edit Assessment' : 'Buat Assessment Baru' }}
             </h3>
-            <button @click="$emit('close')" class="text-gray-400 hover:text-gray-500">
+            <button @click="$emit('close')" class="text-gray-400 hover:text-gray-500" aria-label="Tutup modal">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
@@ -21,26 +22,27 @@
           </div>
         </div>
         
-        <!-- Modal Body -->
-        <div class="px-6 py-4 max-h-[80vh] overflow-y-auto">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Modal Body -->
+  <div class="px-6 py-6 max-h-[80vh] overflow-y-auto overscroll-contain">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- Form Fields -->
             <div class="col-span-1 md:col-span-2">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <!-- Nama Assessment -->
                 <div class="group">
                   <label for="nama_assessment" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Nama Assessment <span class="text-red-500">*</span>
                   </label>
                   <input
                     v-model="form.nama_assessment"
                     type="text"
                     id="nama_assessment"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 placeholder:text-gray-400 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     placeholder="Nama akan dibuat otomatis"
                     :disabled="autoNaming"
+                    ref="namaRef"
                   />
                   <div class="mt-1 text-xs text-gray-500 flex items-center gap-2">
                     <input type="checkbox" v-model="autoNaming" id="autoNaming" class="rounded">
@@ -51,15 +53,16 @@
                 <!-- Kelas selection -->
                 <div class="group">
                   <label for="id_kelas" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Kelas <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.id_kelas"
                     id="id_kelas"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     @change="onKelasChange"
+                    ref="kelasRef"
                   >
                     <option value="" disabled>Pilih Kelas</option>
                     <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
@@ -71,15 +74,16 @@
                 <!-- Dimensi -->
                 <div class="group">
                   <label for="id_dimensi" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Dimensi <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.id_dimensi"
                     id="id_dimensi"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     @change="onDimensiChange"
+                    ref="dimensiRef"
                   >
                     <option value="" disabled>Pilih Dimensi</option>
                     <option v-for="dimensi in dimensiList" :key="dimensi.id_dimensi" :value="dimensi.id_dimensi">
@@ -91,16 +95,17 @@
                 <!-- Elemen -->
                 <div class="group">
                   <label for="id_elemen" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Elemen <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.id_elemen"
                     id="id_elemen"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     @change="onElemenChange"
                     :disabled="!form.id_dimensi"
+                    ref="elemenRef"
                   >
                     <option value="" disabled>Pilih Elemen</option>
                     <option v-for="elemen in filteredElemenList" :key="elemen.id_elemen" :value="elemen.id_elemen">
@@ -112,16 +117,17 @@
                 <!-- Sub Elemen -->
                 <div class="group">
                   <label for="id_sub_elemen" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Sub Elemen <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.id_sub_elemen"
                     id="id_sub_elemen"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     @change="onSubElemenChange"
                     :disabled="!form.id_elemen"
+                    ref="subElemenRef"
                   >
                     <option value="" disabled>Pilih Sub Elemen</option>
                     <option v-for="subElemen in filteredSubElemenList" :key="subElemen.id_sub_elemen" :value="subElemen.id_sub_elemen">
@@ -133,22 +139,50 @@
                 <!-- Capaian -->
                 <div class="group">
                   <label for="id_capaian" class="block text-sm font-medium mb-2"
-                    :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">
+                    :class="{'text-gray-500': !isDarkMode, 'text-gray-300': isDarkMode}">
                     Capaian <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.id_capaian"
                     id="id_capaian"
-                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500"
-                    :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                    class="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-700 focus:border-blue-700 shadow-sm"
+                    :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     @change="onCapaianChange"
                     :disabled="!form.id_sub_elemen || capaianList.length === 0"
+                    ref="capaianRef"
                   >
                     <option value="" disabled>Pilih Capaian</option>
                     <option v-for="capaian in capaianList" :key="capaian.id_capaian" :value="capaian.id_capaian">
                       {{ capaian.deskripsi }}
                     </option>
                   </select>
+                </div>
+
+                <!-- Indikator Preview - full width under Capaian -->
+                <div class="group col-span-1 md:col-span-2">
+         <div class="rounded-lg border p-3 sm:p-4 transition-colors"
+           :class="{'border-slate-200 bg-[#F8FAFC]': !isDarkMode, 'border-gray-700 bg-gray-700/40': isDarkMode}"
+                       role="status" aria-live="polite" :aria-busy="isLoadingIndikator">
+                    <div class="flex items-center justify-between mb-1">
+                      <div class="text-xs font-medium" :class="{'text-gray-600': !isDarkMode, 'text-gray-300': isDarkMode}">Indikator</div>
+                      <svg v-if="isLoadingIndikator" class="w-4 h-4 animate-spin text-blue-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0a12 12 0 000 24v-4a8 8 0 01-8-8z"/>
+                      </svg>
+                    </div>
+                    <template v-if="!form.id_capaian">
+                      <div class="text-sm italic" :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">Pilih capaian untuk melihat indikator</div>
+                    </template>
+                    <template v-else>
+          <div v-if="selectedIndikatorOneLine" class="text-sm truncate" :title="selectedIndikatorOneLine"
+            :class="{'text-gray-700': !isDarkMode, 'text-gray-200': isDarkMode}">
+                        {{ selectedIndikatorOneLine }}
+                      </div>
+                      <div v-else-if="!isLoadingIndikator" class="text-sm italic" :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
+                        Tidak ada indikator untuk capaian ini
+                      </div>
+                    </template>
+                  </div>
                 </div>
 
                 <!-- Search -->
@@ -158,8 +192,8 @@
                       v-model="searchQuery"
                       type="text"
                       placeholder="Cari siswa..."
-                      class="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      :class="{'border-gray-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
+                      class="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 placeholder:text-gray-400 shadow-sm"
+                      :class="{'border-slate-300 bg-white text-gray-700': !isDarkMode, 'border-gray-600 bg-gray-800 text-gray-200': isDarkMode}"
                     />
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -171,22 +205,22 @@
             
             <!-- Daftar Siswa dan Nilai -->
             <div class="col-span-1 md:col-span-2 mt-4 border rounded-xl overflow-hidden"
-              :class="{'border-gray-200': !isDarkMode, 'border-gray-700': isDarkMode}">
+              :class="{'border-slate-200': !isDarkMode, 'border-gray-700': isDarkMode}">
               <div class="overflow-hidden">
-                <div class="p-4 bg-blue-50 dark:bg-blue-900/30 border-b border-blue-100 dark:border-blue-800">
+                <div class="p-4 bg-[#F9FAFB] dark:bg-blue-900/30 border-b border-slate-200 dark:border-blue-800">
                   <h3 class="font-medium"
                     :class="{'text-blue-800': !isDarkMode, 'text-blue-300': isDarkMode}">
                     Daftar Siswa
                   </h3>
                   <p class="text-sm mt-1"
-                    :class="{'text-blue-600': !isDarkMode, 'text-blue-400': isDarkMode}">
+                    :class="{'text-gray-600': !isDarkMode, 'text-blue-400': isDarkMode}">
                     * Nilai siswa opsional, dapat diisi nanti
                   </p>
                 </div>
                 
                 <!-- Table Header -->
                 <div class="grid grid-cols-12 gap-4 p-4 font-medium border-b"
-                  :class="{'border-gray-200 bg-gray-50': !isDarkMode, 'border-gray-700 bg-gray-700': isDarkMode}">
+                  :class="{'border-slate-200 bg-slate-50': !isDarkMode, 'border-gray-700 bg-gray-700': isDarkMode}">
                   <div class="col-span-1"
                     :class="{'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode}">
                     #
@@ -206,8 +240,8 @@
                 <div 
                   v-for="(siswa, index) in filteredSiswaList" 
                   :key="siswa.id_siswa"
-                  class="p-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700"
-                  :class="{'border-gray-100': !isDarkMode, 'border-gray-700': isDarkMode}"
+                  class="p-4 border-b hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+                  :class="{'border-slate-100': !isDarkMode, 'border-gray-700': isDarkMode}"
                 >
                   <div class="grid grid-cols-12 gap-4 items-center">
                     <div class="col-span-1"
@@ -228,7 +262,7 @@
                             :value="opt"
                             v-model="form.nilai[siswa.id_siswa]"
                             class="w-4 h-4"
-                            :class="{'accent-blue-600': !isDarkMode, 'accent-blue-400': isDarkMode}"
+                            :class="{'accent-blue-700': !isDarkMode, 'accent-blue-400': isDarkMode}"
                           />
                           <span class="ml-2 text-sm"
                             :class="{'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode}">{{ opt }}</span>
@@ -251,8 +285,8 @@
         </div>
         
         <!-- Modal Footer -->
-        <div class="px-6 py-4 flex justify-end space-x-3"
-          :class="{'bg-gray-50': !isDarkMode, 'bg-gray-800': isDarkMode}">
+        <div class="px-6 py-6 flex items-center justify-between border-t"
+          :class="{'bg-gray-50 border-slate-200/80': !isDarkMode, 'bg-gray-800 border-gray-700/80': isDarkMode}">
           <button 
             @click="$emit('close')" 
             class="px-4 py-2 border rounded-lg text-sm font-medium transition-colors duration-200"
@@ -264,7 +298,7 @@
             @click="submitForm" 
             :disabled="!isFormValid || isSubmitting"
             class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50"
-            :class="{'bg-blue-600 text-white hover:bg-blue-700': !isDarkMode, 'bg-blue-700 text-white hover:bg-blue-600': isDarkMode}"
+            :class="{'bg-blue-700 text-white hover:bg-blue-800': !isDarkMode, 'bg-blue-700 text-white hover:bg-blue-600': isDarkMode}"
           >
           <span v-if="isSubmitting" class="inline-flex items-center">
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -323,6 +357,9 @@ const isDarkMode = computed(() => themeStore.isDarkMode)
 
 // State variables
 const isSubmitting = ref(false)
+const isLoadingIndikator = ref(false)
+const indikatorCache = ref({}) // key: ckId, value: string
+let cancelIndikatorController = null
 const searchQuery = ref('')
 const siswaList = ref([])
 const elemenList = ref([])
@@ -330,6 +367,13 @@ const subElemenList = ref([])
 const capaianList = ref([])
 const assessmentNumber = ref(1)
 const autoNaming = ref(true)
+// focus refs
+const namaRef = ref(null)
+const kelasRef = ref(null)
+const dimensiRef = ref(null)
+const elemenRef = ref(null)
+const subElemenRef = ref(null)
+const capaianRef = ref(null)
 
 // Form state
 const form = ref({
@@ -363,6 +407,26 @@ const filteredElemenList = computed(() =>
 const filteredSubElemenList = computed(() => 
   subElemenList.value.filter(se => se.id_elemen == form.value.id_elemen)
 )
+
+// Indikator for selected capaian_kelas (from capaianList rows via onSubElemenChange)
+const selectedIndikator = computed(() => {
+  if (!form.value.id_capaian) return ''
+  const cap = capaianList.value.find(c => c.id_capaian == form.value.id_capaian)
+  const ckId = cap?.id_ck || cap?.id_capaian
+  // Prefer cached value, fallback to preloaded field from list
+  const cached = ckId ? indikatorCache.value[ckId] : ''
+  return (cached ?? cap?.indikator ?? '').toString().trim()
+})
+
+// Single line version for compact display
+const selectedIndikatorOneLine = computed(() => {
+  const text = selectedIndikator.value
+  if (!text) return ''
+  return text
+    .replace(/\r|\n|\t|\u2022|\d+\.|;|-/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+})
 
 const isFormValid = computed(() => {
   // Basic form validation for required fields - removed kompetensi
@@ -469,6 +533,8 @@ const onKelasChange = async () => {
   elemenList.value = []
   subElemenList.value = []
   capaianList.value = []
+  indikatorCache.value = {}
+  isLoadingIndikator.value = false
   
   // Fetch siswa list by kelas
   await fetchSiswaByKelas()
@@ -482,6 +548,8 @@ const onDimensiChange = async () => {
   form.value.id_capaian = ''
   subElemenList.value = []
   capaianList.value = []
+  indikatorCache.value = {}
+  isLoadingIndikator.value = false
   
   if (form.value.id_dimensi) {
     try {
@@ -499,6 +567,8 @@ const onElemenChange = async () => {
   form.value.id_sub_elemen = ''
   form.value.id_capaian = ''
   capaianList.value = []
+  indikatorCache.value = {}
+  isLoadingIndikator.value = false
   
   if (form.value.id_elemen) {
     try {
@@ -515,6 +585,8 @@ const onSubElemenChange = async () => {
   // Reset dependent fields
   form.value.id_capaian = ''
   capaianList.value = []
+  indikatorCache.value = {}
+  isLoadingIndikator.value = false
   
   if (form.value.id_sub_elemen && form.value.id_kelas) {
     try {
@@ -529,7 +601,8 @@ const onSubElemenChange = async () => {
         id_capaian: r.id ?? r.id_capaian, // prefer ck.id, fallback to legacy field if exists
         deskripsi: r.nama_ck || `Capaian ${r.kode_ck || r.id}`,
         id_ck: r.id,
-        id_sub_elemen: r.id_sub_elemen
+        id_sub_elemen: r.id_sub_elemen,
+        indikator: r.indikator || ''
       }))
     } catch (error) {
       console.error('Error fetching capaian_kelas list:', error)
@@ -537,6 +610,8 @@ const onSubElemenChange = async () => {
     }
   }
   updateAssessmentName()
+  // Move focus to capaian select to aid flow
+  requestAnimationFrame(() => capaianRef.value?.focus?.())
 }
 
 const onCapaianChange = async () => {
@@ -547,6 +622,10 @@ const onCapaianChange = async () => {
       const rows = capaianList.value || []
       const ck = rows.find(r => r.id_capaian == form.value.id_capaian)
       if (!ck) { assessmentNumber.value = 1; updateAssessmentName(); return }
+
+      // Fetch indikator with caching and cancellation
+      await fetchIndikatorForCk(ck.id_ck)
+
       // Prefer list endpoint directly to avoid 404s on filter endpoints
       let existing = []
       const listRes = await axios.get('/list/assessment')
@@ -564,6 +643,31 @@ const onCapaianChange = async () => {
     }
   }
   updateAssessmentName()
+}
+// Fetch indikator for a capaian_kelas id with caching and cancellation
+async function fetchIndikatorForCk(ckId) {
+  if (!ckId) return
+  // Cached
+  if (indikatorCache.value[ckId] !== undefined) return
+
+  // Cancel previous
+  if (cancelIndikatorController) {
+    try { cancelIndikatorController.abort() } catch {}
+  }
+  cancelIndikatorController = new AbortController()
+  isLoadingIndikator.value = true
+  try {
+    const res = await axios.get(`/view/capaian_kelas/${ckId}`, { signal: cancelIndikatorController.signal })
+    const data = res.data?.data?.[0] || res.data?.data || {}
+    indikatorCache.value[ckId] = (data.indikator || '').toString()
+  } catch (err) {
+    if (err?.name !== 'AbortError') {
+      console.error('Failed to fetch indikator:', err)
+      indikatorCache.value[ckId] = ''
+    }
+  } finally {
+    isLoadingIndikator.value = false
+  }
 }
 
 // Update assessment name based on selections
@@ -678,6 +782,11 @@ onMounted(async () => {
     
     // Load initial form (both edit and create when parent preselects)
     loadFormData()
+
+    // Focus first required field
+    requestAnimationFrame(() => {
+      (form.value.nama_assessment ? kelasRef.value : namaRef.value)?.focus?.()
+    })
   } catch (error) {
     console.error('Error loading initial data:', error)
   }
@@ -702,4 +811,12 @@ watch(() => [
     updateAssessmentName()
   }
 }, { deep: true })
+
+// If modal opened with preselected capaian, ensure indikator fetched
+watch(() => form.value.id_capaian, async (newVal, oldVal) => {
+  if (newVal && newVal !== oldVal) {
+    const cap = capaianList.value.find(c => c.id_capaian == newVal)
+    if (cap?.id_ck) await fetchIndikatorForCk(cap.id_ck)
+  }
+})
 </script>
