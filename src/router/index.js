@@ -344,12 +344,15 @@ const router = createRouter({
             title: 'Edit Capaian Kelas',
           },
         },
+        
+        // Admin routes - Removed admin management functionality as it's no longer needed
+        // Admin user will only have access to manage other data, not admin users
       ],
     },
   ],
 })
 
-// Route guard untuk mengecek autentikasi
+// Route guard untuk mengecek autentikasi dan otorisasi
 router.beforeEach(async (to, from, next) => {
   // Import auth store disini untuk menghindari circular dependency
   const { useAuthStore } = await import('@/stores/auth')
@@ -362,10 +365,22 @@ router.beforeEach(async (to, from, next) => {
   
   const isAuthenticated = authStore.isAuthenticated
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const guestOnly = to.matched.some(record => record.meta.guestOnly)
+  
+  console.log('Route guard:', { 
+    path: to.path,
+    isAuthenticated, 
+    requiresAuth,
+    requiresAdmin, 
+    isAdmin: authStore.isAdmin,
+    userRole: authStore.userRole,
+    user: authStore.user
+  })
   
   // Jika halaman memerlukan auth tapi user belum login
   if (requiresAuth && !isAuthenticated) {
+    console.log('Redirecting to login: auth required but user not authenticated')
     next({
       name: 'login',
       query: { redirect: to.fullPath }
@@ -373,8 +388,16 @@ router.beforeEach(async (to, from, next) => {
     return
   }
   
+  // Jika halaman memerlukan hak admin tapi user bukan admin
+  if (requiresAdmin && !authStore.isAdmin) {
+    console.log('Redirecting to dashboard: admin required but user not admin')
+    next({ name: 'dashboard' })
+    return
+  }
+  
   // Jika halaman hanya untuk guest tapi user sudah login
   if (guestOnly && isAuthenticated) {
+    console.log('Redirecting to dashboard: page is guest-only but user is authenticated')
     next({ name: 'dashboard' })
     return
   }

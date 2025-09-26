@@ -32,20 +32,54 @@ export const useAuthStore = defineStore('auth', {
   const sessionId = Cookies.get(SESSION_COOKIE);
   const isAuthenticated = !!token && !!user && !!sessionId;
 
+    // Make sure id_role is parsed as a number
+    const userRole = user?.id_role ? parseInt(user.id_role) : 0;
+    
+    console.log('Initial auth state:', { 
+      user, 
+      isAuthenticated, 
+      userRole
+    });
+    
     return {
       user,
       token: token || null,
       sessionId: sessionId || null,
       isAuthenticated: isAuthenticated,
       loading: false,
-      error: null
+      error: null,
+      userRole: userRole // 1 untuk admin, 2 untuk guru, 0 untuk belum diketahui
     }
   },
 
   getters: {
     isLoggedIn: (state) => !!state.token && !!state.user,
     getUser: (state) => state.user,
-    getToken: (state) => state.token
+    getToken: (state) => state.token,
+    isAdmin: (state) => {
+      // Parse values as integers to ensure consistent comparison
+      const stateUserRole = parseInt(state.userRole) || 0;
+      const userIdRole = parseInt(state.user?.id_role) || 0;
+      
+      const isAdminRole = stateUserRole === 1 || userIdRole === 1;
+      
+      console.log('Checking isAdmin:', { 
+        userRole: state.userRole, 
+        parsedUserRole: stateUserRole,
+        userId_role: state.user?.id_role,
+        parsedUserIdRole: userIdRole,
+        result: isAdminRole,
+        user: state.user
+      });
+      
+      return isAdminRole;
+    },
+    isGuru: (state) => {
+      const stateUserRole = parseInt(state.userRole) || 0;
+      const userIdRole = parseInt(state.user?.id_role) || 0;
+      return stateUserRole === 2 || userIdRole === 2;
+    },
+    getUserRole: (state) => parseInt(state.userRole) || 0
   },
 
   actions: {
@@ -69,15 +103,29 @@ export const useAuthStore = defineStore('auth', {
           // Parse token and enrich user object with claims if available
           try {
             const decoded = parseJWT(token) || {}
+            console.log('JWT decoded in initAuth:', decoded)
+            
             // Merge decoded claims into user state if not present
             this.user = Object.assign({}, this.user || {}, {
               id: decoded.id || this.user?.id || null,
               email: decoded.email || this.user?.email || null,
               is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : this.user?.is_verified,
-              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : this.user?.is_verified_nip
+              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : this.user?.is_verified_nip,
+              id_role: typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : this.user?.id_role || 0
             })
+            
+            // Update userRole state from user object
+            this.userRole = parseInt(this.user.id_role) || 0
+            
+            console.log('Parsed JWT token, user role:', this.userRole, 'isAdmin:', this.userRole === 1)
           } catch (e) {
             // ignore parse errors
+            console.error('Error parsing JWT claims:', e)
+          }
+          
+          // Fetch fresh user data from API to ensure we have correct role information
+          if (this.user && this.user.id) {
+            await this.fetchUserInfo(this.user.id)
           }
           
           // Best-effort token verification: backend doesn't expose /user/profile; rely on token claims
@@ -221,20 +269,45 @@ export const useAuthStore = defineStore('auth', {
 
             // Parse token for user claims
             const decoded = parseJWT(token) || {}
+            console.log('JWT decoded payload on login:', decoded)
+            
+            // Extract user ID from token if available
+            const userId = decoded.id || null
+            
+            // Create initial user object from token claims
             const user = {
-              id: decoded.id || null,
+              id: userId,
               email: decoded.email || credentials.email,
               name: decoded.email ? (decoded.email.split('@')[0]) : credentials.email.split('@')[0],
               lastLogin: new Date().toISOString(),
               is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : 1,
-              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : 0
+              is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : 0,
+              id_role: typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : 2 // Default as guru if not specified
             }
+            
+            console.log('Created initial user object on login:', user)
 
             // Store in state
             this.token = token
             this.user = user
             this.sessionId = sessionId
             this.isAuthenticated = true
+            this.userRole = parseInt(user.id_role) || 0
+            
+            console.log('Initial user role after login:', this.userRole, 'isAdmin:', this.userRole === 1)
+            
+            // Fetch complete user data from API to ensure we have correct role information
+            if (userId) {
+              console.log('Fetching complete user data after login for ID:', userId)
+              try {
+                await this.fetchUserInfo(userId)
+              } catch (e) {
+                console.error('Error fetching user info after login:', e)
+                // Non-fatal, continue with login
+              }
+            } else {
+              console.warn('No user ID available in token, cannot fetch complete user data')
+            }
 
             // Store in secure cookies
             this.setAuthCookies(token, user, sessionId)
@@ -307,11 +380,70 @@ export const useAuthStore = defineStore('auth', {
       try {
         // No server-side verify endpoint; consider the presence of token+session as valid
         this.isAuthenticated = !!this.token && !!this.sessionId
+        
+        // If authenticated, fetch current user data to ensure we have current role
+        if (this.isAuthenticated && this.user?.id) {
+          await this.fetchUserInfo(this.user.id)
+        }
+        
         return this.isAuthenticated
       } catch (error) {
         console.error('Session verification failed:', error)
         // Session/token is invalid, logout
         await this.logout()
+        return false
+      }
+    },
+    
+    // Fetch user information by ID to get current role
+    async fetchUserInfo(userId) {
+      try {
+        console.log('Fetching user info for user ID:', userId)
+        const response = await axios.get(`/view/users/${userId}`)
+        
+        if (response.data && response.data.success) {
+          const userData = response.data.data
+          console.log('User data from API:', userData)
+          
+          // Update user data and role
+          if (userData) {
+            // Important: Make sure we store id_user from API as the user's id in our app state
+            const userId = userData.id_user || this.user?.id || null
+            
+            // Update user object with the latest data
+            this.user = {
+              ...this.user,
+              id: userId,
+              email: userData.email || this.user?.email || null,
+              is_verified: userData.is_verified || this.user?.is_verified || 0,
+              is_verified_nip: userData.is_verified_nip || this.user?.is_verified_nip || 0,
+              id_role: parseInt(userData.id_role) || 0,
+              name: this.user?.name || (userData.email ? userData.email.split('@')[0] : 'User')
+            }
+            
+            // Update userRole in state
+            this.userRole = parseInt(userData.id_role) || 0
+            
+            console.log('Updated user role from API:', this.userRole)
+            console.log('Updated user object:', this.user)
+            console.log('Is admin?', this.userRole === 1)
+            
+            // Update user cookie with the latest data
+            const userStr = JSON.stringify(this.user)
+            Cookies.set(USER_COOKIE, userStr, COOKIE_OPTIONS)
+            
+            // Test isAdmin getter
+            const adminStatus = this.userRole === 1
+            console.log('Direct role check (this.userRole === 1):', adminStatus)
+            console.log('Getter isAdmin check:', this.isAdmin)
+          }
+          return true
+        } else {
+          console.error('API call to /view/users/${userId} did not return success=true', response.data)
+        }
+        return false
+      } catch (error) {
+        console.error('Error fetching user info:', error)
         return false
       }
     },

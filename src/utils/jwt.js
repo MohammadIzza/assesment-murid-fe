@@ -15,7 +15,21 @@ export const parseJWT = (token) => {
       }).join('')
     );
     
-    return JSON.parse(jsonPayload);
+    const decoded = JSON.parse(jsonPayload);
+    
+    // Log the decoded token to help with debugging
+    console.log('JWT decoded payload:', decoded);
+    
+    // Ensure numeric fields are properly parsed as numbers
+    if (decoded.id_role !== undefined) {
+      decoded.id_role = parseInt(decoded.id_role);
+    }
+    
+    if (decoded.id !== undefined) {
+      decoded.id = parseInt(decoded.id);
+    }
+    
+    return decoded;
   } catch (error) {
     console.error('Error parsing JWT token:', error);
     return null;

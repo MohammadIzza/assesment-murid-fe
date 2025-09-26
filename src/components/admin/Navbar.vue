@@ -45,8 +45,10 @@
             Assessment
           </RouterLink>
 
+          <!-- Admin Link removed as admin management is no longer needed -->
+
           <!-- Data Dropdown (was Guru Dropdown) -->
-          <div class="relative group">
+          <div class="relative group" v-if="authStore.isAdmin">
             <div 
               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
               :class="isDataActive ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
@@ -248,54 +250,58 @@
             </svg>
             Assessment
           </RouterLink>
-
-          <!-- Data Mobile -->
-          <RouterLink 
-            :to="{ name: 'guru-list' }"
-            @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isGuruActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            Daftar Guru
-          </RouterLink>
-          <RouterLink 
-            :to="{ name: 'SiswaList' }"
-            @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isSiswaActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-            </svg>
-            Daftar Siswa
-          </RouterLink>
           
-          <RouterLink 
-            :to="{ name: 'kelas-list' }"
-            @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-            </svg>
-            Daftar Kelas
-          </RouterLink>
+          <!-- Admin Mobile links removed as admin management is no longer needed -->
 
-          <RouterLink 
-            :to="{ name: 'capaian-kelas-list' }"
-            @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isCapaianKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-            </svg>
-            Daftar Capaian Kelas
-          </RouterLink>
+          <!-- Data Mobile - Only visible for admin -->
+          <template v-if="authStore.isAdmin">
+            <RouterLink 
+              :to="{ name: 'guru-list' }"
+              @click="closeMobileMenu"
+              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+              :class="isGuruActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            >
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Daftar Guru
+            </RouterLink>
+            <RouterLink 
+              :to="{ name: 'SiswaList' }"
+              @click="closeMobileMenu"
+              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+              :class="isSiswaActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            >
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+              Daftar Siswa
+            </RouterLink>
+            
+            <RouterLink 
+              :to="{ name: 'kelas-list' }"
+              @click="closeMobileMenu"
+              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+              :class="isKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            >
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+              Daftar Kelas
+            </RouterLink>
+
+            <RouterLink 
+              :to="{ name: 'capaian-kelas-list' }"
+              @click="closeMobileMenu"
+              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+              :class="isCapaianKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            >
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+              Daftar Capaian Kelas
+            </RouterLink>
+          </template>
           
           <!-- Reports Mobile -->
           <RouterLink 
@@ -396,6 +402,8 @@ const isCapaianKelasActive = computed(() => {
 const isDataActive = computed(() => {
   return isGuruActive.value || isSiswaActive.value || isKelasActive.value || isCapaianKelasActive.value
 })
+
+// Admin active routes check removed as admin management is no longer needed
 
 const isLaporanActive = computed(() => {
   return ['laporan-nilai'].includes(route.name)
