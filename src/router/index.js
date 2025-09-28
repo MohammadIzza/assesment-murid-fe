@@ -116,6 +116,7 @@ const router = createRouter({
           component: GuruList,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Daftar Guru',
           },
         },
@@ -125,6 +126,7 @@ const router = createRouter({
           component: GuruEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Tambah Guru',
           },
         },
@@ -134,6 +136,7 @@ const router = createRouter({
           component: GuruDetail,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Detail Guru',
           },
         },
@@ -143,6 +146,7 @@ const router = createRouter({
           component: GuruEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Edit Guru',
           },
         },
@@ -174,13 +178,14 @@ const router = createRouter({
             title: 'Pengaturan',
           },
         },
-        // Siswa routes
+        // Siswa routes - Only for admin
         {
           path: 'siswa',
           name: 'SiswaList',
           component: SiswaList,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Daftar Siswa',
           },
         },
@@ -190,6 +195,7 @@ const router = createRouter({
           component: SiswaEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Tambah Siswa',
           },
         },
@@ -199,6 +205,7 @@ const router = createRouter({
           component: SiswaEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Edit Siswa',
           },
         },
@@ -208,6 +215,7 @@ const router = createRouter({
           component: SiswaDetail,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Detail Siswa',
           },
         },
@@ -252,13 +260,14 @@ const router = createRouter({
             title: 'Laporan Nilai'
           }
         },
-        // Kelas routes
+        // Kelas routes - Only for admin
         {
           path: 'kelas',
           name: 'kelas-index',
           component: KelasIndex,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Kelas Management',
           },
         },
@@ -268,6 +277,7 @@ const router = createRouter({
           component: KelasList,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Daftar Kelas',
           },
         },
@@ -277,6 +287,7 @@ const router = createRouter({
           component: KelasEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Tambah Kelas',
           },
         },
@@ -286,6 +297,7 @@ const router = createRouter({
           component: KelasDetail,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Detail Kelas',
           },
         },
@@ -295,16 +307,18 @@ const router = createRouter({
           component: KelasEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Edit Kelas',
           },
         },
-        // Capaian Kelas routes
+        // Capaian Kelas routes - Only for admin
         {
           path: 'capaian-kelas',
           name: 'capaian-kelas-index',
           component: CapaianKelasIndex,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Capaian Kelas Management',
           },
         },
@@ -314,6 +328,7 @@ const router = createRouter({
           component: CapaianKelasList,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Daftar Capaian Kelas',
           },
         },
@@ -323,6 +338,7 @@ const router = createRouter({
           component: CapaianKelasEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Tambah Capaian Kelas',
           },
         },
@@ -332,6 +348,7 @@ const router = createRouter({
           component: CapaianKelasDetail,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Detail Capaian Kelas',
           },
         },
@@ -341,12 +358,24 @@ const router = createRouter({
           component: CapaianKelasEdit,
           meta: {
             requiresAuth: true,
+            requiresAdmin: true,
             title: 'Edit Capaian Kelas',
           },
         },
         
         // Admin routes - Removed admin management functionality as it's no longer needed
         // Admin user will only have access to manage other data, not admin users
+        
+        // Debug route for admin role
+        {
+          path: 'debug/admin-role',
+          name: 'debug-admin-role',
+          component: () => import('@/views/debug/AdminRoleDebug.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Admin Role Debug',
+          },
+        },
       ],
     },
   ],
@@ -390,7 +419,11 @@ router.beforeEach(async (to, from, next) => {
   
   // Jika halaman memerlukan hak admin tapi user bukan admin
   if (requiresAdmin && !authStore.isAdmin) {
-    console.log('Redirecting to dashboard: admin required but user not admin')
+    console.log('Redirecting to dashboard: admin required but user not admin', {
+      role: authStore.userRole,
+      isAdmin: authStore.isAdmin,
+      user: authStore.user
+    })
     next({ name: 'dashboard' })
     return
   }

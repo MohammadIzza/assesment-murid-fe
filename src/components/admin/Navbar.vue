@@ -47,11 +47,12 @@
 
           <!-- Admin Link removed as admin management is no longer needed -->
 
-          <!-- Data Dropdown (was Guru Dropdown) -->
-          <div class="relative group" v-if="authStore.isAdmin">
+          <!-- Data Dropdown (Only visible for admin) -->
+          <div v-if="isUserAdmin" class="relative group">
             <div 
               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
               :class="isDataActive ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+              @click="logAdminStatus"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
@@ -62,7 +63,7 @@
               </svg>
             </div>
             
-            <!-- Dropdown Menu -->
+            <!-- Dropdown Menu - Only visible for admin -->
             <div class="absolute left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
               <RouterLink 
                 :to="{ name: 'guru-list' }"
@@ -254,53 +255,57 @@
           <!-- Admin Mobile links removed as admin management is no longer needed -->
 
           <!-- Data Mobile - Only visible for admin -->
-          <template v-if="authStore.isAdmin">
+          <template v-if="isUserAdmin">
+            <div class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">
+              Data Management
+            </div>
+            <!-- Guru Link -->
             <RouterLink 
               :to="{ name: 'guru-list' }"
-              @click="closeMobileMenu"
+              @click="closeMobileMenu; logAdminStatus()"
               class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
               :class="isGuruActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
             >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-              Daftar Guru
-            </RouterLink>
-            <RouterLink 
-              :to="{ name: 'SiswaList' }"
-              @click="closeMobileMenu"
-              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-              :class="isSiswaActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-            >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              Daftar Siswa
-            </RouterLink>
-            
-            <RouterLink 
-              :to="{ name: 'kelas-list' }"
-              @click="closeMobileMenu"
-              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-              :class="isKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-            >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-              </svg>
-              Daftar Kelas
-            </RouterLink>
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Daftar Guru
+              </RouterLink>
+              <RouterLink 
+                :to="{ name: 'SiswaList' }"
+                @click="closeMobileMenu"
+                class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="isSiswaActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Daftar Siswa
+              </RouterLink>
+              
+              <RouterLink 
+                :to="{ name: 'kelas-list' }"
+                @click="closeMobileMenu"
+                class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="isKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                Daftar Kelas
+              </RouterLink>
 
-            <RouterLink 
-              :to="{ name: 'capaian-kelas-list' }"
-              @click="closeMobileMenu"
-              class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-              :class="isCapaianKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
-            >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-              </svg>
-              Daftar Capaian Kelas
-            </RouterLink>
+              <RouterLink 
+                :to="{ name: 'capaian-kelas-list' }"
+                @click="closeMobileMenu"
+                class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="isCapaianKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                Daftar Capaian Kelas
+              </RouterLink>
           </template>
           
           <!-- Reports Mobile -->
@@ -361,7 +366,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme';
@@ -382,6 +387,42 @@ const isGuruActive = computed(() => {
 const isDashboardActive = computed(() => {
   return ['dashboard', 'dashboard-main'].includes(route.name)
 })
+
+// Debug the user role on mount and handle auth state
+onMounted(async () => {
+  console.log('============= NAVBAR MOUNTED =============')
+  console.log('User object:', authStore.user)
+  console.log('User role:', authStore.userRole)
+  console.log('Is admin?', authStore.isAdmin)
+  console.log('ID_ROLE in user object:', authStore.user?.id_role)
+  
+  // Force auth state refresh on mount to ensure menus are properly shown
+  if (authStore.isAuthenticated) {
+    try {
+      console.log('Refreshing auth state on navbar mount')
+      await authStore.checkAuth()
+      console.log('Auth state refreshed. Updated role:', authStore.userRole)
+      console.log('Is admin after refresh?', authStore.isAdmin)
+    } catch (error) {
+      console.error('Error refreshing auth state:', error)
+    }
+  }
+  
+  console.log('==========================================')
+})
+
+// Watch for changes in user role and admin status
+watch(() => authStore.userRole, (newRole, oldRole) => {
+  console.log('User role changed:', oldRole, '->', newRole)
+  console.log('Admin status after role change:', authStore.isAdmin)
+}, { immediate: true })
+
+// Watch for changes in user object
+watch(() => authStore.user?.id_role, (newIdRole, oldIdRole) => {
+  console.log('User id_role changed:', oldIdRole, '->', newIdRole)
+  console.log('Type of id_role:', typeof newIdRole)
+  console.log('Admin status after id_role change:', authStore.isAdmin)
+}, { immediate: true })
 
 const isAssessmentActive = computed(() => {
   return ['assesment-index', 'assesment-detail', 'assesment-add', 'assesment-edit'].includes(route.name)
@@ -413,6 +454,33 @@ const userInitial = computed(() => {
   const name = authStore.user?.name || 'U'
   return name.charAt(0).toUpperCase()
 })
+
+// More reliable admin status check with direct property inspection
+const isUserAdmin = computed(() => {
+  const userIdRole = parseInt(authStore.user?.id_role) || 0
+  const stateUserRole = parseInt(authStore.userRole) || 0
+  const adminGetter = authStore.isAdmin
+  
+  console.log('Admin status computed:', { 
+    userIdRole, 
+    stateUserRole,
+    fromGetter: adminGetter,
+    result: (userIdRole === 1 || stateUserRole === 1) 
+  })
+  
+  return userIdRole === 1 || stateUserRole === 1
+})
+
+// Function to log admin status for debugging
+const logAdminStatus = () => {
+  console.log('---- DATA DROPDOWN CLICKED ----')
+  console.log('Is admin?', authStore.isAdmin)
+  console.log('User role:', authStore.userRole)
+  console.log('User object:', authStore.user)
+  console.log('ID_ROLE in user object:', authStore.user?.id_role)
+  console.log('Is data dropdown visible:', authStore.isAdmin)
+  console.log('----------------------------')
+}
 
 const activeTheme = computed(() => {
   if (themeStore.theme === 'auto') {

@@ -57,20 +57,34 @@ export const useAuthStore = defineStore('auth', {
     getUser: (state) => state.user,
     getToken: (state) => state.token,
     isAdmin: (state) => {
+      // Enhanced debug logging
+      console.log('ADMIN ROLE CHECK - Raw Values:', { 
+        userRole: state.userRole,
+        userIdRole: state.user?.id_role,
+        user: state.user,
+        type_userRole: typeof state.userRole,
+        type_userIdRole: typeof state.user?.id_role,
+      });
+      
       // Parse values as integers to ensure consistent comparison
       const stateUserRole = parseInt(state.userRole) || 0;
       const userIdRole = parseInt(state.user?.id_role) || 0;
       
+      // Only users with id_role = 1 should have admin access
       const isAdminRole = stateUserRole === 1 || userIdRole === 1;
       
-      console.log('Checking isAdmin:', { 
-        userRole: state.userRole, 
+      console.log('ADMIN ROLE CHECK - After Parsing:', { 
         parsedUserRole: stateUserRole,
-        userId_role: state.user?.id_role,
         parsedUserIdRole: userIdRole,
         result: isAdminRole,
-        user: state.user
       });
+      
+      // Force more explicit logging of the result
+      if (isAdminRole) {
+        console.log('✅ USER IS ADMIN - Access granted to admin features');
+      } else {
+        console.log('❌ USER IS NOT ADMIN - No access to admin features');
+      }
       
       return isAdminRole;
     },
@@ -85,6 +99,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     // Initialize auth state from cookies
     async initAuth() {
+      console.log('Initializing auth state from cookies')
       const token = Cookies.get(TOKEN_COOKIE)
       const userCookie = Cookies.get(USER_COOKIE)
       const sessionId = Cookies.get(SESSION_COOKIE)
@@ -111,10 +126,10 @@ export const useAuthStore = defineStore('auth', {
               email: decoded.email || this.user?.email || null,
               is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : this.user?.is_verified,
               is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : this.user?.is_verified_nip,
-              id_role: typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : this.user?.id_role || 0
+              id_role: typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : parseInt(this.user?.id_role) || 0
             })
             
-            // Update userRole state from user object
+            // Update userRole state from user object - ensure it's parsed as integer
             this.userRole = parseInt(this.user.id_role) || 0
             
             console.log('Parsed JWT token, user role:', this.userRole, 'isAdmin:', this.userRole === 1)
@@ -123,9 +138,17 @@ export const useAuthStore = defineStore('auth', {
             console.error('Error parsing JWT claims:', e)
           }
           
+          // Force immediate role check after parsing token
+          const isAdmin = this.isAdmin
+          console.log('Immediate admin check after token parse:', isAdmin)
+          
           // Fetch fresh user data from API to ensure we have correct role information
           if (this.user && this.user.id) {
             await this.fetchUserInfo(this.user.id)
+            
+            // Force another role check after fetching user info
+            const isAdminAfterFetch = this.isAdmin
+            console.log('Admin check after user info fetch:', isAdminAfterFetch)
           }
           
           // Best-effort token verification: backend doesn't expose /user/profile; rely on token claims
@@ -145,6 +168,8 @@ export const useAuthStore = defineStore('auth', {
           console.error('Error during auth initialization:', error)
           // Don't immediately logout on init error
         }
+      } else {
+        console.log('No auth tokens found in cookies')
       }
     },
 
@@ -274,6 +299,10 @@ export const useAuthStore = defineStore('auth', {
             // Extract user ID from token if available
             const userId = decoded.id || null
             
+            // Parse id_role explicitly as integer and log it
+            const idRole = typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : 2
+            console.log('Parsed id_role from token:', decoded.id_role, 'as integer:', idRole, 'type:', typeof idRole)
+            
             // Create initial user object from token claims
             const user = {
               id: userId,
@@ -282,7 +311,7 @@ export const useAuthStore = defineStore('auth', {
               lastLogin: new Date().toISOString(),
               is_verified: typeof decoded.is_verified !== 'undefined' ? decoded.is_verified : 1,
               is_verified_nip: typeof decoded.is_verified_nip !== 'undefined' ? decoded.is_verified_nip : 0,
-              id_role: typeof decoded.id_role !== 'undefined' ? parseInt(decoded.id_role) : 2 // Default as guru if not specified
+              id_role: idRole // Ensure it's stored as integer
             }
             
             console.log('Created initial user object on login:', user)
@@ -292,15 +321,22 @@ export const useAuthStore = defineStore('auth', {
             this.user = user
             this.sessionId = sessionId
             this.isAuthenticated = true
-            this.userRole = parseInt(user.id_role) || 0
+            this.userRole = idRole
             
-            console.log('Initial user role after login:', this.userRole, 'isAdmin:', this.userRole === 1)
+            // Force check the admin status immediately and log result
+            const isAdmin = this.userRole === 1 || user.id_role === 1
+            console.log('Initial user role after login:', this.userRole, 'isAdmin direct check:', isAdmin)
+            console.log('Getter isAdmin result:', this.isAdmin)
             
             // Fetch complete user data from API to ensure we have correct role information
             if (userId) {
               console.log('Fetching complete user data after login for ID:', userId)
               try {
                 await this.fetchUserInfo(userId)
+                
+                // Check admin status again after API fetch
+                console.log('User role after API fetch:', this.userRole, 'isAdmin direct check:', this.userRole === 1)
+                console.log('Getter isAdmin result after API fetch:', this.isAdmin)
               } catch (e) {
                 console.error('Error fetching user info after login:', e)
                 // Non-fatal, continue with login
@@ -410,6 +446,15 @@ export const useAuthStore = defineStore('auth', {
             // Important: Make sure we store id_user from API as the user's id in our app state
             const userId = userData.id_user || this.user?.id || null
             
+            // Parse and log id_role from API response
+            let idRole = 0;
+            if (userData.id_role !== undefined && userData.id_role !== null) {
+              idRole = parseInt(userData.id_role);
+              console.log('API returned id_role:', userData.id_role, 'parsed as:', idRole);
+            } else {
+              console.warn('API did not return id_role, defaulting to 0');
+            }
+            
             // Update user object with the latest data
             this.user = {
               ...this.user,
@@ -417,29 +462,34 @@ export const useAuthStore = defineStore('auth', {
               email: userData.email || this.user?.email || null,
               is_verified: userData.is_verified || this.user?.is_verified || 0,
               is_verified_nip: userData.is_verified_nip || this.user?.is_verified_nip || 0,
-              id_role: parseInt(userData.id_role) || 0,
+              id_role: idRole, // Store as integer
               name: this.user?.name || (userData.email ? userData.email.split('@')[0] : 'User')
             }
             
             // Update userRole in state
-            this.userRole = parseInt(userData.id_role) || 0
+            this.userRole = idRole
             
-            console.log('Updated user role from API:', this.userRole)
+            console.log('Updated user role from API:', this.userRole, 'type:', typeof this.userRole)
             console.log('Updated user object:', this.user)
-            console.log('Is admin?', this.userRole === 1)
+            console.log('Is admin by direct check?', this.userRole === 1)
             
             // Update user cookie with the latest data
             const userStr = JSON.stringify(this.user)
             Cookies.set(USER_COOKIE, userStr, COOKIE_OPTIONS)
             
-            // Test isAdmin getter
-            const adminStatus = this.userRole === 1
-            console.log('Direct role check (this.userRole === 1):', adminStatus)
-            console.log('Getter isAdmin check:', this.isAdmin)
+            // Test isAdmin getter and verify consistency
+            const directAdminCheck = this.userRole === 1
+            const getterAdminCheck = this.isAdmin
+            console.log('Admin status check - Direct:', directAdminCheck, 'Getter:', getterAdminCheck)
+            
+            if (directAdminCheck !== getterAdminCheck) {
+              console.warn('⚠️ Admin status inconsistency detected! Direct check and getter return different results.');
+              console.log('User role state:', this.userRole, 'User object id_role:', this.user.id_role);
+            }
           }
           return true
         } else {
-          console.error('API call to /view/users/${userId} did not return success=true', response.data)
+          console.error(`API call to /view/users/${userId} did not return success=true`, response.data)
         }
         return false
       } catch (error) {
