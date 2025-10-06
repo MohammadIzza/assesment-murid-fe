@@ -156,6 +156,55 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
     },
 
     /**
+     * Menambahkan multiple capaian kelas sekaligus (untuk impor Excel)
+     * @param {Array} capaianKelasDataArray - Array data capaian kelas
+     */
+    async addMultipleCapaianKelas(capaianKelasDataArray) {
+      if (!Array.isArray(capaianKelasDataArray) || capaianKelasDataArray.length === 0) {
+        throw new Error('Data harus berupa array yang tidak kosong')
+      }
+
+      this.loading = true
+      this.error = null
+      
+      try {
+        const results = {
+          success: 0,
+          failed: 0,
+          errors: []
+        }
+
+        // Proses satu per satu karena endpoint backend tidak mendukung batch insert
+        for (let i = 0; i < capaianKelasDataArray.length; i++) {
+          try {
+            await this.addCapaianKelas(capaianKelasDataArray[i])
+            results.success++
+          } catch (error) {
+            results.failed++
+            results.errors.push({
+              index: i,
+              data: capaianKelasDataArray[i],
+              error: error.message
+            })
+          }
+        }
+
+        // Refresh list setelah selesai impor
+        if (results.success > 0) {
+          await this.fetchCapaianKelasList()
+        }
+
+        return results
+      } catch (error) {
+        console.error('Error adding multiple capaian kelas:', error)
+        this.error = error.message || 'Terjadi kesalahan saat menambahkan multiple capaian kelas'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
      * Mengupdate capaian kelas
      * @param {number} id - ID capaian kelas
      * @param {Object} capaianKelasData - Data capaian kelas yang diupdate

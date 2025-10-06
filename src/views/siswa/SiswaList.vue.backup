@@ -250,126 +250,87 @@
         </div>
       </div>
 
-      <!-- Aksi & Tools Section -->
-      <div :class="[
-        'rounded-xl shadow-lg border mb-6 p-6',
-        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
-      ]">
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-          <div class="flex-1">
-            <label :class="[
-              'flex text-sm font-semibold mb-3 items-center',
-              isDarkMode ? 'text-gray-200' : 'text-gray-800'
-            ]">
-              <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-              Aksi & Tools
-            </label>
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-              <button 
-                @click="refreshData" 
-                :disabled="siswaStore.isLoading"
-                :class="[
-                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                  isDarkMode ? 'border-blue-600 text-blue-300 bg-blue-900/30 hover:bg-blue-900/50' : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
-                ]"
-              >
-                <svg v-if="!siswaStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+            <div class="flex-1">
+              <label :class="[
+                'flex text-sm font-semibold mb-3 items-center',
+                isDarkMode ? 'text-gray-200' : 'text-gray-800'
+              ]">
+                <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
-                {{ siswaStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
-              </button>
-              <button 
-                @click="triggerImport" 
-                :disabled="siswaStore.isLoading"
-                :class="[
-                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                  isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
-                ]"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
-                </svg>
-                Import Excel
-              </button>
-              <button 
-                @click="downloadTemplate" 
-                :disabled="siswaStore.isLoading"
-                :class="[
-                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                  isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
-                ]"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                </svg>
-                Template Excel
-              </button>
-              <button 
-                @click="exportToExcel" 
-                :disabled="filteredSiswaList.length === 0"
-                :class="[
-                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                  isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                ]"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Export Excel
-              </button>
-              <button 
-                @click="printData" 
-                :disabled="filteredSiswaList.length === 0"
-                :class="[
-                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                  isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
-                ]"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                </svg>
-                Print Data
-              </button>
+                Aksi & Tools
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                <button 
+                  @click="refreshData" 
+                  :disabled="siswaStore.isLoading"
+                  :class="[
+                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                    isDarkMode ? 'border-blue-600 text-blue-300 bg-blue-900/30 hover:bg-blue-900/50' : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                  ]"
+                >
+                  <svg v-if="!siswaStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                  {{ siswaStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
+                </button>
+                <button 
+                  @click="triggerImport" 
+                  :disabled="siswaStore.isLoading"
+                  :class="[
+                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                    isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
+                  </svg>
+                  Import Excel
+                </button>
+                <button 
+                  @click="downloadTemplate" 
+                  :disabled="siswaStore.isLoading"
+                  :class="[
+                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                    isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
+                  </svg>
+                  Template Excel
+                </button>
+                <button 
+                  @click="exportData" 
+                  :disabled="filteredSiswaList.length === 0"
+                  :class="[
+                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                    isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Export Excel
+                </button>
+                <button 
+                  @click="printData" 
+                  :disabled="filteredSiswaList.length === 0"
+                  :class="[
+                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                    isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                  </svg>
+                  Print Data
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Action Section -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-gray-200">
-          <div class="flex items-center space-x-3">
-            <div class="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
-              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-            </div>
-            <div>
-              <h3 :class="[
-                'text-base font-semibold',
-                isDarkMode ? 'text-gray-100' : 'text-gray-900'
-              ]">Kelola Data Siswa</h3>
-              <p :class="[
-                'text-sm',
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              ]">Tambah siswa baru atau kelola data yang sudah ada</p>
-            </div>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button 
-              @click="goToAdd"
-              :class="[
-                'inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5',
-                isDarkMode ? 'bg-green-700 hover:bg-green-800' : 'bg-green-600 hover:bg-green-700'
-              ]"
-            >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Tambah Siswa Baru
-            </button>
           </div>
         </div>
       </div>
@@ -753,242 +714,392 @@ const getSiswaEmail = (siswa) => {
   return '-'
 }
 
-// Import/Export Methods
+// Import Excel functions
 const triggerImport = () => {
+  importError.value = ''
+  if (fileInputRef.value) fileInputRef.value.value = ''
   fileInputRef.value?.click()
 }
 
-const onFileChange = async (event) => {
-  const file = event.target.files[0]
+const onFileChange = async (e) => {
+  const file = e.target.files && e.target.files[0]
   if (!file) return
-
-  isImporting.value = true
-  importError.value = ''
-  importedCount.value = 0
-
+  if (!/\.xlsx?$/.test(file.name.toLowerCase())) {
+    alert('Gunakan file .xlsx atau .xls')
+    return
+  }
   try {
-    const workbook = new ExcelJS.Workbook()
-    await workbook.xlsx.load(file)
-    const worksheet = workbook.getWorksheet(1)
-    
-    if (!worksheet) {
-      throw new Error('Worksheet tidak ditemukan')
+    isImporting.value = true
+    importedCount.value = 0
+    const rows = await parseExcelFile(file)
+    if (!rows.length) {
+      alert('Tidak ada baris data yang valid di file')
+      return
     }
-
-    const siswaData = []
-    let rowCount = 0
-
-    // Start from row 2 (skip header)
-    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
-      const row = worksheet.getRow(rowNumber)
-      
-      // Skip empty rows
-      if (!row.values || row.values.length <= 1) continue
-
-      const nama = row.getCell(1).text?.trim()
-      const nisn = row.getCell(2).text?.trim()
-      const tanggal_lahir = row.getCell(3).text?.trim()
-      const jenis_kelamin = row.getCell(4).text?.trim()
-      const id_kelas = row.getCell(5).text?.trim()
-      const id_sekolah = row.getCell(6).text?.trim()
-
-      if (nama && nisn) {
-        siswaData.push({
-          nama,
-          nisn,
-          tanggal_lahir,
-          jenis_kelamin,
-          id_kelas: id_kelas ? parseInt(id_kelas) : null,
-          id_sekolah: id_sekolah ? parseInt(id_sekolah) : null
-        })
-        rowCount++
-      }
-    }
-
-    if (rowCount === 0) {
-      throw new Error('Tidak ada data valid yang ditemukan dalam file Excel')
-    }
-
-    // Process the data (you can add API call here)
-    console.log('Data siswa yang akan diimport:', siswaData)
-    importedCount.value = rowCount
-
-    // Clear file input
-    event.target.value = ''
     
-    // Refresh data after successful import
-    await fetchData()
+    // Simulate adding to backend
+    console.log('Importing siswa data:', rows)
+    importedCount.value = rows.length
+    await refreshData()
     
-  } catch (error) {
-    console.error('Import error:', error)
-    importError.value = error.message || 'Terjadi kesalahan saat mengimport data'
+    alert(`Berhasil mengimpor ${rows.length} data siswa`)
+  } catch (err) {
+    console.error('Import error:', err)
+    importError.value = err?.message || 'Gagal mengimpor data.'
+    alert(importError.value)
   } finally {
     isImporting.value = false
   }
 }
 
-const downloadTemplate = async () => {
-  try {
-    const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet('Template Siswa')
-    
-    // Add headers
-    worksheet.addRow(['Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas', 'ID Sekolah'])
-    
-    // Add sample data
-    worksheet.addRow(['John Doe', '1234567890', '2010-01-01', 'Laki-laki', '1', '1'])
-    worksheet.addRow(['Jane Smith', '0987654321', '2010-02-01', 'Perempuan', '2', '1'])
-    
-    // Style the header
-    worksheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true }
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFE0E0E0' }
-      }
-    })
-    
-    // Auto-size columns
-    worksheet.columns.forEach((column) => {
-      column.width = 15
-    })
-    
-    // Generate buffer and download
-    const buffer = await workbook.xlsx.writeBuffer()
-    const blob = new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-    })
-    
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'template_siswa.xlsx'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-    
-  } catch (error) {
-    console.error('Download template error:', error)
-  }
+const parseExcelFile = async (file) => {
+  const arrayBuffer = await file.arrayBuffer()
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.load(arrayBuffer)
+  const worksheet = workbook.worksheets[0]
+  if (!worksheet) throw new Error('Sheet pertama tidak ditemukan')
+
+  const headerRow = worksheet.getRow(1)
+  const headerMap = {}
+  headerRow.eachCell((cell, colNumber) => {
+    const key = String(cell.value || '').toLowerCase().replace(/\s+/g, '_').trim()
+    if (key) headerMap[key] = colNumber
+  })
+
+  const supported = ['nama', 'nisn', 'tanggal_lahir', 'jenis_kelamin', 'id_kelas', 'id_sekolah', 'alamat', 'no_telepon']
+  const data = []
+  
+  worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (rowNumber === 1) return // skip header
+    const record = {}
+
+    for (const key of supported) {
+      const col = headerMap[key]
+      if (!col) continue
+      const raw = row.getCell(col).value
+      record[key] = raw ? String(raw).trim() : null
+    }
+
+    if (record.nama && record.nisn) {
+      data.push(record)
+    }
+  })
+
+  return data
 }
 
-const exportToExcel = async () => {
+const downloadTemplate = async () => {
+  const wb = new ExcelJS.Workbook()
+  wb.created = new Date()
+  const ws = wb.addWorksheet('ImportSiswa')
+
+  const headers = ['nama', 'nisn', 'tanggal_lahir', 'jenis_kelamin', 'id_kelas', 'id_sekolah', 'alamat', 'no_telepon']
+  ws.addRow(headers)
+
+  // Style header
+  const headerRow = ws.getRow(1)
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+  headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+  headerRow.height = 20
+  headerRow.eachCell((cell) => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF16A34A' } }
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+    }
+  })
+
+  ws.columns = [
+    { key: 'nama', width: 25 },
+    { key: 'nisn', width: 15 },
+    { key: 'tanggal_lahir', width: 15 },
+    { key: 'jenis_kelamin', width: 15 },
+    { key: 'id_kelas', width: 10 },
+    { key: 'id_sekolah', width: 12 },
+    { key: 'alamat', width: 30 },
+    { key: 'no_telepon', width: 15 }
+  ]
+
+  ws.addRow(['John Doe', '1234567890', '2005-01-15', 'L', 1, 1, 'Jl. Contoh No. 123', '081234567890'])
+  ws.addRow(['Jane Smith', '0987654321', '2005-03-20', 'P', 1, 1, 'Jl. Sample No. 456', '081234567891'])
+
+  const buffer = await wb.xlsx.writeBuffer()
+  const blob = new Blob([buffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `Template_Import_Siswa_${new Date().toISOString().slice(0, 10)}.xlsx`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  window.URL.revokeObjectURL(url)
+}
+
+// Export data to Excel
+const exportData = async () => {
   try {
-    const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet('Data Siswa')
+    const dataToExport = filteredSiswaList.value
     
-    // Add headers
-    worksheet.addRow(['ID', 'Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas', 'ID Sekolah'])
-    
-    // Add data
-    filteredSiswaList.value.forEach(siswa => {
-      worksheet.addRow([
-        siswa.id_siswa,
-        siswa.nama,
-        siswa.nisn,
-        siswa.tanggal_lahir,
-        siswa.jenis_kelamin,
-        siswa.id_kelas,
-        siswa.id_sekolah
+    if (!dataToExport.length) {
+      alert('Tidak ada data untuk diekspor')
+      return
+    }
+
+    const wb = new ExcelJS.Workbook()
+    wb.created = new Date()
+    const ws = wb.addWorksheet('Data Siswa')
+
+    const headers = ['ID', 'Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas', 'ID Sekolah', 'Alamat', 'No Telepon']
+    ws.addRow(headers)
+
+    // Style header
+    const headerRow = ws.getRow(1)
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+    headerRow.height = 20
+    headerRow.eachCell((cell) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF16A34A' } }
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+      }
+    })
+
+    // Add data rows
+    dataToExport.forEach(siswa => {
+      ws.addRow([
+        siswa.id_siswa || '',
+        siswa.nama || '',
+        siswa.nisn || '',
+        siswa.tanggal_lahir || '',
+        siswa.jenis_kelamin || '',
+        siswa.id_kelas || '',
+        siswa.id_sekolah || '',
+        siswa.alamat || '',
+        siswa.no_telepon || ''
       ])
     })
-    
-    // Style the header
-    worksheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true }
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFE0E0E0' }
-      }
-    })
-    
-    // Auto-size columns
-    worksheet.columns.forEach((column) => {
-      column.width = 15
-    })
-    
-    // Generate buffer and download
-    const buffer = await workbook.xlsx.writeBuffer()
+
+    ws.columns = [
+      { key: 'id', width: 8 },
+      { key: 'nama', width: 25 },
+      { key: 'nisn', width: 15 },
+      { key: 'tanggal_lahir', width: 15 },
+      { key: 'jenis_kelamin', width: 15 },
+      { key: 'id_kelas', width: 10 },
+      { key: 'id_sekolah', width: 12 },
+      { key: 'alamat', width: 30 },
+      { key: 'no_telepon', width: 15 }
+    ]
+
+    for (let rowNum = 2; rowNum <= dataToExport.length + 1; rowNum++) {
+      ws.getRow(rowNum).eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        }
+      })
+    }
+
+    const buffer = await wb.xlsx.writeBuffer()
     const blob = new Blob([buffer], { 
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
     })
-    
-    const url = window.URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = url
-    link.download = `data_siswa_${new Date().toISOString().split('T')[0]}.xlsx`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
     
+    if (link.download !== undefined) {
+      link.setAttribute('href', url)
+      link.setAttribute('download', `data-siswa-${new Date().toISOString().split('T')[0]}.xlsx`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      console.log(`Data berhasil diekspor (${dataToExport.length} data)`)
+    }
+    
+    URL.revokeObjectURL(url)
   } catch (error) {
     console.error('Export error:', error)
+    alert('Terjadi kesalahan saat mengekspor data!')
   }
 }
 
+// Print data
 const printData = () => {
-  const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Data Siswa</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { text-align: center; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .no-data { text-align: center; padding: 20px; color: #666; }
-      </style>
-    </head>
-    <body>
-      <h1>Data Siswa</h1>
-      <p>Dicetak pada: ${new Date().toLocaleDateString('id-ID')}</p>
-      <p>Total data: ${filteredSiswaList.value.length} siswa</p>
-      
-      ${filteredSiswaList.value.length > 0 ? `
+  try {
+    const dataToExport = filteredSiswaList.value
+    
+    if (!dataToExport.length) {
+      alert('Tidak ada data untuk dicetak')
+      return
+    }
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      alert('Popup diblokir! Mohon izinkan popup untuk fungsi print.')
+      return
+    }
+
+    const currentDate = new Date().toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long', 
+      day: 'numeric'
+    })
+    const currentTime = new Date().toLocaleTimeString('id-ID')
+
+    let tableRows = ''
+    dataToExport.forEach((siswa, index) => {
+      tableRows += `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${index + 1}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${siswa.nama || '-'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${siswa.nisn || '-'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${siswa.tanggal_lahir || '-'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${siswa.jenis_kelamin || '-'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${siswa.id_kelas || '-'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${siswa.id_sekolah || '-'}</td>
+        </tr>
+      `
+    })
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Data Siswa</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            font-size: 12px;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+          }
+          .header h1 { 
+            margin: 0; 
+            font-size: 24px;
+            color: #333;
+          }
+          .header p { 
+            margin: 5px 0; 
+            color: #666;
+            font-size: 14px;
+          }
+          .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 12px;
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0;
+            font-size: 10px;
+          }
+          th { 
+            background-color: #16A34A; 
+            color: white; 
+            border: 1px solid #ddd; 
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+          }
+          td { 
+            border: 1px solid #ddd; 
+            padding: 8px;
+            vertical-align: top;
+          }
+          tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+          }
+          .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+          }
+          @media print {
+            body { margin: 0; }
+            .header { break-after: avoid; }
+            table { break-inside: avoid; }
+            tr { break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>DATA SISWA</h1>
+          <p>Sistem Manajemen Assessment Murid</p>
+        </div>
+        
+        <div class="info-section">
+          <div class="info-left">
+            <strong>Tanggal Cetak:</strong> ${currentDate}<br>
+            <strong>Waktu Cetak:</strong> ${currentTime}
+          </div>
+          <div class="info-right" style="text-align: right;">
+            <strong>Total Data:</strong> ${dataToExport.length} siswa
+          </div>
+        </div>
+
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nama</th>
-              <th>NISN</th>
-              <th>Tanggal Lahir</th>
-              <th>Jenis Kelamin</th>
-              <th>ID Kelas</th>
-              <th>ID Sekolah</th>
+              <th style="width: 5%;">No</th>
+              <th style="width: 20%;">Nama</th>
+              <th style="width: 15%;">NISN</th>
+              <th style="width: 15%;">Tanggal Lahir</th>
+              <th style="width: 10%;">JK</th>
+              <th style="width: 10%;">ID Kelas</th>
+              <th style="width: 10%;">ID Sekolah</th>
             </tr>
           </thead>
           <tbody>
-            ${filteredSiswaList.value.map(siswa => `
-              <tr>
-                <td>${siswa.id_siswa}</td>
-                <td>${siswa.nama}</td>
-                <td>${siswa.nisn}</td>
-                <td>${siswa.tanggal_lahir}</td>
-                <td>${siswa.jenis_kelamin}</td>
-                <td>${siswa.id_kelas}</td>
-                <td>${siswa.id_sekolah}</td>
-              </tr>
-            `).join('')}
+            ${tableRows}
           </tbody>
         </table>
-      ` : '<div class="no-data">Tidak ada data siswa untuk dicetak</div>'}
-    </body>
-    </html>
-  `
-  
-  const printWindow = window.open('', '_blank')
-  printWindow.document.write(printContent)
-  printWindow.document.close()
-  printWindow.focus()
-  printWindow.print()
-  printWindow.close()
+
+        <div class="footer">
+          <p>Dicetak pada ${currentDate} pukul ${currentTime}</p>
+          <p>Sistem Assessment Murid - Data Siswa</p>
+        </div>
+      </body>
+      </html>
+    `
+
+    printWindow.document.write(htmlContent)
+    printWindow.document.close()
+    
+    printWindow.onload = function() {
+      printWindow.focus()
+      printWindow.print()
+    }
+
+    setTimeout(() => {
+      printWindow.focus()
+      printWindow.print()
+    }, 250)
+
+  } catch (error) {
+    console.error('Print error:', error)
+    alert('Terjadi kesalahan saat mencetak data!')
+  }
 }
 
 // Watchers
