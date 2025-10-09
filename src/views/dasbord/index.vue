@@ -444,7 +444,7 @@
                   <div class="text-lg font-semibold">{{ dashboardData.totalGuru || '0' }}</div>
                 </div>
               </div>
-              <router-link :to="{ name: 'guru' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+              <router-link :to="{ name: 'guru-index' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
                 Lihat Semua
               </router-link>
             </div>
@@ -463,7 +463,7 @@
                   <div class="text-lg font-semibold">{{ dashboardData.totalSiswa || '0' }}</div>
                 </div>
               </div>
-              <router-link :to="{ name: 'siswa' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+              <router-link :to="{ name: 'SiswaList' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
                 Lihat Semua
               </router-link>
             </div>
@@ -480,7 +480,7 @@
                   <div class="text-lg font-semibold">{{ dashboardData.totalKelas || '0' }}</div>
                 </div>
               </div>
-              <router-link :to="{ name: 'kelas' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+              <router-link :to="{ name: 'kelas-index' }" class="text-sm font-medium text-blue-600 hover:text-blue-800">
                 Lihat Semua
               </router-link>
             </div>
