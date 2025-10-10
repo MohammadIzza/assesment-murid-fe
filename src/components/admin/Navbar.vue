@@ -6,8 +6,14 @@
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-4">
           <RouterLink :to="{ name: 'dashboard' }" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div class="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg shadow-md">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg shadow-md overflow-hidden"
+                 :class="brandingStore.hasLogo ? '' : 'bg-blue-600'">
+              <img v-if="brandingStore.hasLogo"
+                   :src="brandingStore.logoObjectUrl"
+                   alt="Logo Sekolah"
+                   class="w-full h-full object-cover"
+                   @error="onLogoError" />
+              <svg v-else class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
             </div>
@@ -370,11 +376,13 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme';
+import { useBrandingStore } from '@/stores/branding';
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore();
+const brandingStore = useBrandingStore();
 const isMobileMenuOpen = ref(false)
 const hoverTimeout = ref(null)
 const isHoverMode = ref(false)
@@ -403,6 +411,8 @@ onMounted(async () => {
       await authStore.checkAuth()
       console.log('Auth state refreshed. Updated role:', authStore.userRole)
       console.log('Is admin after refresh?', authStore.isAdmin)
+      // Load school logo for current user
+      await brandingStore.refreshLogoForCurrentUser(authStore.user?.id)
     } catch (error) {
       console.error('Error refreshing auth state:', error)
     }
@@ -423,6 +433,18 @@ watch(() => authStore.user?.id_role, (newIdRole, oldIdRole) => {
   console.log('Type of id_role:', typeof newIdRole)
   console.log('Admin status after id_role change:', authStore.isAdmin)
 }, { immediate: true })
+
+// Refresh logo when user changes (login/logout) or when settings update branding
+watch(() => authStore.user?.id, async (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    await brandingStore.refreshLogoForCurrentUser(newId)
+  }
+})
+
+const onLogoError = () => {
+  // If blob becomes invalid, try to refresh once
+  if (authStore.user?.id) brandingStore.refreshLogoForCurrentUser(authStore.user.id)
+}
 
 const isAssessmentActive = computed(() => {
   return ['assesment-index', 'assesment-detail', 'assesment-add', 'assesment-edit'].includes(route.name)
