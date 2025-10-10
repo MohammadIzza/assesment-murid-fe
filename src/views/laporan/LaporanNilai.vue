@@ -1,9 +1,9 @@
 <!-- filepath: g:\KERJAAN\Om Nusa\assesment-murid-fe\src\views\laporan\LaporanNilai.vue -->
 <template>
-    <div class="min-h-screen bg-gray-50 py-8">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
-    <div class="bg-blue-700 dark:bg-blue-900 px-8 py-6 rounded-xl mb-8">
+  <div class="bg-blue-700 dark:bg-blue-900 px-8 py-6 rounded-2xl shadow-sm ring-1 ring-black/10 dark:ring-white/10 mb-8">
       <div class="flex items-center gap-4">
         <div class="p-3 bg-blue-600 dark:bg-blue-800 rounded-xl">
           <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,15 +95,15 @@
     </div>
 
     <!-- Stats Cards Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Total Assessment Card -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-6">
         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total KD</h3>
         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ totalAssessments }}</p>
       </div>
 
       <!-- Sudah Dinilai Card -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-6">
         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Sudah Dinilai</h3>
         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
           {{ sudahDinilai }}/{{ totalMaksimal }} ({{ persentaseDinilai }}%)
@@ -111,13 +111,13 @@
       </div>
 
       <!-- Total Siswa Card -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-6">
         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Siswa (Kelas)</h3>
         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ totalSiswa }}</p>
       </div>
 
       <!-- Tingkat Ketuntasan Card -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-6">
         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Tingkat Ketuntasan</h3>
         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ tingkatKetuntasan }} - {{ selectedSiswaName }}</p>
       </div>
@@ -127,12 +127,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Left Column: Student List -->
       <div class="col-span-1">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
           <div class="p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Daftar Siswa</h2>
           </div>
           
-          <div class="overflow-y-auto max-h-[500px]">
+          <div class="overflow-y-auto max-h-[520px]">
             <div v-if="loading" class="p-6 text-center text-gray-500 dark:text-gray-400">
               <svg class="animate-spin h-8 w-8 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -151,7 +151,7 @@
                 :key="siswa.id_siswa" 
                 @click="selectSiswa(siswa)"
                 :class="[
-                  'p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20',
+                  'p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150',
                   {'bg-blue-50 dark:bg-blue-900/30': selectedSiswa?.id_siswa === siswa.id_siswa}
                 ]"
               >
@@ -181,31 +181,8 @@
           </div>
           
           <div class="p-6">
-            <!-- Chart will be rendered here -->
-            <div class="flex items-end h-48 space-x-4">
-              <div class="flex flex-col items-center">
-                <div class="w-16 bg-red-500 dark:bg-red-600" :style="`height: ${mbPercentage}%`"></div>
-                <div class="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">{{ mbPercentage }}%</div>
-                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">MB</div>
-              </div>
-              
-              <div class="flex flex-col items-center">
-                <div class="w-16 bg-amber-500 dark:bg-amber-600" :style="`height: ${sbPercentage}%`"></div>
-                <div class="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">{{ sbPercentage }}%</div>
-                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">SB</div>
-              </div>
-              
-              <div class="flex flex-col items-center">
-                <div class="w-16 bg-blue-500 dark:bg-blue-600" :style="`height: ${bshPercentage}%`"></div>
-                <div class="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">{{ bshPercentage }}%</div>
-                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">BSH</div>
-              </div>
-              
-              <div class="flex flex-col items-center">
-                <div class="w-16 bg-green-500 dark:bg-green-600" :style="`height: ${sabPercentage}%`"></div>
-                <div class="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">{{ sabPercentage }}%</div>
-                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">SAB</div>
-              </div>
+            <div class="h-60">
+              <canvas ref="distChartRef"></canvas>
             </div>
           </div>
         </div>
@@ -213,7 +190,7 @@
 
       <!-- Right Column: Assessment Table -->
       <div class="col-span-1 lg:col-span-2">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
           <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {{ selectedSiswa ? `Data Penilaian SKL & Kompetensi Dasar ${selectedSiswaName}` : 'Data Penilaian' }}
@@ -221,7 +198,7 @@
             <button 
               @click="previewRapor" 
               :disabled="!selectedSiswa"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
@@ -242,17 +219,25 @@
             Memuat data penilaian...
           </div>
 
-          <div v-else class="overflow-x-auto">
+          <div v-else class="overflow-x-auto scroll-smooth">
             <table class="w-full min-w-full">
+              <colgroup>
+                <col style="width: 70px;" />
+                <col style="width: 80px;" />
+                <col />
+                <col style="width: 64px;" v-for="n in 6" :key="'col'+n" />
+                <col style="width: 100px;" />
+                <col style="width: 120px;" />
+              </colgroup>
               <!-- Header -->
               <thead>
-                <tr class="bg-blue-600 text-white dark:bg-blue-800">
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">SKL</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">NO KD</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">KOMPETENSI</th>
-                  <th class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider" v-for="n in 6" :key="n">{{ n }}</th>
-                  <th class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider">RATA-RATA</th>
-                  <th class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider">STATUS</th>
+                <tr class="bg-blue-600 text-white dark:bg-blue-800 sticky top-0 z-10">
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">SKL</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">NO KD</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">KOMPETENSI</th>
+                  <th class="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider" v-for="n in 6" :key="n">{{ n }}</th>
+                  <th class="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider">RATA-RATA</th>
+                  <th class="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider">STATUS</th>
                 </tr>
               </thead>
               
@@ -261,8 +246,8 @@
                 <!-- For each dimensi -->
                 <template v-for="(dimensi, dimIndex) in filteredDimensiForSiswa" :key="dimensi.id_dimensi">
                   <!-- Dimensi header -->
-                  <tr class="bg-green-500 dark:bg-green-700 text-white">
-                    <td colspan="100%" class="px-6 py-3 font-medium">
+                  <tr class="bg-green-600 dark:bg-green-700 text-white">
+                    <td colspan="100%" class="px-6 py-2 font-medium">
                       {{ dimensi.nama_dimensi }}
                     </td>
                   </tr>
@@ -273,25 +258,25 @@
                     <template v-for="(capaian, capIndex) in getCapaianForSiswa(elemen.id_elemen)" :key="capaian.id">
                       <tr :class="capIndex % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'">
                         <!-- For first row in this elemen, show the dimension letter (A, B, etc) -->
-                        <td v-if="capIndex === 0" :rowspan="getCapaianCountForElemen(elemen.id_elemen)" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-700 dark:text-green-300 align-top">
+                        <td v-if="capIndex === 0" :rowspan="getCapaianCountForElemen(elemen.id_elemen)" class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-700 dark:text-green-300 align-top">
                           {{ getElemenLetter(dimIndex) }}
                         </td>
                         <template v-else><!-- Empty cell, rowspan handled above --></template>
                         
                         <!-- Show capaian number -->
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm tabular-nums text-gray-900 dark:text-gray-100">
                           {{ capIndex + 1 }}
                         </td>
                         
                         <!-- Kompetensi description -->
-                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                        <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                           {{ capaian.indikator || capaian.nama_ck }}
                         </td>
                         
                         <!-- Assessment columns (6 columns) -->
                         <template v-for="n in 6" :key="n">
-                          <td class="px-3 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-full"
+                          <td class="px-2 py-3 text-center">
+                            <div class="inline-flex items-center justify-center w-9 h-9 rounded-full shadow-inner"
                               :class="getNilaiClass(getAssessmentValue(capaian.id, n-1))">
                               {{ getAssessmentValue(capaian.id, n-1) || '-' }}
                             </div>
@@ -299,12 +284,12 @@
                         </template>
                         
                         <!-- Average score -->
-                        <td class="px-3 py-4 text-center font-medium text-gray-900 dark:text-gray-100">
+                        <td class="px-3 py-3 text-center font-semibold text-gray-900 dark:text-gray-100">
                           {{ calculateAverageForCapaian(capaian.id).toFixed(1) }}
                         </td>
                         
                         <!-- Status (Tuntas/Belum Tuntas) -->
-                        <td class="px-3 py-4 text-center">
+                        <td class="px-3 py-3 text-center">
                           <span 
                             :class="[
 
@@ -329,13 +314,13 @@
     </div>
 
     <!-- PDF Preview Modal -->
-    <div v-if="showPreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+    <div v-if="showPreview" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10 w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-gray-200/70 dark:border-gray-800 flex justify-between items-center">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Preview Cetak Rapor - {{ selectedSiswaName }}
           </h2>
-          <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -343,11 +328,11 @@
         </div>
         <div class="flex-1 overflow-y-auto p-6">
           <!-- PDF Preview content -->
-          <div class="border border-gray-300 dark:border-gray-600 rounded-lg bg-white text-black p-10 min-h-[60vh]">
+          <div class="border border-gray-200 dark:border-gray-800 rounded-xl bg-white text-black p-10 min-h-[60vh]">
             <!-- Header -->
             <div class="text-center mb-8">
               <h1 class="text-2xl font-bold mb-2">RAPOR SKL KEKHASAN SEKOLAH ISLAM TERPADU</h1>
-              <h2 class="text-xl font-semibold mb-4">SDIT QURDUL QUDWAH</h2>
+              <h2 class="text-xl font-semibold mb-4">{{ schoolName }}</h2>
               <p class="text-sm">Jl Imam Bonjol Kota A, Lingkungan Sudimulyo Kelurahan Bina Wirausaha Kodya Bandar Lampung Barat</p>
             </div>
             
@@ -359,8 +344,8 @@
                 <p><span class="font-semibold">Kelas:</span> {{ getNamaKelas(selectedSiswa?.id_kelas) }}</p>
               </div>
               <div>
-                <p><span class="font-semibold">Semester / Tahap:</span> {{ selectedSemester === '1' ? 'Semester Ganjil' : 'Semester Genap' }}</p>
-                <p><span class="font-semibold">Tahun Ajaran:</span> 2024/2025</p>
+                <p><span class="font-semibold">Semester / Tahap:</span> {{ selectedSemesterLabel }}</p>
+                <p><span class="font-semibold">Tahun Ajaran:</span> {{ tahunAjaran }}</p>
               </div>
             </div>
             
@@ -391,8 +376,8 @@
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_dimensi }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.indikator || capaian.nama_ck, 80) }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50"></td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ capaian.kode_ck || '-' }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50">{{ truncateText(capaian.indikator || capaian.nama_ck, 120) }}</td>
                   <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
                     {{ capaian.nilai_average || getNilaiAverage(capaian.id) }}
                   </td>
@@ -420,8 +405,8 @@
             </div>
           </div>
         </div>
-        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-          <button @click="printRapor" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+        <div class="p-6 border-t border-gray-200/70 dark:border-gray-800 flex justify-end">
+          <button @click="printRapor" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
             </svg>
@@ -450,7 +435,7 @@
             <!-- Header -->
             <div class="text-center mb-8">
               <h1 class="text-2xl font-bold mb-2">RAPOR SKL KEKHASAN SEKOLAH ISLAM TERPADU</h1>
-              <h2 class="text-xl font-semibold mb-4">SDIT QURDUL QUDWAH</h2>
+              <h2 class="text-xl font-semibold mb-4">{{ schoolName }}</h2>
               <p class="text-sm">Jl Imam Bonjol Kota A, Lingkungan Sudimulyo Kelurahan Bina Wirausaha Kodya Bandar Lampung Barat</p>
             </div>
             
@@ -462,8 +447,8 @@
                 <p><span class="font-semibold">Kelas:</span> {{ getNamaKelas(selectedSiswa?.id_kelas) }}</p>
               </div>
               <div>
-                <p><span class="font-semibold">Semester / Tahap:</span> {{ selectedSemester === '1' ? 'Semester Ganjil' : 'Semester Genap' }}</p>
-                <p><span class="font-semibold">Tahun Ajaran:</span> 2024/2025</p>
+                <p><span class="font-semibold">Semester / Tahap:</span> {{ selectedSemesterLabel }}</p>
+                <p><span class="font-semibold">Tahun Ajaran:</span> {{ tahunAjaran }}</p>
               </div>
             </div>
             
@@ -494,8 +479,8 @@
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_dimensi }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_elemen }}</td>
                   <td class="border-r border-gray-300 px-4 py-2">{{ capaian.nama_sub_elemen }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2">{{ truncateText(capaian.indikator || capaian.nama_ck, 80) }}</td>
-                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50"></td>
+                  <td class="border-r border-gray-300 px-4 py-2">{{ capaian.kode_ck || '-' }}</td>
+                  <td class="border-r border-gray-300 px-4 py-2 bg-gray-50">{{ truncateText(capaian.indikator || capaian.nama_ck, 120) }}</td>
                   <td class="border-r border-gray-300 px-4 py-2 text-center font-semibold">
                     {{ capaian.nilai_average || getNilaiAverage(capaian.id) }}
                   </td>
@@ -538,7 +523,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useKelasStore } from '@/stores/kelas';
 import { useDimensiStore } from '@/stores/dimensi';
 import { useElemenStore } from '@/stores/elemen';
@@ -546,7 +531,10 @@ import { useSubElemenStore } from '@/stores/subElemen';
 import { useCapaianStore } from '@/stores/capaian';
 import { useAssesmentStore } from '@/stores/assesment';
 import { useThemeStore } from '@/stores/theme';
+import { useSekolahScopeStore } from '@/stores/sekolahScope';
 import axios from '@/plugins/axios';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
 // Store initialization
 const kelasStore = useKelasStore();
@@ -556,6 +544,7 @@ const subElemenStore = useSubElemenStore();
 const capaianStore = useCapaianStore();
 const assessmentStore = useAssesmentStore();
 const themeStore = useThemeStore();
+const sekolahScope = useSekolahScopeStore();
 
 // State
 const loading = ref(false);
@@ -589,10 +578,31 @@ const sbPercentage = ref(0);
 const bshPercentage = ref(0);
 const sabPercentage = ref(0);
 
+// Chart.js related refs/state
+const distChartRef = ref(null);
+let distChartInstance = null;
+
 // Computed
 const filteredElemenList = computed(() => {
   if (!selectedDimensi.value) return [];
   return elemenList.value.filter(e => e.id_dimensi == selectedDimensi.value);
+});
+
+// Labels for preview header
+const schoolName = computed(() => sekolahScope.activeSekolahName || '-');
+const selectedSemesterLabel = computed(() => {
+  const val = selectedSemester.value != null ? String(selectedSemester.value) : '';
+  if (val === '1') return 'Semester Ganjil';
+  if (val === '2') return 'Semester Genap';
+  // Fallback: tentukan otomatis dari bulan berjalan (>= Juli = Ganjil, selain itu = Genap)
+  const month = new Date().getMonth();
+  return month >= 6 ? 'Semester Ganjil' : 'Semester Genap';
+});
+const tahunAjaran = computed(() => {
+  const now = new Date();
+  // Tahun ajaran umum di Indonesia mulai sekitar Juli (bulan ke-6, 0-based index)
+  const start = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+  return `${start}/${start + 1}`;
 });
 
 const selectedSiswaName = computed(() => {
@@ -712,8 +722,13 @@ const getAssessmentValue = (id_capaian_kelas, index) => {
     a.id_capaian_kelas == id_capaian_kelas && a.nilai && a.nilai[selectedSiswa.value.id_siswa]
   );
   
-  // Sort by date created
-  assessmentsForCapaian.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  // Sort by date created if available, fallback to id for stable order
+  assessmentsForCapaian.sort((a, b) => {
+    const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+    if (da !== db) return da - db;
+    return (a.id_assessment || 0) - (b.id_assessment || 0);
+  });
   
   // Return value at index or null
   return assessmentsForCapaian[index]?.nilai[selectedSiswa.value.id_siswa] || null;
@@ -918,6 +933,73 @@ const updateDistributionChart = () => {
   
   // Also update tingkatKetuntasan
   tingkatKetuntasan.value = `${bshPercentage.value + sabPercentage.value}%`;
+
+  // Update chart visualization
+  renderOrUpdateDistChart();
+};
+
+const renderOrUpdateDistChart = () => {
+  if (!distChartRef.value) return;
+  const labels = ['MB', 'SB', 'BSH', 'SAB'];
+  const data = [mbPercentage.value, sbPercentage.value, bshPercentage.value, sabPercentage.value];
+
+  const gridColor = themeStore.isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const textColor = themeStore.isDarkMode ? '#E5E7EB' : '#374151';
+
+  const dsBg = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981'];
+  const dsBorder = ['#DC2626', '#D97706', '#2563EB', '#059669'];
+
+  const cfg = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Persentase',
+        data,
+        backgroundColor: dsBg,
+        borderColor: dsBorder,
+        borderWidth: 1.5,
+        borderRadius: 6,
+        maxBarThickness: 48,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: (ctx) => `${ctx.parsed.y}%` }
+        },
+        title: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor }
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: gridColor },
+          ticks: { color: textColor, callback: (v) => `${v}%` }
+        }
+      }
+    }
+  };
+
+  if (distChartInstance) {
+    // update existing
+    distChartInstance.data.labels = cfg.data.labels;
+    distChartInstance.data.datasets[0].data = cfg.data.datasets[0].data;
+    distChartInstance.options.scales.x.ticks.color = textColor;
+    distChartInstance.options.scales.y.ticks.color = textColor;
+    distChartInstance.options.scales.y.grid.color = gridColor;
+    distChartInstance.update();
+  } else {
+    const ctx = distChartRef.value.getContext('2d');
+    distChartInstance = new Chart(ctx, cfg);
+  }
 };
 
 // Event handlers
@@ -932,23 +1014,16 @@ const selectSiswa = async (siswa) => {
       const nilaiData = nilaiResponse.data.data;
       
       // Update assessmentList with the student's nilai data
+      const nilaiMapByAssessment = {};
+      nilaiData.forEach(n => {
+        if (!nilaiMapByAssessment[n.id_assessment]) nilaiMapByAssessment[n.id_assessment] = {};
+        nilaiMapByAssessment[n.id_assessment][n.id_siswa] = n.nilai;
+      });
       assessmentList.value = assessmentList.value.map(assessment => {
-        const nilaiForAssessment = nilaiData.filter(nilai => 
-          nilai.id_assessment === assessment.id_assessment
-        );
-        
-        if (nilaiForAssessment.length > 0) {
-          const nilai = {};
-          nilaiForAssessment.forEach(n => {
-            nilai[n.id_siswa] = n.nilai;
-          });
-          
-          return {
-            ...assessment,
-            nilai: {...(assessment.nilai || {}), ...nilai}
-          };
+        const patch = nilaiMapByAssessment[assessment.id_assessment];
+        if (patch) {
+          return { ...assessment, nilai: { ...(assessment.nilai || {}), ...patch } };
         }
-        
         return assessment;
       });
     }
@@ -965,6 +1040,7 @@ const onKelasChange = async () => {
   try {
     await fetchSiswaByKelas();
     await fetchAssessmentData();
+    await preloadNilaiForSelectedKelas();
   } catch (error) {
     console.error('Error after kelas change:', error);
   } finally {
@@ -992,6 +1068,8 @@ const fetchData = async () => {
       fetchCapaianList(),
       fetchAssessmentData()
     ]);
+    await fetchSiswaByKelas();
+    await preloadNilaiForSelectedKelas();
   } catch (error) {
     console.error('Error fetching initial data:', error);
   } finally {
@@ -1052,12 +1130,14 @@ const fetchCapaianList = async () => {
 
 const fetchSiswaByKelas = async () => {
   try {
-    const url = selectedKelas.value ? `/list/siswa?id_kelas=${selectedKelas.value}` : '/list/siswa';
-    const response = await axios.get(url);
-    
+    // Backend /list/siswa tidak memfilter by id_kelas. Ambil semua lalu filter di FE.
+    const response = await axios.get('/list/siswa');
     if (response.data.success) {
-      siswaList.value = response.data.data || [];
-      totalSiswa.value = siswaList.value.length;
+      const all = response.data.data || [];
+      siswaList.value = all;
+      totalSiswa.value = selectedKelas.value
+        ? all.filter(s => String(s.id_kelas) == String(selectedKelas.value)).length
+        : all.length;
     } else {
       siswaList.value = [];
       totalSiswa.value = 0;
@@ -1071,14 +1151,12 @@ const fetchSiswaByKelas = async () => {
 
 const fetchAssessmentData = async () => {
   try {
-    // Fetch all assessment data
-    const url = selectedKelas.value ? `/list/assessment?id_kelas=${selectedKelas.value}` : '/list/assessment';
-    const response = await axios.get(url);
+    // Backend /list/assessment tidak memfilter by id_kelas. Ambil semua lalu batasi di FE via assessmentListByKelas.
+    const response = await axios.get('/list/assessment');
     
     if (response.data.success) {
       assessmentList.value = response.data.data || [];
-      // Recompute totals using filtered list by kelas
-      totalAssessments.value = assessmentListByKelas.value.length;
+      // Hitung ulang totals berdasarkan unique capaian (KD) di kelas terpilih
       
       // Fetch nilai data for the selected student if available
       if (selectedSiswa.value) {
@@ -1086,8 +1164,18 @@ const fetchAssessmentData = async () => {
           const nilaiResponse = await axios.get(`/filter/siswa/${selectedSiswa.value.id_siswa}/nilai`);
           
           if (nilaiResponse.data.success && nilaiResponse.data.data) {
-            // Update assessment data with student scores
-            // Code omitted for brevity
+            const nilaiMapByAssessment = {};
+            nilaiResponse.data.data.forEach(n => {
+              if (!nilaiMapByAssessment[n.id_assessment]) nilaiMapByAssessment[n.id_assessment] = {};
+              nilaiMapByAssessment[n.id_assessment][n.id_siswa] = n.nilai;
+            });
+            assessmentList.value = assessmentList.value.map(assessment => {
+              const patch = nilaiMapByAssessment[assessment.id_assessment];
+              if (patch) {
+                return { ...assessment, nilai: { ...(assessment.nilai || {}), ...patch } };
+              }
+              return assessment;
+            });
           }
         } catch (nilaiError) {
           console.error('Error fetching nilai data:', nilaiError);
@@ -1106,8 +1194,9 @@ const fetchAssessmentData = async () => {
         }
       });
       
-      sudahDinilai.value = assessedCapaian.size;
-      totalMaksimal.value = uniqueCapaian.size;
+  sudahDinilai.value = assessedCapaian.size;
+  totalMaksimal.value = uniqueCapaian.size;
+  totalAssessments.value = uniqueCapaian.size;
       
     } else {
       assessmentList.value = [];
@@ -1124,6 +1213,51 @@ const fetchAssessmentData = async () => {
   }
 };
 
+// Preload nilai for all students in selected kelas so status chips are correct without click
+const preloadNilaiForSelectedKelas = async () => {
+  try {
+    const students = selectedKelas.value
+      ? (siswaList.value || []).filter(s => String(s.id_kelas) == String(selectedKelas.value))
+      : (siswaList.value || []);
+    if (!students.length) return;
+
+    // Limit concurrency to avoid overwhelming the API
+    const concurrency = 5;
+    let index = 0;
+    const runNext = async () => {
+      if (index >= students.length) return;
+      const s = students[index++];
+      try {
+        const resp = await axios.get(`/filter/siswa/${s.id_siswa}/nilai`);
+        if (resp.data?.success && Array.isArray(resp.data.data)) {
+          const nilaiMapByAssessment = {};
+          resp.data.data.forEach(n => {
+            if (!nilaiMapByAssessment[n.id_assessment]) nilaiMapByAssessment[n.id_assessment] = {};
+            nilaiMapByAssessment[n.id_assessment][n.id_siswa] = n.nilai;
+          });
+          // Merge into assessments
+          assessmentList.value = assessmentList.value.map(assessment => {
+            const patch = nilaiMapByAssessment[assessment.id_assessment];
+            if (patch) {
+              return { ...assessment, nilai: { ...(assessment.nilai || {}), ...patch } };
+            }
+            return assessment;
+          });
+        }
+      } catch (e) {
+        console.error('Failed to preload nilai for siswa', s.id_siswa, e);
+      }
+      await runNext();
+    };
+
+    // Start workers
+    const workers = Array.from({ length: Math.min(concurrency, students.length) }, () => runNext());
+    await Promise.all(workers);
+  } catch (error) {
+    console.error('Error preloading nilai for class:', error);
+  }
+};
+
 // Modal and printing functions
 const previewRapor = () => {
   prepareCapaianList();
@@ -1134,8 +1268,8 @@ const prepareCapaianList = async () => {
   if (!selectedSiswa.value) return;
   
   try {
-    // Create a list of capaian that have assessments for this student
-    siswaCapaianList.value = capaianList.value
+    // Gunakan capaian sesuai kelas terpilih saja
+    siswaCapaianList.value = capaianListByKelas.value
       .filter(c => {
         const assessments = assessmentListByKelas.value.filter(a => 
           a.id_capaian_kelas == c.id && 
@@ -1257,5 +1391,19 @@ watch(selectedKelas, async (newVal) => {
 // Initialize data on component mount
 onMounted(async () => {
   await fetchData();
+  // Render chart initially if student pre-selected
+  renderOrUpdateDistChart();
+});
+
+// Update chart when theme changes
+watch(() => themeStore.isDarkMode, () => {
+  renderOrUpdateDistChart();
+});
+
+onBeforeUnmount(() => {
+  if (distChartInstance) {
+    distChartInstance.destroy();
+    distChartInstance = null;
+  }
 });
 </script>
