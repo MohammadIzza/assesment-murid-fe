@@ -11,66 +11,6 @@
       </div>
 
       <div class="space-y-8">
-        <!-- Branding Sekolah: Upload Logo -->
-        <div :class="[
-          'rounded-xl shadow-sm border overflow-hidden',
-          isDarkMode ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'
-        ]">
-          <div :class="['px-8 py-6 border-b', isDarkMode ? 'border-dark-border' : 'border-gray-200']">
-            <h3 :class="['text-lg font-semibold flex items-center', isDarkMode ? 'text-gray-100' : 'text-gray-900']">
-              <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Branding Sekolah
-            </h3>
-            <p :class="['mt-1 text-sm', isDarkMode ? 'text-gray-400' : 'text-gray-500']">Unggah logo sekolah Anda. Logo akan tampil di Navbar.</p>
-          </div>
-          <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            <!-- Preview -->
-            <div class="flex flex-col items-center">
-              <div class="w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center border"
-                   :class="isDarkMode ? 'border-dark-border bg-gray-800' : 'border-gray-200 bg-gray-50'">
-                <img v-if="brandingStore.hasLogo || previewUrl" :src="previewUrl || brandingStore.logoObjectUrl" alt="Logo Sekolah" class="w-full h-full object-cover" />
-                <div v-else class="w-10 h-10 flex items-center justify-center rounded bg-blue-600">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-              </div>
-              <p class="mt-3 text-xs text-gray-500" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">PNG/JPG maks 5MB</p>
-            </div>
-
-            <!-- Controls -->
-            <div class="md:col-span-2 space-y-4 w-full">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0 w-full">
-                <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/jpg,image/gif" @change="onFileChange" class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-                <button @click="uploadLogo" :disabled="!selectedFile || uploading" class="inline-flex items-center px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
-                  <span v-if="!uploading">Unggah Logo</span>
-                  <span v-else>Mengunggah...</span>
-                </button>
-                <button v-if="brandingStore.hasLogo" @click="deleteLogo" :disabled="deleting" class="inline-flex items-center px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50">
-                  <span v-if="!deleting">Hapus Logo</span>
-                  <span v-else>Menghapus...</span>
-                </button>
-              </div>
-
-              <!-- Admin scope: if user has idSekolah, lock to that school and hide selector -->
-              <div v-if="isAdmin && !authStore.user?.idSekolah" class="flex items-center space-x-3">
-                <label class="text-sm" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Pilih Sekolah</label>
-                <select v-model="selectedSekolahId" class="px-3 py-2 border rounded-lg" :class="isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-white border-gray-300 text-gray-700'">
-                  <option disabled value="">-- pilih sekolah --</option>
-                  <option v-for="s in sekolahList" :key="s.id_sekolah" :value="s.id_sekolah">{{ s.nama || ('Sekolah #' + s.id_sekolah) }}</option>
-                </select>
-              </div>
-              <div v-else-if="isAdmin && authStore.user?.idSekolah" class="text-sm" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">
-                Terkunci ke Sekolah ID: {{ authStore.user.idSekolah }}
-              </div>
-
-              <p v-if="brandingError" class="text-sm text-red-600">{{ brandingError }}</p>
-              <p v-if="brandingSuccess" class="text-sm text-green-600">{{ brandingSuccess }}</p>
-            </div>
-          </div>
-        </div>
         <!-- General Settings -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div class="px-8 py-6 border-b border-gray-200">
@@ -309,9 +249,6 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
-import { useGuruStore } from '@/stores/guru'
-import { useBrandingStore } from '@/stores/branding'
-import axios from '@/plugins/axios'
 
 const isSaving = ref(false)
 
@@ -328,8 +265,7 @@ const settings = reactive({
 
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
-const guruStore = useGuruStore();
-const brandingStore = useBrandingStore();
+// Branding moved to Sekolah Profile page
 
 const themeValue = computed({
   get() {
@@ -342,142 +278,8 @@ const themeValue = computed({
 
 const isDarkMode = computed(() => themeStore.isDarkMode)
 
-// Branding state
-const selectedFile = ref(null)
-const previewUrl = ref('')
-const uploading = ref(false)
-const deleting = ref(false)
-const sekolahList = ref([])
-const selectedSekolahId = ref('')
-const brandingError = ref('')
-const brandingSuccess = ref('')
 const isAdmin = computed(() => authStore.isAdmin)
 
-const resolveCurrentSekolahId = computed(() => {
-  // Guru: use currentGuru.id_sekolah if available
-  const guruSekolah = guruStore.currentGuru?.id_sekolah
-  if (guruSekolah) return guruSekolah
-  // Admin: use selected sekolah from dropdown
-  if (isAdmin.value) {
-    // If admin has idSekolah in user profile, force lock to it
-    if (authStore.user?.idSekolah) return authStore.user.idSekolah
-    return selectedSekolahId.value || null
-  }
-  return null
-})
-
-onMounted(async () => {
-  // Ensure guru profile is loaded (for guru users)
-  try {
-    if (!guruStore.currentGuru && authStore.user?.id) {
-      await guruStore.fetchCurrentGuruFromToken()
-    }
-  } catch {}
-
-  // For admin, load sekolah list to allow selection
-  if (isAdmin.value) {
-    try {
-      // If admin is locked to one school, we don't need a full list
-      if (authStore.user?.idSekolah) {
-        selectedSekolahId.value = authStore.user.idSekolah
-      } else {
-        const res = await axios.get('/list/sekolah')
-        sekolahList.value = res?.data?.data || []
-        if (!selectedSekolahId.value && sekolahList.value.length) {
-          selectedSekolahId.value = sekolahList.value[0].id_sekolah
-        }
-      }
-    } catch (e) {
-      console.error('Gagal memuat daftar sekolah:', e)
-    }
-  }
-})
-
-const onFileChange = (e) => {
-  brandingError.value = ''
-  brandingSuccess.value = ''
-  const file = e.target.files?.[0]
-  if (!file) {
-    selectedFile.value = null
-    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
-    previewUrl.value = ''
-    return
-  }
-  const allowed = ['image/png','image/jpeg','image/jpg','image/gif']
-  if (!allowed.includes(file.type)) {
-    brandingError.value = 'Format file harus PNG/JPG/GIF'
-    return
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    brandingError.value = 'Ukuran file maksimal 5MB'
-    return
-  }
-  selectedFile.value = file
-  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
-  previewUrl.value = URL.createObjectURL(file)
-}
-
-const uploadLogo = async () => {
-  brandingError.value = ''
-  brandingSuccess.value = ''
-  const idSekolah = resolveCurrentSekolahId.value
-  if (!idSekolah) {
-    brandingError.value = 'ID Sekolah tidak ditemukan. Untuk Admin, pilih sekolah terlebih dahulu.'
-    return
-  }
-  if (!selectedFile.value) {
-    brandingError.value = 'Pilih file logo terlebih dahulu'
-    return
-  }
-  uploading.value = true
-  try {
-    const formData = new FormData()
-    formData.append('logo', selectedFile.value)
-    const res = await axios.post(`/upload/sekolah/${idSekolah}/logo`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    if (res?.data?.success) {
-      brandingSuccess.value = 'Logo berhasil diunggah'
-      // Refresh navbar logo via branding store using current user lookup endpoint
-      if (authStore.user?.id) await brandingStore.refreshLogoForCurrentUser(authStore.user.id)
-      // Reset file input
-      selectedFile.value = null
-      if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
-      previewUrl.value = ''
-    } else {
-      brandingError.value = res?.data?.message || 'Gagal mengunggah logo'
-    }
-  } catch (e) {
-    brandingError.value = e?.response?.data?.message || e?.message || 'Gagal mengunggah logo'
-  } finally {
-    uploading.value = false
-  }
-}
-
-const deleteLogo = async () => {
-  brandingError.value = ''
-  brandingSuccess.value = ''
-  const idSekolah = resolveCurrentSekolahId.value
-  if (!idSekolah) {
-    brandingError.value = 'ID Sekolah tidak ditemukan.'
-    return
-  }
-  if (!confirm('Hapus logo sekolah?')) return
-  deleting.value = true
-  try {
-    const res = await axios.delete(`/upload/sekolah/${idSekolah}/logo`)
-    if ((res.status >= 200 && res.status < 300) && res?.data?.success !== false) {
-      brandingSuccess.value = 'Logo berhasil dihapus'
-      brandingStore.clearLogo()
-    } else {
-      brandingError.value = res?.data?.message || 'Gagal menghapus logo'
-    }
-  } catch (e) {
-    brandingError.value = e?.response?.data?.message || e?.message || 'Gagal menghapus logo'
-  } finally {
-    deleting.value = false
-  }
-}
 
 const saveSettings = async () => {
   isSaving.value = true

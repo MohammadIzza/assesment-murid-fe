@@ -42,6 +42,8 @@ import CapaianKelasIndex from '@/views/capaian_kelas/index.vue'
 
 // Import komponen assessment
 import AssignmentDetail from '@/views/assesment/AssignmentDetail.vue'
+// Import profil sekolah
+import ProfileSekolah from '@/views/sekolah/ProfileSekolah.vue'
 
 // Import fungsi router dari vue-router
 import { createRouter, createWebHistory } from 'vue-router'
@@ -176,6 +178,16 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Pengaturan',
+          },
+        },
+        {
+          path: 'sekolah/profile',
+          name: 'sekolah-profile',
+          component: ProfileSekolah,
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true,
+            title: 'Profil Sekolah',
           },
         },
         // Siswa routes - Only for admin

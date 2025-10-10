@@ -1,25 +1,43 @@
 <template>
   <!-- Pastikan menambahkan class dark mode pada navbar -->
-  <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-4 py-2.5 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
+  <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-4 py-3 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
+  <div class="flex justify-between items-center h-24">
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-4">
-          <RouterLink :to="{ name: 'dashboard' }" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div class="flex items-center justify-center w-10 h-10 rounded-lg shadow-md overflow-hidden"
-                 :class="brandingStore.hasLogo ? '' : 'bg-blue-600'">
-              <img v-if="brandingStore.hasLogo"
-                   :src="brandingStore.logoObjectUrl"
-                   alt="Logo Sekolah"
-                   class="w-full h-full object-cover"
-                   @error="onLogoError" />
-              <svg v-else class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
+          <RouterLink :to="{ name: 'dashboard' }" class="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity">
+            <!-- Two separate logos stacked with a thin divider below the first -->
+            <div class="flex flex-col items-center">
+              <!-- School logo (top) -->
+              <div class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                <template v-if="brandingStore.hasLogo">
+                  <img
+                    :src="brandingStore.logoObjectUrl"
+                    alt="Logo Sekolah"
+                    class="w-full h-full object-contain p-0.5"
+                    @error="onLogoError"
+                  />
+                </template>
+                <template v-else>
+                  <div class="w-full h-full flex items-center justify-center bg-blue-600">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                </template>
+              </div>
+              <!-- Thin divider below the first logo -->
+              <div class="w-12 my-1 h-px bg-gray-200 dark:bg-dark-border"></div>
+              <!-- Company logo (bottom) -->
+              <div class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                <img src="/logoCompany.png" alt="Logo Company" class="max-h-10 object-contain p-0.5" />
+              </div>
             </div>
-            <div>
-              <h1 class="text-xl font-bold text-gray-900">ARASIT</h1>
-              <p class="text-xs text-gray-500">Asessment Rapor SKL Islam Terpadu</p>
+            <div class="min-w-0 leading-tight">
+              <h1 class="text-[20px] md:text-[22px] font-semibold tracking-tight text-gray-900 truncate">
+                ARASIT<span v-if="activeSchoolName"> | {{ activeSchoolName }}</span>
+              </h1>
+              <p class="text-xs text-gray-500 -mt-0.5 truncate">Asessment Rapor SKL Islam Terpadu</p>
             </div>
           </RouterLink>
         </div>
@@ -165,6 +183,18 @@
                 </svg>
                 Pengaturan
               </RouterLink>
+              <!-- Profil Sekolah (Admin only) -->
+              <RouterLink 
+                v-if="isUserAdmin"
+                :to="{ name: 'sekolah-profile' }"
+                class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10"/>
+                </svg>
+                Profil Sekolah
+              </RouterLink>
               <div class="border-t border-gray-100 my-1"></div>
               <button 
                 @click="handleLogout"
@@ -228,7 +258,7 @@
       <div 
         v-show="isMobileMenuOpen" 
         @click.stop
-        class="md:hidden fixed top-16 right-0 left-0 bg-white border-t border-gray-200 shadow-lg z-50"
+        class="md:hidden fixed top-24 right-0 left-0 bg-white border-t border-gray-200 shadow-lg z-50"
       >
         <!-- Menu content -->
         <div class="px-2 pt-2 pb-3 space-y-1 max-w-7xl mx-auto">
@@ -355,6 +385,20 @@
             Pengaturan
           </RouterLink>
 
+          <!-- Profil Sekolah Mobile (Admin only) -->
+          <RouterLink 
+            v-if="isUserAdmin"
+            :to="{ name: 'sekolah-profile' }"
+            @click="closeMobileMenu"
+            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+          >
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10"/>
+            </svg>
+            Profil Sekolah
+          </RouterLink>
+
           <!-- Logout Mobile -->
           <button 
             @click.stop="handleLogout"
@@ -377,12 +421,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme';
 import { useBrandingStore } from '@/stores/branding';
+import { useSekolahScopeStore } from '@/stores/sekolahScope';
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore();
 const brandingStore = useBrandingStore();
+const sekolahScope = useSekolahScopeStore();
 const isMobileMenuOpen = ref(false)
 const hoverTimeout = ref(null)
 const isHoverMode = ref(false)
@@ -416,6 +462,8 @@ onMounted(async () => {
       }
       // Load school logo for current user
       await brandingStore.refreshLogoForCurrentUser(authStore.user?.id)
+      // Initialize sekolah scope from auth (if available)
+      await sekolahScope.initFromAuth(authStore)
     } catch (error) {
       console.error('Error refreshing auth state:', error)
     }
@@ -443,6 +491,13 @@ watch(() => authStore.user?.id, async (newId, oldId) => {
     await brandingStore.refreshLogoForCurrentUser(newId)
   }
 })
+
+// Keep sekolah scope in sync if idSekolah changes
+watch(() => authStore.user?.idSekolah, async (newVal, oldVal) => {
+  if (newVal && newVal !== oldVal) {
+    await sekolahScope.setActiveSekolah(parseInt(newVal))
+  }
+}, { immediate: true })
 
 const onLogoError = () => {
   // If blob becomes invalid, try to refresh once
@@ -479,6 +534,9 @@ const userInitial = computed(() => {
   const name = authStore.user?.name || 'U'
   return name.charAt(0).toUpperCase()
 })
+
+// Active school name to render in brand title
+const activeSchoolName = computed(() => sekolahScope.activeSekolahName)
 
 // More reliable admin status check with direct property inspection
 const isUserAdmin = computed(() => {
