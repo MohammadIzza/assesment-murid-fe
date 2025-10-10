@@ -144,7 +144,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
@@ -179,7 +179,7 @@ export default {
     const toastMessage = ref('')
     const toastDuration = ref(4000)
     
-    const isDarkMode = computed(() => themeStore.isDarkMode)
+  const isDarkMode = computed(() => themeStore.isDarkMode)
     
     const showNotification = (type, title, message, duration = 1500) => {
       toastType.value = type
@@ -192,6 +192,18 @@ export default {
     const closeToast = () => {
       showToast.value = false
     }
+
+    // Show toast if redirected due to expired session
+    onMounted(() => {
+      const reason = route.query.reason
+      if (reason === 'expired') {
+        const hasReturn = !!route.query.redirect
+        const msg = hasReturn
+          ? 'Sesi berakhir, silakan login kembali untuk melanjutkan.'
+          : 'Sesi berakhir, silakan login kembali.'
+        showNotification('warning', 'Sesi Berakhir', msg, 4000)
+      }
+    })
     
     const handleLogin = async () => {
       error.value = ''

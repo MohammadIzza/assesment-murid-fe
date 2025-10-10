@@ -34,6 +34,34 @@ axios.interceptors.request.use(
   }
 );
 
+// Helper: safely logout via store if available, else fallback to clearing cookies
+async function safeLogoutAndRedirect() {
+  try {
+    const mod = await import('@/stores/auth');
+    if (mod && typeof mod.useAuthStore === 'function') {
+      const authStore = mod.useAuthStore();
+      await authStore.logout();
+    }
+  } catch (e) {
+    // Fallback: clear cookies and axios headers directly if store isn't available
+    try {
+      Cookies.remove('auth_token');
+      Cookies.remove('user_data');
+      Cookies.remove('session_id');
+    } catch (_) { /* noop */ }
+    delete axios.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common['Session-Id'];
+  } finally {
+    // Redirect to login if not already there
+    const isOnAuthPage = /\/login|\/regist|\/register/i.test(window.location.pathname);
+    if (!isOnAuthPage) {
+      // Preserve return path and mark reason
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/login?redirect=${returnTo}&reason=expired`;
+    }
+  }
+}
+
 // Add response interceptor untuk handling error
 axios.interceptors.response.use(
   (response) => {
@@ -45,33 +73,23 @@ axios.interceptors.response.use(
     // Handle 401 errors only on specific API calls, not on all
     // Avoid auto logout on page refresh or when checking auth status
     if (error.response?.status === 401) {
-      const requestUrl = error.config?.url || '';
-      
-      // Only logout on specific endpoints, not on profile checks or verification
-      const isAuthEndpoint = 
-        requestUrl.includes('/auth/login') || 
-        requestUrl.includes('/auth/register');
-      
-      // Avoid auto-logout on profile or verification endpoints
-      const isProfileOrVerify = 
-        requestUrl.includes('/user/profile') || 
-        requestUrl.includes('/auth/verify');
-      
-      // Only remove tokens and redirect on auth endpoints, not on profile/verify checks
-      if (isAuthEndpoint && !isProfileOrVerify) {
-        // Import authStore and handle logout through proper channels
-        const { useAuthStore } = require('@/stores/auth');
-        const authStore = useAuthStore();
-        authStore.logout();
-        
-        // Redirect only if explicitly logging out, not on page refresh auth checks
-        if (requestUrl.includes('/auth/logout')) {
-          // Redirect to login
-          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-            window.location.href = '/login';
-          }
-        }
+      const requestUrl = String(error.config?.url || '');
+      const isLogin = requestUrl.includes('/auth/login');
+      const isRegister = requestUrl.includes('/auth/register') || requestUrl.includes('/auth/regist');
+      const isLogout = requestUrl.includes('/auth/logout');
+      const isRefresh = requestUrl.includes('/auth/refresh');
+
+      // If 401 on login/register, just reject (wrong credentials, don't logout)
+      if (isLogin || isRegister) {
+        return Promise.reject(error);
       }
+      // Ignore 401 coming back from our own logout/refresh attempts
+      if (isLogout || isRefresh) {
+        return Promise.reject(error);
+      }
+
+      // For any other 401, treat as session expired: logout and redirect
+      safeLogoutAndRedirect();
     }
     
     return Promise.reject(error);
