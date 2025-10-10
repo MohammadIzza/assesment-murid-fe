@@ -454,6 +454,13 @@ export const useAuthStore = defineStore('auth', {
             } else {
               console.warn('API did not return id_role, defaulting to 0');
             }
+
+            // Capture admin's school scope if provided by backend (users.idSekolah)
+            let idSekolah = null;
+            if (userData.idSekolah !== undefined && userData.idSekolah !== null) {
+              const parsed = parseInt(userData.idSekolah);
+              idSekolah = Number.isNaN(parsed) ? null : parsed;
+            }
             
             // Update user object with the latest data
             this.user = {
@@ -463,7 +470,8 @@ export const useAuthStore = defineStore('auth', {
               is_verified: userData.is_verified || this.user?.is_verified || 0,
               is_verified_nip: userData.is_verified_nip || this.user?.is_verified_nip || 0,
               id_role: idRole, // Store as integer
-              name: this.user?.name || (userData.email ? userData.email.split('@')[0] : 'User')
+              name: this.user?.name || (userData.email ? userData.email.split('@')[0] : 'User'),
+              idSekolah: idSekolah
             }
             
             // Update userRole in state

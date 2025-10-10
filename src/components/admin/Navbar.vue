@@ -411,6 +411,9 @@ onMounted(async () => {
       await authStore.checkAuth()
       console.log('Auth state refreshed. Updated role:', authStore.userRole)
       console.log('Is admin after refresh?', authStore.isAdmin)
+      if (authStore.user?.idSekolah) {
+        console.log('Admin school lock active. idSekolah =', authStore.user.idSekolah)
+      }
       // Load school logo for current user
       await brandingStore.refreshLogoForCurrentUser(authStore.user?.id)
     } catch (error) {

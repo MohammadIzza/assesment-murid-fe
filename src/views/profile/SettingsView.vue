@@ -54,13 +54,16 @@
                 </button>
               </div>
 
-              <!-- Admin can select sekolah if not bound to one -->
-              <div v-if="isAdmin" class="flex items-center space-x-3">
+              <!-- Admin scope: if user has idSekolah, lock to that school and hide selector -->
+              <div v-if="isAdmin && !authStore.user?.idSekolah" class="flex items-center space-x-3">
                 <label class="text-sm" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">Pilih Sekolah</label>
                 <select v-model="selectedSekolahId" class="px-3 py-2 border rounded-lg" :class="isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-white border-gray-300 text-gray-700'">
                   <option disabled value="">-- pilih sekolah --</option>
                   <option v-for="s in sekolahList" :key="s.id_sekolah" :value="s.id_sekolah">{{ s.nama || ('Sekolah #' + s.id_sekolah) }}</option>
                 </select>
+              </div>
+              <div v-else-if="isAdmin && authStore.user?.idSekolah" class="text-sm" :class="isDarkMode ? 'text-gray-300' : 'text-gray-700'">
+                Terkunci ke Sekolah ID: {{ authStore.user.idSekolah }}
               </div>
 
               <p v-if="brandingError" class="text-sm text-red-600">{{ brandingError }}</p>
@@ -355,7 +358,11 @@ const resolveCurrentSekolahId = computed(() => {
   const guruSekolah = guruStore.currentGuru?.id_sekolah
   if (guruSekolah) return guruSekolah
   // Admin: use selected sekolah from dropdown
-  if (isAdmin.value) return selectedSekolahId.value || null
+  if (isAdmin.value) {
+    // If admin has idSekolah in user profile, force lock to it
+    if (authStore.user?.idSekolah) return authStore.user.idSekolah
+    return selectedSekolahId.value || null
+  }
   return null
 })
 
@@ -370,10 +377,15 @@ onMounted(async () => {
   // For admin, load sekolah list to allow selection
   if (isAdmin.value) {
     try {
-      const res = await axios.get('/list/sekolah')
-      sekolahList.value = res?.data?.data || []
-      if (!selectedSekolahId.value && sekolahList.value.length) {
-        selectedSekolahId.value = sekolahList.value[0].id_sekolah
+      // If admin is locked to one school, we don't need a full list
+      if (authStore.user?.idSekolah) {
+        selectedSekolahId.value = authStore.user.idSekolah
+      } else {
+        const res = await axios.get('/list/sekolah')
+        sekolahList.value = res?.data?.data || []
+        if (!selectedSekolahId.value && sekolahList.value.length) {
+          selectedSekolahId.value = sekolahList.value[0].id_sekolah
+        }
       }
     } catch (e) {
       console.error('Gagal memuat daftar sekolah:', e)
