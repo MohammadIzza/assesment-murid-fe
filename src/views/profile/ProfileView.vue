@@ -107,20 +107,45 @@
                   <label class="block text-xs font-medium text-gray-600 dark:text-dark-text-secondary mb-1">Nama Lengkap</label>
                   <input v-model="editableProfile.nama" type="text" class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-input text-gray-900 dark:text-dark-text" />
                 </div>
+                
+                <!-- ⭐ Role - Read-only display (tidak bisa diubah) -->
                 <div>
                   <label class="block text-xs font-medium text-gray-600 dark:text-dark-text-secondary mb-1">Role</label>
-                  <select v-model="editableProfile.id_role" class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-input text-gray-900 dark:text-dark-text">
-                    <option disabled value="">Pilih Role</option>
-                    <option v-for="r in roleList" :key="r.id_role" :value="r.id_role">{{ r.nama_role }}</option>
-                  </select>
+                  <div class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center justify-between">
+                      <span class="font-medium">{{ getRoleName(editableProfile.id_role) }}</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                        Tidak dapat diubah
+                      </span>
+                    </div>
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    Role tidak dapat diubah untuk alasan keamanan
+                  </p>
                 </div>
+                
+                <!-- ⭐ Sekolah - Read-only display (tidak bisa diubah) -->
                 <div>
                   <label class="block text-xs font-medium text-gray-600 dark:text-dark-text-secondary mb-1">Sekolah</label>
-                  <select v-model="editableProfile.id_sekolah" class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-input text-gray-900 dark:text-dark-text">
-                    <option disabled value="">Pilih Sekolah</option>
-                    <option v-for="s in sekolahList" :key="s.id_sekolah" :value="s.id_sekolah">{{ s.nama_sekolah }}</option>
-                  </select>
+                  <div class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center justify-between">
+                      <span class="font-medium">{{ getSchoolName(editableProfile.id_sekolah) }}</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                        Tidak dapat diubah
+                      </span>
+                    </div>
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    Sekolah sudah ditetapkan dan tidak dapat diubah
+                  </p>
                 </div>
+                
                 <div>
                   <label class="block text-xs font-medium text-gray-600 dark:text-dark-text-secondary mb-1">NIP</label>
                   <input v-model="editableProfile.nip" type="text" class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-input text-gray-900 dark:text-dark-text" />
@@ -587,12 +612,13 @@ const saveProfile = async () => {
     }
     if (!guruId) throw new Error('Tidak dapat menentukan ID guru untuk disimpan');
     
-    // Kirim perubahan ke API (only allowed fields)
+    // ⭐ Kirim perubahan ke API (only allowed fields - id_role dan id_sekolah tidak dapat diubah)
     const payload = {
       nama: editableProfile.nama,
       nip: editableProfile.nip,
-      id_role: editableProfile.id_role,
-      id_sekolah: editableProfile.id_sekolah,
+      // ⭐ id_role dan id_sekolah TIDAK dikirim karena tidak boleh diubah
+      // id_role: editableProfile.id_role,
+      // id_sekolah: editableProfile.id_sekolah,
     };
     const response = await updateGuruById(guruId, payload);
     
