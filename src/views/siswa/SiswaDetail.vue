@@ -12,9 +12,9 @@
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div :class="['fixed inset-0', isDarkMode ? 'bg-gray-900 bg-opacity-75' : 'bg-gray-500 bg-opacity-75']" aria-hidden="true" @click="showDeleteModal = false"></div>
+        <div :class="['fixed inset-0 bg-opacity-75 transition-opacity z-40', isDarkMode ? 'bg-gray-900' : 'bg-gray-500']" aria-hidden="true" @click="showDeleteModal = false"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div :class="['relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full', isDarkMode ? 'bg-gray-800' : 'bg-white']">
+        <div :class="['relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-50', isDarkMode ? 'bg-gray-800' : 'bg-white']">
           <div :class="['px-6 pt-6 pb-4 sm:p-6 sm:pb-4', isDarkMode ? 'bg-gray-800' : 'bg-white']">
             <div class="sm:flex sm:items-start">
               <div class="mx-auto flex-shrink-0 flex items-center justify-center h-14 w-14 rounded-full bg-red-100 sm:mx-0 sm:h-12 sm:w-12">
@@ -162,29 +162,15 @@
               <div class="flex-1">
                 <h2 class="text-2xl font-bold text-white mb-2">{{ siswaStore.getCurrentSiswa.nama || 'Nama Tidak Tersedia' }}</h2>
                 <div class="flex flex-wrap gap-2">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                    Kelas: {{ siswaStore.getCurrentSiswa.id_kelas || '-' }}
-                  </span>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                    Sekolah: {{ siswaStore.getCurrentSiswa.id_sekolah || '-' }}
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/90 text-purple-800">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    {{ getKelasName(siswaStore.getCurrentSiswa.id_kelas) }}
                   </span>
                 </div>
               </div>
-              <!-- Action Buttons -->
-              <div class="flex flex-col space-y-2 md:space-y-0 md:space-x-3 md:flex-row">
-                <button @click="editSiswa" class="inline-flex items-center justify-center px-4 py-2 bg-white/20 backdrop-blur-sm text-green-700 rounded-lg hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                  Edit Siswa
-                </button>
-                <button @click="showDeleteModal = true" class="inline-flex items-center justify-center px-4 py-2 bg-red-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-red-600/90 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
-                  Hapus Siswa
-                </button>
-              </div>
+              <!-- ⭐ Action Buttons dihapus - sudah ada di header -->
             </div>
           </div>
           <!-- Details Section -->
@@ -195,10 +181,7 @@
                 <div :class="['rounded-lg p-4', isDarkMode ? 'bg-gray-700' : 'bg-gray-50']">
                   <h3 :class="['text-base font-semibold mb-4', isDarkMode ? 'text-white' : 'text-gray-900']">Informasi Personal</h3>
                   <div class="space-y-4">
-                    <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
-                      <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">ID Siswa</span>
-                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.id_siswa || '-' }}</span>
-                    </div>
+                    <!-- ⭐ ID Siswa dihide -->
                     <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
                       <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Nama</span>
                       <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.nama || '-' }}</span>
@@ -209,11 +192,11 @@
                     </div>
                     <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
                       <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Tanggal Lahir</span>
-                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.tanggal_lahir || '-' }}</span>
+                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ formatDate(siswaStore.getCurrentSiswa.tanggal_lahir) }}</span>
                     </div>
                     <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
                       <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Jenis Kelamin</span>
-                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.jenis_kelamin || '-' }}</span>
+                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ getJenisKelamin(siswaStore.getCurrentSiswa.jenis_kelamin) }}</span>
                     </div>
                   </div>
                 </div>
@@ -223,13 +206,12 @@
                 <div :class="['rounded-lg p-4', isDarkMode ? 'bg-gray-700' : 'bg-gray-50']">
                   <h3 :class="['text-base font-semibold mb-4', isDarkMode ? 'text-white' : 'text-gray-900']">Informasi Institusi</h3>
                   <div class="space-y-4">
+                    <!-- ⭐ ID Sekolah dihide -->
                     <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
-                      <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">ID Sekolah</span>
-                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.id_sekolah || '-' }}</span>
-                    </div>
-                    <div :class="['flex justify-between items-center py-2 border-b last:border-b-0', isDarkMode ? 'border-gray-600' : 'border-gray-200']">
-                      <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">ID Kelas</span>
-                      <span :class="['text-sm font-semibold', isDarkMode ? 'text-white' : 'text-gray-900']">{{ siswaStore.getCurrentSiswa.id_kelas || '-' }}</span>
+                      <span :class="['text-sm font-medium', isDarkMode ? 'text-gray-400' : 'text-gray-600']">Kelas</span>
+                      <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', isDarkMode ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-800']">
+                        {{ getKelasName(siswaStore.getCurrentSiswa.id_kelas) }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -247,14 +229,23 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import Toast from '@/components/common/Toast.vue'
+import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute()
 const siswaStore = useSiswaStore()
 const themeStore = useThemeStore()
+const authStore = useAuthStore()
+const sekolahScope = useSekolahScopeStore()
 
 const isDarkMode = computed(() => themeStore.isDarkMode)
+
+// ⭐ Kelas list untuk mapping ID ke nama
+const kelasList = ref([])
+const kelasLoading = ref(false)
 
 const showToast = ref(false)
 const toastType = ref('success')
@@ -264,7 +255,28 @@ const showDeleteModal = ref(false)
 const isDeleting = ref(false)
 
 const loadSiswaDetail = async () => {
-  await siswaStore.fetchSiswaDetail(route.params.id)
+  try {
+    await siswaStore.fetchSiswaDetail(route.params.id)
+    const siswa = siswaStore.getCurrentSiswa
+    
+    // ⭐ Validasi: pastikan siswa yang dilihat adalah dari sekolah yang sama
+    const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+    if (siswa && userSekolahId && siswa.id_sekolah != userSekolahId) {
+      toastType.value = 'error'
+      toastTitle.value = 'Akses Ditolak'
+      toastMessage.value = 'Anda tidak memiliki akses untuk melihat detail siswa dari sekolah lain'
+      showToast.value = true
+      setTimeout(() => {
+        router.push({ name: 'SiswaList' })
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Failed to load siswa detail:', error)
+    toastType.value = 'error'
+    toastTitle.value = 'Gagal Memuat Data'
+    toastMessage.value = 'Terjadi kesalahan saat memuat detail siswa'
+    showToast.value = true
+  }
 }
 
 const goBack = () => {
@@ -276,19 +288,32 @@ const editSiswa = () => {
 }
 
 const confirmDeleteSiswa = async () => {
+  // ⭐ Validasi: pastikan siswa yang dihapus adalah dari sekolah yang sama
+  const siswa = siswaStore.getCurrentSiswa
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (userSekolahId && siswa?.id_sekolah != userSekolahId) {
+    showDeleteModal.value = false
+    toastType.value = 'error'
+    toastTitle.value = 'Akses Ditolak'
+    toastMessage.value = 'Anda tidak memiliki akses untuk menghapus siswa dari sekolah lain'
+    showToast.value = true
+    return
+  }
+
   isDeleting.value = true
   try {
     await siswaStore.deleteSiswa(route.params.id)
-    toastType.value = 'success'
-    toastTitle.value = 'Berhasil'
-    toastMessage.value = 'Siswa berhasil dihapus.'
-    showToast.value = true
     showDeleteModal.value = false
-    setTimeout(() => goBack(), 1200)
+    toastType.value = 'success'
+    toastTitle.value = 'Siswa Berhasil Dihapus!'
+    toastMessage.value = 'Data siswa telah dihapus dari sistem. Anda akan diarahkan ke daftar siswa'
+    showToast.value = true
+    setTimeout(() => goBack(), 1500)
   } catch (error) {
+    showDeleteModal.value = false
     toastType.value = 'error'
-    toastTitle.value = 'Gagal'
-    toastMessage.value = 'Gagal menghapus siswa.'
+    toastTitle.value = 'Gagal Menghapus Siswa'
+    toastMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat menghapus siswa'
     showToast.value = true
   } finally {
     isDeleting.value = false
@@ -322,7 +347,56 @@ const getStatusText = (status) => {
   }
 }
 
-onMounted(() => {
-  loadSiswaDetail()
+// ⭐ Helper function untuk format tanggal (hanya tahun-bulan-hari)
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  try {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString
+    }
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  } catch (error) {
+    return dateString
+  }
+}
+
+// ⭐ Helper function untuk jenis kelamin lengkap
+const getJenisKelamin = (jk) => {
+  if (!jk) return '-'
+  return jk === 'L' ? 'Laki-laki' : jk === 'P' ? 'Perempuan' : jk
+}
+
+// ⭐ Helper function untuk mendapatkan nama kelas dari id_kelas
+const getKelasName = (id_kelas) => {
+  if (!id_kelas) return '-'
+  const kelas = kelasList.value.find(k => k.id_kelas == id_kelas)
+  return kelas ? (kelas.nama_kelas || kelas.kelas || `Kelas ${id_kelas}`) : id_kelas
+}
+
+// ⭐ Fetch kelas dari API
+const fetchKelasList = async () => {
+  kelasLoading.value = true
+  try {
+    const response = await axios.get('/list/kelas')
+    kelasList.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching kelas list:', error)
+    kelasList.value = []
+  } finally {
+    kelasLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([
+    fetchKelasList(),
+    loadSiswaDetail()
+  ])
 })
 </script> 

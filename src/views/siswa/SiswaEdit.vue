@@ -1,5 +1,16 @@
 <template>
   <div :class="['min-h-screen py-8', isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-green-50 via-white to-indigo-50']">
+    <!-- Toast Notification -->
+    <Toast
+      :show="showToast"
+      :type="toastType"
+      :title="toastTitle"
+      :message="toastMessage"
+      :duration="toastDuration"
+      :show-progress="toastType === 'success'"
+      @close="closeToast"
+    />
+    
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
@@ -122,25 +133,75 @@
                 </div>
               </div>
 
-              <!-- Sekolah -->
+              <!-- ⭐ Sekolah (Read-only / Display Only) -->
               <div class="group">
-                <label for="id_sekolah" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Sekolah <span class="text-red-500 ml-1">*</span></label>
-                <select v-model="form.id_sekolah" id="id_sekolah" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']">
-                  <option value="" disabled>Pilih Sekolah</option>
-                  <option value="1">SMA Negeri 1 Semarang</option>
-                  <option value="2">SMA Negeri 2 Semarang</option>
-                </select>
+                <label for="id_sekolah" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                  Sekolah <span class="text-red-500 ml-1">*</span>
+                </label>
+                <div 
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl transition-all duration-200',
+                    isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-700'
+                  ]"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-medium">{{ getSchoolName(form.id_sekolah) }}</span>
+                    <span 
+                      :class="[
+                        'text-xs px-2 py-1 rounded-full',
+                        isDarkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'
+                      ]"
+                    >
+                      Otomatis
+                    </span>
+                  </div>
+                </div>
+                <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                  <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                  </svg>
+                  Sekolah otomatis disesuaikan dengan akun admin yang login
+                </p>
               </div>
 
               <!-- Kelas -->
               <div class="group">
-                <label for="id_kelas" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">Kelas <span class="text-red-500 ml-1">*</span></label>
-                <select v-model="form.id_kelas" id="id_kelas" required :class="['block w-full px-4 py-3 border rounded-xl', isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500']">
-                  <option value="" disabled>Pilih Kelas</option>
-                  <option value="1">Kelas X</option>
-                  <option value="2">Kelas XI</option>
-                  <option value="3">Kelas XII</option>
-                </select>
+                <label for="id_kelas" :class="['block text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                  Kelas <span class="text-red-500 ml-1">*</span>
+                </label>
+                <div class="relative">
+                  <select 
+                    v-model="form.id_kelas" 
+                    id="id_kelas" 
+                    required 
+                    :disabled="kelasLoading"
+                    :class="[
+                      'block w-full px-4 py-3 border rounded-xl transition-all duration-200',
+                      isDarkMode ? 'border-gray-600 bg-gray-700 text-white focus:border-green-400' : 'border-gray-300 focus:border-green-500',
+                      kelasLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    ]"
+                  >
+                    <option value="" disabled>
+                      {{ kelasLoading ? 'Memuat kelas...' : 'Pilih Kelas' }}
+                    </option>
+                    <option 
+                      v-for="kelas in filteredKelasList" 
+                      :key="kelas.id_kelas" 
+                      :value="kelas.id_kelas"
+                    >
+                      {{ kelas.nama_kelas || kelas.kelas || `Kelas ${kelas.id_kelas}` }}
+                    </option>
+                  </select>
+                  <div v-if="kelasLoading" class="absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                  </div>
+                </div>
+                <p v-if="filteredKelasList.length === 0 && !kelasLoading" :class="['mt-2 text-xs text-yellow-600', isDarkMode ? 'text-yellow-400' : '']">
+                  <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                  </svg>
+                  Tidak ada kelas tersedia untuk sekolah ini
+                </p>
               </div>
             </div>
           </div>
@@ -183,13 +244,38 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import Toast from '@/components/common/Toast.vue'
+import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute()
 const siswaStore = useSiswaStore()
 const themeStore = useThemeStore()
+const authStore = useAuthStore()
+const sekolahScope = useSekolahScopeStore()
 
 const isDarkMode = computed(() => themeStore.isDarkMode)
+
+// ⭐ Toast notification state
+const showToast = ref(false)
+const toastType = ref('info')
+const toastTitle = ref('')
+const toastMessage = ref('')
+const toastDuration = ref(4000)
+
+const showNotification = (type, title, message, duration = 1500) => {
+  toastType.value = type
+  toastTitle.value = title
+  toastMessage.value = message
+  toastDuration.value = duration
+  showToast.value = true
+}
+
+const closeToast = () => {
+  showToast.value = false
+}
 
 // Reactive data
 const form = ref({
@@ -202,10 +288,20 @@ const form = ref({
 })
 
 const hasChanges = ref(false)
+const kelasList = ref([])
+const kelasLoading = ref(false)
 
 // Computed properties
 const isAddMode = computed(() => {
   return route.name === 'SiswaAdd'
+})
+
+// ⭐ Filter kelas berdasarkan sekolah user yang login
+const filteredKelasList = computed(() => {
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (!userSekolahId) return kelasList.value
+  
+  return kelasList.value.filter(kelas => kelas.id_sekolah == userSekolahId)
 })
 
 const isFormValid = computed(() => {
@@ -226,6 +322,16 @@ const fetchSiswaData = async () => {
     const currentSiswa = siswaStore.getCurrentSiswa
     
     if (currentSiswa) {
+      // ⭐ Validasi: pastikan siswa yang diedit adalah dari sekolah yang sama
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId && currentSiswa.id_sekolah != userSekolahId) {
+        showNotification('error', 'Akses Ditolak', 'Anda tidak memiliki akses untuk mengedit siswa dari sekolah lain', 2000)
+        setTimeout(() => {
+          router.push({ name: 'SiswaList' })
+        }, 2000)
+        return
+      }
+
       form.value = {
         nama: currentSiswa.nama || '',
         nisn: currentSiswa.nisn || '',
@@ -237,30 +343,58 @@ const fetchSiswaData = async () => {
     }
   } catch (error) {
     console.error('Error fetching siswa data:', error)
+    showNotification('error', 'Gagal Memuat Data', 'Terjadi kesalahan saat memuat data siswa')
   }
 }
 
 const submitForm = async () => {
   if (!isFormValid.value) return
   
+  // ⭐ Validasi: pastikan id_sekolah sesuai dengan admin yang login
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (userSekolahId && form.value.id_sekolah != userSekolahId) {
+    showNotification('error', 'Validasi Gagal', 'Anda tidak memiliki akses untuk mengubah sekolah siswa')
+    return
+  }
+
+  closeToast()
+  
+  // Show loading notification
+  showNotification('info', 'Menyimpan Data', 'Sedang memproses data siswa...', 0)
+
   try {
     if (isAddMode.value) {
       console.log('Data dikirim (add):', form.value)
       await siswaStore.addSiswa(form.value)
-      alert('Siswa berhasil ditambahkan!')
+      
+      closeToast()
+      setTimeout(() => {
+        showNotification('success', 'Siswa Berhasil Ditambahkan!', 'Data siswa baru telah disimpan. Anda akan diarahkan ke daftar siswa', 1500)
+      }, 100)
+      
+      setTimeout(() => {
+        router.push({ name: 'SiswaList' })
+      }, 1500)
     } else {
       console.log('Data dikirim (update):', form.value)
       await siswaStore.updateSiswa(route.params.id, form.value)
-      alert('Data siswa berhasil diupdate!')
+      
+      closeToast()
+      setTimeout(() => {
+        showNotification('success', 'Data Berhasil Diperbarui!', 'Perubahan data siswa telah disimpan. Anda akan diarahkan ke detail siswa', 1500)
+      }, 100)
+      
+      setTimeout(() => {
+        router.push({ name: 'SiswaDetail', params: { id: route.params.id } })
+      }, 1500)
     }
-    goBack()
   } catch (error) {
     console.error('Error submitting form:', error)
-    if (error.response && error.response.data && error.response.data.message) {
-      alert('Gagal menyimpan data: ' + error.response.data.message)
-    } else {
-      alert('Terjadi kesalahan saat menyimpan data: ' + (error.message || error))
-    }
+    closeToast()
+    setTimeout(() => {
+      const errorMessage = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menyimpan data'
+      showNotification('error', 'Gagal Menyimpan Data', errorMessage, 3000)
+    }, 100)
   }
 }
 
@@ -272,13 +406,54 @@ const watchFormChanges = () => {
   hasChanges.value = true
 }
 
+// ⭐ Helper function untuk menampilkan nama sekolah
+const getSchoolName = (id_sekolah) => {
+  const schools = {
+    1: 'SMA Negeri 1 Semarang',
+    2: 'SMA Negeri 2 Semarang'
+  }
+  return schools[id_sekolah] || 'Sekolah tidak diketahui'
+}
+
+// ⭐ Fetch kelas dari API
+const fetchKelasList = async () => {
+  kelasLoading.value = true
+  try {
+    const response = await axios.get('/list/kelas')
+    kelasList.value = response.data.data || []
+    console.log('Kelas list fetched:', kelasList.value.length)
+  } catch (error) {
+    console.error('Error fetching kelas list:', error)
+    // Fallback ke hardcoded jika API gagal
+    kelasList.value = [
+      { id_kelas: 1, nama_kelas: 'Kelas X', id_sekolah: 1 },
+      { id_kelas: 2, nama_kelas: 'Kelas XI', id_sekolah: 1 },
+      { id_kelas: 3, nama_kelas: 'Kelas XII', id_sekolah: 1 }
+    ]
+  } finally {
+    kelasLoading.value = false
+  }
+}
+
 // Watchers
 watch(form, () => {
   watchFormChanges()
 }, { deep: true })
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
+  // ⭐ Auto set id_sekolah untuk siswa baru berdasarkan admin yang login
+  if (isAddMode.value) {
+    const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+    if (userSekolahId) {
+      form.value.id_sekolah = userSekolahId
+      console.log('Auto set id_sekolah untuk siswa baru:', userSekolahId)
+    }
+  }
+  
+  // ⭐ Fetch kelas list dari API
+  await fetchKelasList()
+  
   fetchSiswaData()
 })
 </script>

@@ -3,6 +3,17 @@
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
   ]">
+    <!-- Toast Notification -->
+    <Toast
+      :show="showToast"
+      :type="toastType"
+      :title="toastTitle"
+      :message="toastMessage"
+      :duration="toastDuration"
+      :show-progress="toastType === 'success'"
+      @close="closeToast"
+    />
+    
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div :class="[
@@ -50,7 +61,7 @@
               'backdrop-blur-sm rounded-xl p-6 text-center border',
               isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white/10 border-white/20'
             ]">
-              <div class="text-2xl font-bold text-white mb-1">{{ filteredSiswaList.length }}</div>
+              <div class="text-2xl font-bold text-white mb-1">{{ totalSiswaSekolah }}</div>
               <div :class="[
                 'text-sm font-medium mb-2',
                 isDarkMode ? 'text-green-200' : 'text-green-100'
@@ -132,9 +143,9 @@
           </div>
 
           <!-- Basic Filters -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-            <!-- School Filter -->
-            <div class="space-y-2">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+            <!-- ⭐ SCHOOL FILTER DIHIDE - Sudah otomatis filter by sekolah user yang login -->
+            <!-- <div class="space-y-2">
               <label :class="[
                 'flex text-sm font-medium items-center',
                 isDarkMode ? 'text-gray-300' : 'text-gray-700'
@@ -165,7 +176,7 @@
                 </svg>
                 Filter aktif
               </div>
-            </div>
+            </div> -->
             
             <!-- Kelas Filter -->
             <div class="space-y-2">
@@ -176,14 +187,23 @@
                 Kelas
               </label>
               <div class="relative">
-                <select v-model="selectedKelas" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
-                  <option value="">Semua Kelas</option>
-                  <option value="X">Kelas X</option>
-                  <option value="XI">Kelas XI</option>
-                  <option value="XII">Kelas XII</option>
+                <select 
+                  v-model="selectedKelas" 
+                  :disabled="kelasLoading"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm"
+                >
+                  <option value="">{{ kelasLoading ? 'Memuat...' : 'Semua Kelas' }}</option>
+                  <option 
+                    v-for="kelas in filteredKelasList" 
+                    :key="kelas.id_kelas" 
+                    :value="kelas.id_kelas"
+                  >
+                    {{ kelas.nama_kelas || kelas.kelas || `Kelas ${kelas.id_kelas}` }}
+                  </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div v-if="kelasLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                  <svg v-else class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </div>
@@ -196,8 +216,8 @@
               </div>
             </div>
             
-            <!-- Status Filter -->
-            <div class="space-y-2">
+            <!-- ⭐ STATUS FILTER DIHIDE -->
+            <!-- <div class="space-y-2">
               <label class="flex text-sm font-medium text-gray-700 items-center">
                 <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -222,7 +242,7 @@
                 </svg>
                 Filter aktif
               </div>
-            </div>
+            </div> -->
 
             <!-- Search -->
             <div class="space-y-2">
@@ -397,7 +417,7 @@
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID</th>
+                ]">No</th>
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -417,11 +437,12 @@
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID Kelas</th>
-                <th :class="[
+                ]">Kelas</th>
+                <!-- ⭐ ID Sekolah dihide karena sudah otomatis filter by sekolah admin -->
+                <!-- <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID Sekolah</th>
+                ]">ID Sekolah</th> -->
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -436,9 +457,9 @@
                 isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
               ]">
                 <td :class="[
-                  'px-6 py-4 whitespace-nowrap text-sm',
+                  'px-6 py-4 whitespace-nowrap text-sm font-medium',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ siswa.id_siswa }}</td>
+                ]">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
@@ -450,19 +471,27 @@
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ siswa.tanggal_lahir }}</td>
+                ]">{{ formatDate(siswa.tanggal_lahir) }}</td>
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ siswa.jenis_kelamin }}</td>
+                ]">{{ getJenisKelamin(siswa.jenis_kelamin) }}</td>
                 <td :class="[
+                  'px-6 py-4 whitespace-nowrap text-sm font-medium',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]">
+                  <span :class="[
+                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                    isDarkMode ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-800'
+                  ]">
+                    {{ getKelasName(siswa.id_kelas) }}
+                  </span>
+                </td>
+                <!-- ⭐ ID Sekolah dihide karena sudah otomatis filter by sekolah admin -->
+                <!-- <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ siswa.id_kelas }}</td>
-                <td :class="[
-                  'px-6 py-4 whitespace-nowrap text-sm',
-                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ siswa.id_sekolah }}</td>
+                ]">{{ siswa.id_sekolah }}</td> -->
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button @click="goToDetail(siswa.id_siswa)" :class="[
                     'px-3 py-1 rounded-lg transition-colors',
@@ -471,7 +500,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedSiswaList.length === 0">
-                <td colspan="8" :class="[
+                <td colspan="7" :class="[
                   'px-6 py-12 text-center',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 ]">
@@ -579,12 +608,37 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSiswaStore } from '@/stores/siswa'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import Toast from '@/components/common/Toast.vue'
+import axios from 'axios'
 import ExcelJS from 'exceljs'
 
 const router = useRouter()
 const siswaStore = useSiswaStore()
 const themeStore = useThemeStore()
+const authStore = useAuthStore()
+const sekolahScope = useSekolahScopeStore()
 const isDarkMode = computed(() => themeStore.isDarkMode)
+
+// ⭐ Toast notification state
+const showToast = ref(false)
+const toastType = ref('info')
+const toastTitle = ref('')
+const toastMessage = ref('')
+const toastDuration = ref(4000)
+
+const showNotification = (type, title, message, duration = 1500) => {
+  toastType.value = type
+  toastTitle.value = title
+  toastMessage.value = message
+  toastDuration.value = duration
+  showToast.value = true
+}
+
+const closeToast = () => {
+  showToast.value = false
+}
 
 // Reactive data
 const searchQuery = ref('')
@@ -601,9 +655,35 @@ const isImporting = ref(false)
 const importError = ref('')
 const importedCount = ref(0)
 
+// ⭐ Kelas data dari API
+const kelasList = ref([])
+const kelasLoading = ref(false)
+
 // Computed properties
+// ⭐ Filter kelas berdasarkan sekolah user yang login
+const filteredKelasList = computed(() => {
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (!userSekolahId) return kelasList.value
+  
+  return kelasList.value.filter(kelas => kelas.id_sekolah == userSekolahId)
+})
+
+// ⭐ Total siswa hanya di sekolah admin yang login (bukan total keseluruhan)
+const totalSiswaSekolah = computed(() => {
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (!userSekolahId) return siswaStore.getSiswaList.length
+  
+  return siswaStore.getSiswaList.filter(siswa => siswa.id_sekolah == userSekolahId).length
+})
+
 const filteredSiswaList = computed(() => {
   let filtered = siswaStore.getSiswaList
+
+  // ⭐ OTOMATIS FILTER BY SEKOLAH USER YANG LOGIN
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+  if (userSekolahId) {
+    filtered = filtered.filter(siswa => siswa.id_sekolah == userSekolahId)
+  }
 
   // Search filter
   if (searchQuery.value) {
@@ -615,20 +695,20 @@ const filteredSiswaList = computed(() => {
     )
   }
 
-  // School filter
-  if (selectedSchool.value) {
-    filtered = filtered.filter(siswa => siswa.id_sekolah == selectedSchool.value)
-  }
+  // ⭐ Filter by school manual sudah dihapus karena dropdown sekolah akan dihide
+  // if (selectedSchool.value) {
+  //   filtered = filtered.filter(siswa => siswa.id_sekolah == selectedSchool.value)
+  // }
 
   // Kelas filter
   if (selectedKelas.value) {
     filtered = filtered.filter(siswa => siswa.id_kelas === selectedKelas.value)
   }
 
-  // Status filter
-  if (selectedStatus.value) {
-    filtered = filtered.filter(siswa => siswa.status === selectedStatus.value)
-  }
+  // ⭐ Status filter dihapus karena filter status dihide
+  // if (selectedStatus.value) {
+  //   filtered = filtered.filter(siswa => siswa.status === selectedStatus.value)
+  // }
 
   return filtered
 })
@@ -661,15 +741,18 @@ const visiblePages = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value || selectedSchool.value || selectedKelas.value || selectedStatus.value
+  // ⭐ selectedSchool dan selectedStatus tidak dihitung
+  return searchQuery.value || selectedKelas.value
 })
 
 const activeFilterCount = computed(() => {
   let count = 0
   if (searchQuery.value) count++
-  if (selectedSchool.value) count++
+  // ⭐ selectedSchool tidak dihitung karena sudah otomatis filter by sekolah user
+  // if (selectedSchool.value) count++
   if (selectedKelas.value) count++
-  if (selectedStatus.value) count++
+  // ⭐ selectedStatus tidak dihitung karena filter status dihide
+  // if (selectedStatus.value) count++
   return count
 })
 
@@ -696,9 +779,11 @@ const goToDetail = (id_siswa) => {
 
 const clearAllFilters = () => {
   searchQuery.value = ''
-  selectedSchool.value = ''
+  // ⭐ selectedSchool tidak direset karena sudah otomatis filter by sekolah user
+  // selectedSchool.value = ''
   selectedKelas.value = ''
-  selectedStatus.value = ''
+  // ⭐ selectedStatus tidak direset karena filter status dihide
+  // selectedStatus.value = ''
   currentPage.value = 1
 }
 
@@ -753,6 +838,55 @@ const getSiswaEmail = (siswa) => {
   return '-'
 }
 
+// ⭐ Fetch kelas dari API
+const fetchKelasList = async () => {
+  kelasLoading.value = true
+  try {
+    const response = await axios.get('/list/kelas')
+    kelasList.value = response.data.data || []
+    console.log('Kelas list fetched for filter:', kelasList.value.length)
+  } catch (error) {
+    console.error('Error fetching kelas list:', error)
+    kelasList.value = []
+  } finally {
+    kelasLoading.value = false
+  }
+}
+
+// ⭐ Helper function untuk mendapatkan nama kelas dari id_kelas
+const getKelasName = (id_kelas) => {
+  if (!id_kelas) return '-'
+  const kelas = kelasList.value.find(k => k.id_kelas == id_kelas)
+  return kelas ? (kelas.nama_kelas || kelas.kelas || `Kelas ${id_kelas}`) : id_kelas
+}
+
+// ⭐ Helper function untuk format tanggal (hanya tahun-bulan-hari)
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  try {
+    // Jika sudah format YYYY-MM-DD, return langsung
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString
+    }
+    // Jika ada timestamp/jam, ambil hanya tanggalnya
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString // Invalid date, return as is
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  } catch (error) {
+    return dateString
+  }
+}
+
+// ⭐ Helper function untuk jenis kelamin lengkap
+const getJenisKelamin = (jk) => {
+  if (!jk) return '-'
+  return jk === 'L' ? 'Laki-laki' : jk === 'P' ? 'Perempuan' : jk
+}
+
 // Import/Export Methods
 const triggerImport = () => {
   fileInputRef.value?.click()
@@ -766,6 +900,15 @@ const onFileChange = async (event) => {
   importError.value = ''
   importedCount.value = 0
 
+  // ⭐ Get user's school ID for auto-assignment
+  const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+
+  if (!userSekolahId) {
+    importError.value = 'ID Sekolah tidak ditemukan. Silakan login ulang.'
+    isImporting.value = false
+    return
+  }
+
   try {
     const workbook = new ExcelJS.Workbook()
     await workbook.xlsx.load(file)
@@ -777,6 +920,7 @@ const onFileChange = async (event) => {
 
     const siswaData = []
     let rowCount = 0
+    const errors = []
 
     // Start from row 2 (skip header)
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
@@ -788,40 +932,77 @@ const onFileChange = async (event) => {
       const nama = row.getCell(1).text?.trim()
       const nisn = row.getCell(2).text?.trim()
       const tanggal_lahir = row.getCell(3).text?.trim()
-      const jenis_kelamin = row.getCell(4).text?.trim()
+      let jenis_kelamin = row.getCell(4).text?.trim()
       const id_kelas = row.getCell(5).text?.trim()
-      const id_sekolah = row.getCell(6).text?.trim()
+
+      // ⭐ Validasi jenis kelamin: convert dari "Laki-laki"/"Perempuan" ke "L"/"P"
+      if (jenis_kelamin) {
+        if (jenis_kelamin.toLowerCase() === 'laki-laki' || jenis_kelamin.toLowerCase() === 'l') {
+          jenis_kelamin = 'L'
+        } else if (jenis_kelamin.toLowerCase() === 'perempuan' || jenis_kelamin.toLowerCase() === 'p') {
+          jenis_kelamin = 'P'
+        } else {
+          errors.push(`Baris ${rowNumber}: Jenis kelamin tidak valid (harus L/P atau Laki-laki/Perempuan)`)
+          continue
+        }
+      }
+
+      // ⭐ Validasi kelas harus ada di sekolah yang sama
+      const kelasId = id_kelas ? parseInt(id_kelas) : null
+      if (kelasId) {
+        const kelasValid = filteredKelasList.value.find(k => k.id_kelas === kelasId)
+        if (!kelasValid) {
+          errors.push(`Baris ${rowNumber}: ID Kelas ${kelasId} tidak tersedia di sekolah Anda`)
+          continue
+        }
+      }
 
       if (nama && nisn) {
         siswaData.push({
           nama,
           nisn,
-          tanggal_lahir,
-          jenis_kelamin,
-          id_kelas: id_kelas ? parseInt(id_kelas) : null,
-          id_sekolah: id_sekolah ? parseInt(id_sekolah) : null
+          tanggal_lahir: tanggal_lahir || null,
+          jenis_kelamin: jenis_kelamin || null,
+          id_kelas: kelasId,
+          id_sekolah: userSekolahId // ⭐ Auto-set dari admin yang login
         })
         rowCount++
       }
+    }
+
+    if (errors.length > 0) {
+      throw new Error(`Ditemukan ${errors.length} error:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`)
     }
 
     if (rowCount === 0) {
       throw new Error('Tidak ada data valid yang ditemukan dalam file Excel')
     }
 
-    // Process the data (you can add API call here)
+    // ⭐ Kirim data ke API backend
     console.log('Data siswa yang akan diimport:', siswaData)
-    importedCount.value = rowCount
-
-    // Clear file input
-    event.target.value = ''
+    const response = await axios.post('/add/siswa', siswaData)
     
-    // Refresh data after successful import
-    await fetchData()
+    if (response.data.success) {
+      importedCount.value = response.data.insertedCount || rowCount
+      
+      // Show success notification
+      showNotification('success', 'Import Berhasil!', `${importedCount.value} data siswa berhasil diimport`, 2000)
+      
+      // Clear file input
+      event.target.value = ''
+      
+      // Refresh data after successful import
+      await fetchData()
+    } else {
+      throw new Error(response.data.message || 'Gagal mengimport data')
+    }
     
   } catch (error) {
     console.error('Import error:', error)
-    importError.value = error.message || 'Terjadi kesalahan saat mengimport data'
+    importError.value = error.response?.data?.message || error.message || 'Terjadi kesalahan saat mengimport data'
+    
+    // Show error notification
+    showNotification('error', 'Import Gagal', importError.value, 4000)
   } finally {
     isImporting.value = false
   }
@@ -830,29 +1011,195 @@ const onFileChange = async (event) => {
 const downloadTemplate = async () => {
   try {
     const workbook = new ExcelJS.Workbook()
+    
+    // ============================================
+    // SHEET 1: Template Siswa (Data Entry)
+    // ============================================
     const worksheet = workbook.addWorksheet('Template Siswa')
     
-    // Add headers
-    worksheet.addRow(['Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas', 'ID Sekolah'])
+    // ⭐ Add headers (tanpa ID Sekolah karena auto-set)
+    worksheet.addRow(['Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas'])
     
-    // Add sample data
-    worksheet.addRow(['John Doe', '1234567890', '2010-01-01', 'Laki-laki', '1', '1'])
-    worksheet.addRow(['Jane Smith', '0987654321', '2010-02-01', 'Perempuan', '2', '1'])
+    // ⭐ Add sample data dengan format yang benar (L/P, bukan Laki-laki/Perempuan)
+    // Tambahkan contoh kelas yang tersedia di sekolah admin
+    const contohKelasId = filteredKelasList.value.length > 0 ? filteredKelasList.value[0].id_kelas : '1'
+    worksheet.addRow(['Budi Santoso', '1234567890', '2010-01-15', 'L', contohKelasId])
+    worksheet.addRow(['Siti Nurhaliza', '0987654321', '2010-03-20', 'P', contohKelasId])
     
     // Style the header
     worksheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true }
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FFE0E0E0' }
+        fgColor: { argb: 'FF4CAF50' }
       }
+      cell.alignment = { vertical: 'middle', horizontal: 'center' }
     })
     
-    // Auto-size columns
-    worksheet.columns.forEach((column) => {
-      column.width = 15
+    // Style sample data rows
+    for (let i = 2; i <= 3; i++) {
+      worksheet.getRow(i).eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF0F0F0' }
+        }
+      })
+    }
+    
+    // Auto-size columns for Template sheet
+    worksheet.columns = [
+      { width: 25 },
+      { width: 15 },
+      { width: 18 },
+      { width: 18 },
+      { width: 12 }
+    ]
+    
+    // ============================================
+    // SHEET 2: Petunjuk Pengisian
+    // ============================================
+    const instructionSheet = workbook.addWorksheet('Petunjuk')
+    
+    // Header Petunjuk
+    instructionSheet.addRow(['PETUNJUK PENGISIAN TEMPLATE SISWA'])
+    instructionSheet.mergeCells('A1:C1')
+    instructionSheet.getRow(1).getCell(1).font = { 
+      bold: true, 
+      size: 16, 
+      color: { argb: 'FFFFFFFF' } 
+    }
+    instructionSheet.getRow(1).getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4CAF50' }
+    }
+    instructionSheet.getRow(1).getCell(1).alignment = { 
+      vertical: 'middle', 
+      horizontal: 'center' 
+    }
+    instructionSheet.getRow(1).height = 35
+    
+    // Add empty row
+    instructionSheet.addRow([])
+    
+    // Add instructions header
+    instructionSheet.addRow(['No', 'Kolom', 'Keterangan'])
+    instructionSheet.getRow(3).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF2E7D32' }
+      }
+      cell.alignment = { vertical: 'middle', horizontal: 'center' }
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
     })
+    instructionSheet.getRow(3).height = 25
+    
+    // Instruction details dengan border
+    const instructions = [
+      ['1', 'Nama', 'Isi dengan nama lengkap siswa'],
+      ['2', 'NISN', 'Nomor Induk Siswa Nasional (10 digit)'],
+      ['3', 'Tanggal Lahir', 'Format YYYY-MM-DD (contoh: 2010-01-15)'],
+      ['4', 'Jenis Kelamin', 'Isi dengan L (Laki-laki) atau P (Perempuan)']
+    ]
+    
+    instructions.forEach(([no, kolom, keterangan]) => {
+      instructionSheet.addRow([no, kolom, keterangan])
+    })
+    
+    // ⭐ Point 5: Daftar kelas DINAMIS dari database
+    const kelasOptions = filteredKelasList.value.length > 0 
+      ? filteredKelasList.value.map(k => `${k.id_kelas}=${k.nama_kelas || k.kelas || 'Kelas ' + k.id_kelas}`).join(', ')
+      : 'Belum ada kelas tersedia'
+    instructionSheet.addRow(['5', 'ID Kelas', `Pilih dari kelas yang tersedia di sekolah Anda: ${kelasOptions}`])
+    
+    // Style instruction rows dengan border dan alternating colors
+    for (let i = 4; i <= 8; i++) {
+      instructionSheet.getRow(i).eachCell((cell, colNumber) => {
+        cell.alignment = { 
+          vertical: 'middle', 
+          horizontal: colNumber === 1 ? 'center' : 'left', 
+          wrapText: true 
+        }
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: i % 2 === 0 ? 'FFFFFFFF' : 'FFF1F8E9' }
+        }
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        }
+      })
+      instructionSheet.getRow(i).height = i === 8 ? 35 : 25
+    }
+    
+    // Add empty rows
+    instructionSheet.addRow([])
+    instructionSheet.addRow([])
+    
+    // Add important notes header
+    instructionSheet.addRow(['CATATAN PENTING:'])
+    instructionSheet.mergeCells('A11:C11')
+    instructionSheet.getRow(11).getCell(1).font = { 
+      bold: true, 
+      color: { argb: 'FFFF5722' }, 
+      size: 13 
+    }
+    instructionSheet.getRow(11).getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFE0B2' }
+    }
+    instructionSheet.getRow(11).getCell(1).alignment = { 
+      vertical: 'middle', 
+      horizontal: 'left' 
+    }
+    instructionSheet.getRow(11).height = 30
+    
+    // Add notes
+    const notes = [
+      '• ID Sekolah akan otomatis disesuaikan dengan akun admin yang login',
+      '• Pastikan format tanggal sesuai (YYYY-MM-DD)',
+      '• Jenis kelamin hanya L atau P',
+      '• ID Kelas harus sesuai dengan kelas yang tersedia di sekolah Anda',
+      '• Hapus baris contoh (Budi Santoso dan Siti Nurhaliza) sebelum mengisi data siswa'
+    ]
+    
+    notes.forEach(note => {
+      instructionSheet.addRow([note])
+      const currentRow = instructionSheet.lastRow
+      instructionSheet.mergeCells(`A${currentRow.number}:C${currentRow.number}`)
+      currentRow.getCell(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFFF9C4' }
+      }
+      currentRow.getCell(1).alignment = { 
+        vertical: 'middle', 
+        horizontal: 'left',
+        wrapText: true 
+      }
+      currentRow.getCell(1).font = { size: 10 }
+      currentRow.height = 22
+    })
+    
+    // Auto-size columns untuk Petunjuk sheet
+    instructionSheet.columns = [
+      { width: 6 },     // No
+      { width: 18 },    // Kolom
+      { width: 80 }     // Keterangan (lebih lebar)
+    ]
     
     // Generate buffer and download
     const buffer = await workbook.xlsx.writeBuffer()
@@ -869,8 +1216,12 @@ const downloadTemplate = async () => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
     
+    // Show notification
+    showNotification('success', 'Template Berhasil Diunduh', 'Silakan isi template dan upload kembali untuk import data siswa', 2000)
+    
   } catch (error) {
     console.error('Download template error:', error)
+    showNotification('error', 'Gagal Mengunduh Template', error.message || 'Terjadi kesalahan', 3000)
   }
 }
 
@@ -880,18 +1231,17 @@ const exportToExcel = async () => {
     const worksheet = workbook.addWorksheet('Data Siswa')
     
     // Add headers
-    worksheet.addRow(['ID', 'Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'ID Kelas', 'ID Sekolah'])
+    worksheet.addRow(['No', 'Nama', 'NISN', 'Tanggal Lahir', 'Jenis Kelamin', 'Kelas'])
     
     // Add data
-    filteredSiswaList.value.forEach(siswa => {
+    filteredSiswaList.value.forEach((siswa, index) => {
       worksheet.addRow([
-        siswa.id_siswa,
+        index + 1,
         siswa.nama,
         siswa.nisn,
-        siswa.tanggal_lahir,
-        siswa.jenis_kelamin,
-        siswa.id_kelas,
-        siswa.id_sekolah
+        formatDate(siswa.tanggal_lahir),
+        getJenisKelamin(siswa.jenis_kelamin),
+        getKelasName(siswa.id_kelas)
       ])
     })
     
@@ -955,25 +1305,23 @@ const printData = () => {
         <table>
           <thead>
             <tr>
-              <th>ID</th>
+              <th>No</th>
               <th>Nama</th>
               <th>NISN</th>
               <th>Tanggal Lahir</th>
               <th>Jenis Kelamin</th>
-              <th>ID Kelas</th>
-              <th>ID Sekolah</th>
+              <th>Kelas</th>
             </tr>
           </thead>
           <tbody>
-            ${filteredSiswaList.value.map(siswa => `
+            ${filteredSiswaList.value.map((siswa, index) => `
               <tr>
-                <td>${siswa.id_siswa}</td>
+                <td>${index + 1}</td>
                 <td>${siswa.nama}</td>
                 <td>${siswa.nisn}</td>
-                <td>${siswa.tanggal_lahir}</td>
-                <td>${siswa.jenis_kelamin}</td>
-                <td>${siswa.id_kelas}</td>
-                <td>${siswa.id_sekolah}</td>
+                <td>${formatDate(siswa.tanggal_lahir)}</td>
+                <td>${getJenisKelamin(siswa.jenis_kelamin)}</td>
+                <td>${getKelasName(siswa.id_kelas)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -992,13 +1340,17 @@ const printData = () => {
 }
 
 // Watchers
-watch([searchQuery, selectedSchool, selectedKelas, selectedStatus], () => {
+// ⭐ selectedSchool dan selectedStatus tidak di-watch
+watch([searchQuery, selectedKelas], () => {
   currentPage.value = 1
 })
 
 // Lifecycle
-onMounted(() => {
-  fetchData()
+onMounted(async () => {
+  await Promise.all([
+    fetchKelasList(),
+    fetchData()
+  ])
 })
 </script>
 
