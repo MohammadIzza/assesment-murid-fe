@@ -288,45 +288,6 @@
                   {{ capaianKelasStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
                 </button>
                 <button 
-                  @click="triggerImport" 
-                  :disabled="capaianKelasStore.isLoading"
-                  :class="[
-                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                    isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
-                  ]"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
-                  </svg>
-                  Import Excel
-                </button>
-                <button 
-                  @click="downloadTemplate" 
-                  :disabled="capaianKelasStore.isLoading"
-                  :class="[
-                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                    isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
-                  ]"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
-                  </svg>
-                  Template Excel
-                </button>
-                <button 
-                  @click="exportData" 
-                  :disabled="filteredCapaianKelasList.length === 0"
-                  :class="[
-                    'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                    isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                  ]"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                  Export Excel
-                </button>
-                <button 
                   @click="printData" 
                   :disabled="filteredCapaianKelasList.length === 0"
                   :class="[
@@ -435,11 +396,11 @@
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID Sekolah</th>
+                ]">Sekolah</th>
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">ID Sub Elemen</th>
+                ]">Sub Elemen</th>
                 <th :class="[
                   'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -468,11 +429,11 @@
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ capaianKelas.id_sekolah }}</td>
+                ]">{{ getSekolahName(capaianKelas.id_sekolah) }}</td>
                 <td :class="[
                   'px-6 py-4 whitespace-nowrap text-sm',
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                ]">{{ capaianKelas.id_sub_elemen || capaianKelas.id_capaian }}</td>
+                ]">{{ getSubElemenName(capaianKelas.id_sub_elemen || capaianKelas.id_capaian) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex items-center space-x-2">
                     <button @click="editCapaianKelas(capaianKelas.id)" :class="[
@@ -528,15 +489,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Hidden file input for import -->
-    <input
-      ref="fileInputRef"
-      type="file"
-      accept=".xlsx,.xls"
-      style="display: none;"
-      @change="onFileChange"
-    />
   </div>
 </template>
 
@@ -549,8 +501,10 @@ import { useKelasStore } from '@/stores/kelas'
 import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import axios from '@/plugins/axios'
 import Toast from '@/components/common/Toast.vue'
-import ExcelJS from 'exceljs'
 
 export default {
   name: 'CapaianKelasList',
@@ -564,6 +518,8 @@ export default {
   const dimensiStore = useDimensiStore()
   const elemenStore = useElemenStore()
   const subElemenStore = useSubElemenStore()
+  const authStore = useAuthStore()
+  const sekolahScope = useSekolahScopeStore()
     
     // Reactive data
   const currentPage = ref(1)
@@ -579,14 +535,20 @@ export default {
   const toastTitle = ref('')
   const toastMessage = ref('')
 
-    // Import state
-    const fileInputRef = ref(null)
-    const isImporting = ref(false)
-    const importError = ref('')
-    const importedCount = ref(0)
-
     // Computed properties
-    const filteredCapaianKelasList = computed(() => [...capaianKelasStore.getCapaianKelasList])
+    const filteredCapaianKelasList = computed(() => {
+      // ⭐ Multi-tenancy: Filter by sekolah user yang login
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      
+      let list = [...capaianKelasStore.getCapaianKelasList]
+      
+      // Filter by sekolah
+      if (userSekolahId) {
+        list = list.filter(capaian => capaian.id_sekolah == userSekolahId)
+      }
+      
+      return list
+    })
 
     const hasActiveFilters = computed(() => {
       return !!(selectedKelas.value || selectedDimensi.value || selectedElemen.value || selectedSubElemen.value)
@@ -620,12 +582,37 @@ export default {
       return Math.min(currentPage.value * itemsPerPage.value, filteredCapaianKelasList.value.length)
     })
 
+    // Helper functions
+    const getSekolahName = (sekolahId) => {
+      if (!sekolahId) return '-'
+      // Cari dari sekolahScope atau authStore
+      const sekolahList = sekolahScope.sekolahList || []
+      const sekolah = sekolahList.find(s => s.id_sekolah == sekolahId)
+      if (sekolah) return sekolah.nama_sekolah || `Sekolah ${sekolahId}`
+      
+      // Fallback: jika user login dari sekolah ini, ambil dari authStore
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (sekolahId == userSekolahId) {
+        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${sekolahId}`
+      }
+      
+      return `Sekolah ${sekolahId}`
+    }
+
+    const getSubElemenName = (subElemenId) => {
+      if (!subElemenId) return '-'
+      const subElemenList = subElemenStore.getSubElemenList || []
+      const subElemen = subElemenList.find(se => se.id_sub_elemen == subElemenId)
+      return subElemen ? subElemen.nama_sub_elemen : `Sub Elemen ${subElemenId}`
+    }
+
     // Methods
     const loadCapaianKelasData = async () => {
       try {
         await Promise.all([
           kelasStore.fetchKelasList(),
           dimensiStore.fetchDimensiList(),
+          subElemenStore.fetchSubElemenList(), // ⭐ Load semua sub elemen untuk mapping nama
         ])
         await capaianKelasStore.fetchCapaianKelasList()
       } catch (error) {
@@ -646,6 +633,36 @@ export default {
     }
 
     const deleteCapaianKelas = async (id) => {
+      try {
+        // ⭐ CASCADE CHECK: Cek apakah capaian_kelas punya assessment
+        const assessmentResponse = await axios.get(`/filter/capaian_kelas/${id}/assessment`)
+        
+        if (assessmentResponse.data.success && assessmentResponse.data.data && assessmentResponse.data.data.length > 0) {
+          const assessmentCount = assessmentResponse.data.data.length
+          showToast.value = true
+          toastType.value = 'error'
+          toastTitle.value = 'Tidak Dapat Dihapus'
+          toastMessage.value = `Capaian kelas ini memiliki ${assessmentCount} assessment. Hapus assessment terlebih dahulu sebelum menghapus capaian kelas.`
+          return
+        }
+      } catch (error) {
+        console.error('Failed to check assessments:', error)
+        // Jika error saat check, tetap lanjutkan ke confirm delete
+      }
+      
+      // ⭐ Multi-tenancy: Validasi akses sebelum delete
+      const capaian = capaianKelasStore.getCapaianKelasList.find(c => c.id === id)
+      if (capaian) {
+        const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+        if (userSekolahId && capaian.id_sekolah != userSekolahId) {
+          showToast.value = true
+          toastType.value = 'error'
+          toastTitle.value = 'Akses Ditolak'
+          toastMessage.value = 'Anda tidak memiliki akses untuk menghapus capaian kelas dari sekolah lain'
+          return
+        }
+      }
+      
       if (confirm('Apakah Anda yakin ingin menghapus data capaian kelas ini?')) {
         try {
           await capaianKelasStore.deleteCapaianKelas(id)
@@ -1184,8 +1201,8 @@ export default {
               <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${index + 1}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">${capaian.kode_ck || '-'}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">${capaian.nama_ck || '-'}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${capaian.id_sekolah || '-'}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${capaian.id_sub_elemen || capaian.id_capaian || '-'}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${getSekolahName(capaian.id_sekolah)}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${getSubElemenName(capaian.id_sub_elemen || capaian.id_capaian)}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">${capaian.indikator || '-'}</td>
             </tr>
           `
@@ -1287,8 +1304,8 @@ export default {
                   <th style="width: 5%;">No</th>
                   <th style="width: 15%;">Kode CK</th>
                   <th style="width: 35%;">Nama CK</th>
-                  <th style="width: 10%;">ID Sekolah</th>
-                  <th style="width: 10%;">ID Sub Elemen</th>
+                  <th style="width: 10%;">Sekolah</th>
+                  <th style="width: 10%;">Sub Elemen</th>
                   <th style="width: 25%;">Indikator</th>
                 </tr>
               </thead>
@@ -1352,6 +1369,8 @@ export default {
       goToAddCapaianKelas,
       editCapaianKelas,
       deleteCapaianKelas,
+      getSekolahName,
+      getSubElemenName,
       // filters
       kelasStore,
       dimensiStore,
@@ -1374,16 +1393,7 @@ export default {
       toastType,
       toastTitle,
       toastMessage,
-      // import
-      fileInputRef,
-      isImporting,
-      importError,
-      importedCount,
-      triggerImport,
-      onFileChange,
-      downloadTemplate,
-      // export and print
-      exportData,
+      // print
       printData
     }
   }

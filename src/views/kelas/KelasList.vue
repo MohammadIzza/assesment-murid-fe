@@ -188,7 +188,7 @@
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                   Filter aktif
-                </div>
+      </div>
               </div> -->
 
               <!-- Tingkat Filter -->
@@ -426,45 +426,6 @@
                     </svg>
                     <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
                     {{ kelasStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
-            </button>
-            <button 
-                    @click="triggerImport" 
-                    :disabled="kelasStore.isLoading"
-                    :class="[
-                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                      isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
-                    ]"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
-                    </svg>
-                    Import Excel
-                  </button>
-                  <button 
-                    @click="downloadTemplate" 
-                    :disabled="kelasStore.isLoading"
-                    :class="[
-                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                      isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
-                    ]"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
-                    </svg>
-                    Template Excel
-                  </button>
-                  <button 
-                    @click="exportData" 
-                    :disabled="filteredKelasList.length === 0"
-                    :class="[
-                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
-                      isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                    ]"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Export Excel
                   </button>
                   <button 
                     @click="printData" 
@@ -506,7 +467,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                   </button>
-                </div>
+    </div>
 
                 <!-- ⭐ SCHOOL FILTER TAG DIHIDE - Sudah otomatis filter by sekolah user yang login -->
                 <!-- <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
@@ -624,8 +585,6 @@
           </div>
         </div>
       </div>
-  <!-- Hidden file input for import -->
-  <input ref="fileInputRef" class="hidden" type="file" accept=".xlsx,.xls" @change="onFileChange" />
 
       <!-- Loading State -->
       <div v-if="kelasStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -865,7 +824,6 @@ import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
-import ExcelJS from 'exceljs'
 
 export default {
   name: 'KelasList',
@@ -892,11 +850,6 @@ export default {
     const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
-    // Import state
-    const isImporting = ref(false)
-    const importError = ref('')
-    const importedCount = ref(0)
-    const fileInputRef = ref(null)
 
     // Computed properties
     const filteredKelasList = computed(() => {
@@ -1698,20 +1651,11 @@ export default {
       applyQuickFilter,
       toggleAdvancedFilter,
       getDateFilterText,
-      exportData,
       printData,
       getSchoolName,
       getSchoolClass,
       getWaliKelasName,
-      getSiswaCountClass,
-      // import bindings
-      isImporting,
-      importError,
-      importedCount,
-      fileInputRef,
-      triggerImport,
-      onFileChange,
-      downloadTemplate
+      getSiswaCountClass
     }
   }
 }

@@ -215,29 +215,21 @@
                       <span :class="[
                         'text-sm font-medium',
                         isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      ]">ID Sekolah</span>
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getSchoolClass(capaianKelasStore.getCurrentCapaianKelas.id_sekolah)">
-                        {{ capaianKelasStore.getCurrentCapaianKelas.id_sekolah || 'Tidak Tersedia' }}
-                      </span>
-                    </div>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                      ]">Sekolah</span>
                       <span :class="[
-                        'text-sm font-medium',
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      ]">ID Capaian</span>
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" :class="getCapaianClass(capaianKelasStore.getCurrentCapaianKelas.id_capaian)">
-                        {{ capaianKelasStore.getCurrentCapaianKelas.id_capaian || 'Tidak Tersedia' }}
-                      </span>
+                        'text-sm font-semibold',
+                        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                      ]">{{ getSchoolName(capaianKelasStore.getCurrentCapaianKelas.id_sekolah) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2">
                       <span :class="[
                         'text-sm font-medium',
                         isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      ]">Sekolah</span>
+                      ]">Sub Elemen</span>
                       <span :class="[
-                        'text-sm',
+                        'text-sm font-semibold',
                         isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                      ]">{{ getSchoolName(capaianKelasStore.getCurrentCapaianKelas.id_sekolah) }}</span>
+                      ]">{{ getSubElemenName(capaianKelasStore.getCurrentCapaianKelas.id_sub_elemen || capaianKelasStore.getCurrentCapaianKelas.id_capaian) }}</span>
                     </div>
                   </div>
                 </div>
@@ -297,6 +289,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCapaianKelasStore } from '@/stores/capaianKelas'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import { useSubElemenStore } from '@/stores/subElemen'
+import axios from '@/plugins/axios'
 
 export default {
   name: 'CapaianKelasDetail',
@@ -306,11 +302,26 @@ export default {
     const capaianKelasStore = useCapaianKelasStore()
     const themeStore = useThemeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
+    const subElemenStore = useSubElemenStore()
 
     // Methods
     const loadCapaianKelasDetail = async () => {
       try {
         await capaianKelasStore.fetchCapaianKelasDetail(route.params.id)
+        
+        // ⭐ Multi-tenancy: Validasi akses - hanya bisa lihat capaian dari sekolah sendiri
+        if (capaianKelasStore.getCurrentCapaianKelas) {
+          const capaianKelas = capaianKelasStore.getCurrentCapaianKelas
+          const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+          
+          if (userSekolahId && capaianKelas.id_sekolah != userSekolahId) {
+            alert('Anda tidak memiliki akses untuk melihat capaian kelas dari sekolah lain')
+            router.push({ name: 'capaian-kelas-list' })
+            return
+          }
+        }
       } catch (error) {
         console.error('Failed to load capaian kelas detail:', error)
       }
@@ -331,11 +342,26 @@ export default {
 
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
+      
+      // Cari dari sekolahScope
+      const sekolahList = sekolahScope.sekolahList || []
+      const sekolah = sekolahList.find(s => s.id_sekolah == schoolId)
+      if (sekolah) return sekolah.nama_sekolah
+      
+      // Fallback: dari authStore
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (schoolId == userSekolahId) {
+        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${schoolId}`
       }
-      return schools[schoolId] || 'Sekolah Lain'
+      
+      return `Sekolah ${schoolId}`
+    }
+
+    const getSubElemenName = (subElemenId) => {
+      if (!subElemenId) return 'Tidak Diketahui'
+      const subElemenList = subElemenStore.getSubElemenList || []
+      const subElemen = subElemenList.find(se => se.id_sub_elemen == subElemenId)
+      return subElemen ? subElemen.nama_sub_elemen : `Sub Elemen ${subElemenId}`
     }
 
     const getSchoolClass = (schoolId) => {
@@ -353,8 +379,10 @@ export default {
     }
 
     // Lifecycle
-    onMounted(() => {
-      loadCapaianKelasDetail()
+    onMounted(async () => {
+      // Load sub elemen list untuk mapping nama
+      await subElemenStore.fetchSubElemenList()
+      await loadCapaianKelasDetail()
     })
 
     onUnmounted(() => {
@@ -370,6 +398,7 @@ export default {
       editCapaianKelas,
       getInitials,
       getSchoolName,
+      getSubElemenName,
       getSchoolClass,
       getCapaianClass
     }

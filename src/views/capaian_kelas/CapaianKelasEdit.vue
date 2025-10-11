@@ -233,9 +233,9 @@
                 </div>
               </div>
 
-              <!-- ID Sekolah -->
+              <!-- Sekolah (Read-only) -->
               <div class="group">
-                <label for="id_sekolah" :class="[
+                <label for="sekolah_display" :class="[
                   'block text-sm font-medium mb-2',
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 ]">
@@ -243,21 +243,36 @@
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
-                    ID Sekolah <span class="text-red-500 ml-1">*</span>
+                    Sekolah <span class="text-red-500 ml-1">*</span>
                   </span>
                 </label>
-                <input
-                  v-model="form.id_sekolah"
-                  type="number"
-                  id="id_sekolah"
-                  required
-                  @input="watchFormChanges"
-                  :class="[
-                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
-                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
-                  ]"
-                  placeholder="Masukkan ID sekolah (contoh: 1)"
-                />
+                <div class="relative">
+                  <input
+                    :value="getSekolahName(form.id_sekolah)"
+                    type="text"
+                    id="sekolah_display"
+                    readonly
+                    :class="[
+                      'block w-full px-4 py-3 border rounded-xl transition-all duration-200 cursor-not-allowed',
+                      isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-50 border-gray-300 text-gray-700'
+                    ]"
+                    :placeholder="form.id_sekolah ? 'Memuat nama sekolah...' : 'Sekolah akan otomatis terisi'"
+                  />
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <p :class="[
+                  'mt-2 text-xs flex items-center',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Sekolah otomatis diisi sesuai dengan akun yang login (tidak dapat diubah)
+                </p>
               </div>
 
               <!-- Pilih Kelas -->
@@ -449,6 +464,8 @@ import { useKelasStore } from '@/stores/kelas'
 import { useDimensiStore } from '@/stores/dimensi'
 import { useElemenStore } from '@/stores/elemen'
 import { useSubElemenStore } from '@/stores/subElemen'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import axios from '@/plugins/axios'
 import Toast from '@/components/common/Toast.vue'
 
@@ -461,6 +478,8 @@ export default {
     const capaianKelasStore = useCapaianKelasStore()
     const themeStore = useThemeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
 
     // State
     const form = reactive({
@@ -511,6 +530,18 @@ export default {
         await capaianKelasStore.fetchCapaianKelasDetail(route.params.id)
         if (capaianKelasStore.getCurrentCapaianKelas) {
           const capaianKelas = capaianKelasStore.getCurrentCapaianKelas
+          
+          // ⭐ Multi-tenancy: Validasi akses - hanya bisa edit capaian dari sekolah sendiri
+          const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+          if (userSekolahId && capaianKelas.id_sekolah != userSekolahId) {
+            showToast.value = true
+            toastType.value = 'error'
+            toastTitle.value = 'Akses Ditolak'
+            toastMessage.value = 'Anda tidak memiliki akses untuk mengedit capaian kelas dari sekolah lain'
+            setTimeout(() => router.push({ name: 'capaian-kelas-list' }), 2000)
+            return
+          }
+          
           form.kode_ck = capaianKelas.kode_ck || ''
           form.nama_ck = capaianKelas.nama_ck || ''
           form.indikator = capaianKelas.indikator || ''
@@ -553,6 +584,16 @@ export default {
         toastType.value = 'warning'
         toastTitle.value = 'Validasi'
         toastMessage.value = 'Mohon lengkapi semua field yang wajib diisi'
+        return
+      }
+      
+      // ⭐ Multi-tenancy: Validasi id_sekolah harus sesuai dengan user yang login
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId && form.id_sekolah != userSekolahId) {
+        showToast.value = true
+        toastType.value = 'error'
+        toastTitle.value = 'Validasi Gagal'
+        toastMessage.value = 'Anda tidak dapat membuat/mengubah capaian kelas untuk sekolah lain'
         return
       }
 
@@ -613,6 +654,24 @@ export default {
       checkFormValidity()
     }
 
+    // ⭐ Helper function: Get nama sekolah from ID
+    const getSekolahName = (sekolahId) => {
+      if (!sekolahId) return ''
+      
+      // Cari dari sekolahScope
+      const sekolahList = sekolahScope.sekolahList || []
+      const sekolah = sekolahList.find(s => s.id_sekolah == sekolahId)
+      if (sekolah) return sekolah.nama_sekolah
+      
+      // Fallback: dari authStore
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (sekolahId == userSekolahId) {
+        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${sekolahId}`
+      }
+      
+      return `Sekolah ${sekolahId}`
+    }
+
     // Lifecycle
     const onDimensiChange = async () => {
       if (!selectedDimensi.value) return
@@ -639,6 +698,12 @@ export default {
       ])
       if (!isAddMode.value) {
         await loadCapaianKelasDetail()
+      } else {
+        // ⭐ ADD MODE: Auto-set id_sekolah dari user yang login
+        const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+        if (userSekolahId) {
+          form.id_sekolah = String(userSekolahId)
+        }
       }
       checkFormValidity()
     })
@@ -654,6 +719,7 @@ export default {
       submitForm,
       goBack,
       watchFormChanges,
+      getSekolahName,
       // cascading bindings
       kelasStore,
       dimensiStore,
