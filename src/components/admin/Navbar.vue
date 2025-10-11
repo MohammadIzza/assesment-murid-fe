@@ -6,9 +6,8 @@
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-4">
           <RouterLink :to="{ name: 'dashboard' }" class="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity">
-            <!-- Two separate logos stacked with a thin divider below the first -->
-            <div class="flex flex-col items-center">
-              <!-- School logo (top) -->
+            <!-- Single school logo only (company logo removed) -->
+            <div class="flex items-center">
               <div class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
                 <template v-if="brandingStore.hasLogo">
                   <img
@@ -25,12 +24,6 @@
                     </svg>
                   </div>
                 </template>
-              </div>
-              <!-- Thin divider below the first logo -->
-              <div class="w-12 my-1 h-px bg-gray-200 dark:bg-dark-border"></div>
-              <!-- Company logo (bottom) -->
-              <div class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
-                <img src="/logoCompany.png" alt="Logo Company" class="max-h-10 object-contain p-0.5" />
               </div>
             </div>
             <div class="min-w-0 leading-tight">
