@@ -1,66 +1,112 @@
 <template>
-  <div :class="['relative min-h-screen flex items-center justify-center p-6 transition-colors duration-300 auth-font', { 'bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50': !isDarkMode, 'bg-dark-background': isDarkMode }]">
-    <!-- Decorative background blobs -->
-    <div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-gradient-to-tr from-primary/20 to-accent/30 blur-3xl"></div>
-    <div class="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-gradient-to-br from-indigo-300/20 to-sky-300/30 blur-3xl"></div>
+  <div :class="['relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-500 auth-font overflow-hidden', { 'bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100': !isDarkMode, 'bg-dark-background': isDarkMode }]">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-slate-100/40 to-blue-50/40 rounded-full blur-3xl animate-float-delayed"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full">
+        <div class="absolute top-20 right-20 w-2 h-2 bg-blue-400/20 rounded-full animate-pulse"></div>
+        <div class="absolute bottom-32 left-32 w-1.5 h-1.5 bg-indigo-400/20 rounded-full animate-pulse-slow"></div>
+        <div class="absolute top-40 left-1/4 w-1 h-1 bg-slate-400/20 rounded-full animate-pulse"></div>
+      </div>
+    </div>
 
-    <transition name="slide-fade" mode="out-in" appear>
-      <div :key="$route.name" class="relative w-full max-w-6xl">
-        <!-- Glass card container -->
+    <transition name="scale-fade" mode="out-in" appear>
+      <div :key="$route.name" class="relative w-full max-w-5xl z-10">
+        <!-- Main card -->
         <div :class="[
-              'grid md:grid-cols-5 rounded-3xl overflow-hidden shadow-2xl ring-1',
-              !isDarkMode ? 'bg-white/70 ring-black/5 backdrop-blur-xl' : 'bg-dark-surface/80 ring-black/20 backdrop-blur-xl'
+              'grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border',
+              !isDarkMode ? 'bg-white/80 backdrop-blur-2xl border-slate-200/60' : 'bg-dark-surface/90 backdrop-blur-2xl border-gray-700/50'
             ]">
-          <!-- Brand strip -->
-          <div class="relative hidden md:flex md:col-span-2 p-10 bg-gradient-to-b from-primary to-accent text-white items-center justify-center">
-            <div class="absolute inset-0 opacity-20">
-              <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/40 blur-2xl"></div>
-              <div class="absolute bottom-10 left-10 h-28 w-28 rounded-full bg-black/10 blur-xl"></div>
+          
+          <!-- Left: Branding Section -->
+          <div class="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
+            <!-- Decorative elements -->
+            <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-300/20 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10">
+              <!-- Logo and title -->
+              <div class="space-y-6">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg hover:scale-110 transition-transform duration-300">
+                  <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">ARASIT</h2>
+                  <p class="text-sm text-gray-300 font-medium">Assessment Rapor SKL Islam Terpadu</p>
+                </div>
+              </div>
+
+              <!-- Features list -->
+              <div class="mt-12 space-y-4">
+                <div class="flex items-start gap-3 group">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                    <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Sistem Terintegrasi</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Kelola assessment dengan mudah</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 group">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                    <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Aman & Terpercaya</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Data terlindungi dengan enkripsi</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="relative z-10 max-w-sm mx-auto text-center space-y-6">
-              <div class="mx-auto h-16 w-16 bg-white/15 rounded-2xl flex items-center justify-center shadow-inner">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-3xl font-extrabold tracking-tight">ARASIT</h2>
-                <p class="text-sm text-white/90">Asessment Rapor SKL Islam Terpadu</p>
-              </div>
-              <div class="mt-2 flex items-center justify-center">
-                <div class="flex items-center gap-3">
-                  <div class="bg-white rounded-md shadow-sm h-12 w-28 flex items-center justify-center">
-                    <img src="/KlikEdupart.png" alt="KlikEdupart" class="max-h-10 w-auto object-contain" />
-                  </div>
-                  <span class="flex items-center justify-center text-white/90 text-base font-semibold">×</span>
-                  <div class="bg-white rounded-md shadow-sm h-12 w-28 flex items-center justify-center">
-                    <img src="/Appapun.png" alt="Appapun" class="max-h-10 w-auto object-contain" />
-                  </div>
+
+            <!-- Partner logos -->
+            <div class="relative z-10 pt-8 border-t border-white/10">
+              <p class="text-xs text-gray-400 mb-3">Powered by</p>
+              <div class="flex items-center gap-4">
+                <div class="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition-shadow">
+                  <img src="/KlikEdupart.png" alt="KlikEdupart" class="h-8 w-auto object-contain" />
+                </div>
+                <span class="text-gray-400 text-sm">×</span>
+                <div class="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition-shadow">
+                  <img src="/Appapun.png" alt="Appapun" class="h-8 w-auto object-contain" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Form area -->
-          <div class="md:col-span-3 p-6 sm:p-10">
-            <div class="mx-auto max-w-md">
-              <div class="text-center mb-8">
-                <h3 class="text-2xl font-semibold mb-1" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">Selamat Datang Kembali</h3>
-                <p class="text-xs" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
-                  Belum punya akun?
-                  <router-link to="/register" class="font-medium underline transition-colors text-primary hover:text-accent">
-                    daftar akun baru
+          <!-- Right: Form Section -->
+          <div class="p-8 sm:p-12 flex items-center">
+            <div class="w-full max-w-md mx-auto">
+              <!-- Header -->
+              <div class="mb-8">
+                <h3 class="text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
+                  Selamat Datang
+                </h3>
+                <p class="text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
+                  Belum memiliki akun?
+                  <router-link to="/register" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors ml-1">
+                    Daftar sekarang
                   </router-link>
                 </p>
               </div>
 
               <form class="space-y-5" @submit.prevent="handleLogin">
                 <!-- Email Input -->
-                <div>
-                  <label for="email" class="block text-xs font-medium mb-1" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">Email</label>
+                <div class="group">
+                  <label for="email" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
+                    Email
+                  </label>
                   <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg class="h-4 w-4" :class="{ 'text-gray-400': !isDarkMode, 'text-gray-500': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                       </svg>
                     </div>
@@ -73,93 +119,95 @@
                       autocomplete="username"
                       autocapitalize="none"
                       spellcheck="false"
-                      class="block w-full pl-9 pr-3 py-2.5 rounded-xl shadow-sm placeholder-gray-400 text-sm focus:outline-none focus:ring-2 border transition-colors"
-                      :class="!isDarkMode ? 'bg-white/90 border-gray-200 focus:ring-primary focus:border-primary' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:ring-primary focus:border-primary'"
-                      placeholder="Masukkan email Anda"
+                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
+                      placeholder="nama@email.com"
                     />
                   </div>
                 </div>
 
                 <!-- Password Input -->
-                <div>
-                  <label for="password" class="block text-xs font-medium mb-1" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">Password</label>
+                <div class="group">
+                  <label for="password" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
+                    Password
+                  </label>
                   <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg class="h-4 w-4" :class="{ 'text-gray-400': !isDarkMode, 'text-gray-500': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
-                    <button
-                      type="button"
-                      class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-white/90/80 hover:text-white/90"
-                      :aria-label="showPassword ? 'Sembunyikan password.' : 'Tampilkan password sebagai teks biasa. Peringatan: ini akan menampilkan password di layar.'"
-                      @click="showPassword = !showPassword"
-                    >
-                      <span class="text-[11px] font-medium" :class="{ 'text-gray-500': isDarkMode, 'text-gray-600': !isDarkMode }">{{ showPassword ? 'Sembunyikan' : 'Tampilkan' }}</span>
-                    </button>
                     <input
-                      :id="showPassword ? 'current-password' : 'current-password'"
+                      id="current-password"
                       name="password"
                       :type="showPassword ? 'text' : 'password'"
                       required
                       v-model="form.password"
                       autocomplete="current-password"
-                      class="block w-full pl-9 pr-3 py-2.5 rounded-xl shadow-sm placeholder-gray-400 text-sm focus:outline-none focus:ring-2 border transition-colors"
-                      :class="!isDarkMode ? 'bg-white/90 border-gray-200 focus:ring-primary focus:border-primary' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:ring-primary focus:border-primary'"
-                      placeholder="Masukkan password Anda"
+                      class="block w-full pl-12 pr-24 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
+                      placeholder="Masukkan password"
                     />
+                    <button
+                      type="button"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold transition-colors"
+                      :class="{ 'text-gray-500 hover:text-gray-700': !isDarkMode, 'text-gray-400 hover:text-gray-200': isDarkMode }"
+                      @click="showPassword = !showPassword"
+                    >
+                      {{ showPassword ? 'Sembunyikan' : 'Tampilkan' }}
+                    </button>
                   </div>
                 </div>
 
-                <!-- Remember Me & Forgot Password -->
-                <div class="flex items-center justify-between text-xs">
-                  <div class="flex items-center">
+                <!-- Remember & Forgot -->
+                <div class="flex items-center justify-between text-sm">
+                  <label class="flex items-center cursor-pointer group">
                     <input
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
                       v-model="form.rememberMe"
-                      class="h-3 w-3 rounded border-gray-300 focus:ring-primary text-primary"
+                      class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all cursor-pointer"
                     />
-                    <label for="remember-me" class="ml-1.5" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">Ingat saya</label>
-                  </div>
-                  <div>
-                    <a href="#" class="font-medium transition-colors text-primary hover:text-accent">Lupa password?</a>
-                  </div>
+                    <span class="ml-2 font-medium" :class="{ 'text-gray-700 group-hover:text-gray-900': !isDarkMode, 'text-gray-300 group-hover:text-gray-100': isDarkMode }">
+                      Ingat saya
+                    </span>
+                  </label>
+                  <a href="#" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    Lupa password?
+                  </a>
                 </div>
 
-                <!-- Error & Success Messages -->
-                <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div class="flex">
-                    <svg class="h-4 w-4 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Error Message -->
+                <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 animate-shake">
+                  <div class="flex items-start">
+                    <svg class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p class="ml-2 text-xs text-red-700">{{ error }}</p>
+                    <p class="ml-3 text-sm text-red-800 font-medium">{{ error }}</p>
                   </div>
                 </div>
 
                 <!-- Submit Button -->
-                <div>
-                  <button
-                    type="submit"
-                    :disabled="loading"
-                    class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-primary hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
-                  >
-                    <span v-if="!loading" class="flex items-center">
-                      <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                      </svg>
-                      Masuk
-                    </span>
-                    <span v-else class="flex items-center">
-                      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Memproses...
-                    </span>
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  class="w-full flex items-center justify-center gap-2 py-3.5 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <span v-if="!loading" class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    Masuk ke Akun
+                  </span>
+                  <span v-else class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memproses...
+                  </span>
+                </button>
               </form>
             </div>
           </div>
@@ -314,15 +362,77 @@ export default {
 </script>
 
 <style scoped>
-.auth-font { font-family: Inter, Poppins, Nunito, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
+.auth-font { 
+  font-family: Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-.slide-fade-enter-active,
-.slide-fade-leave-active { transition: all 0.5s ease; }
-.slide-fade-enter-from { opacity: 0; transform: translateY(12px); }
-.slide-fade-leave-to { opacity: 0; transform: translateY(-8px); }
+/* Transitions */
+.scale-fade-enter-active,
+.scale-fade-leave-active { 
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.scale-fade-enter-from { 
+  opacity: 0; 
+  transform: scale(0.95) translateY(20px);
+}
+.scale-fade-leave-to { 
+  opacity: 0; 
+  transform: scale(0.98) translateY(-10px);
+}
 
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(3deg); }
+  66% { transform: translate(-20px, 20px) rotate(-3deg); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-30px, 30px) rotate(-3deg); }
+  66% { transform: translate(20px, -20px) rotate(3deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 25s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Grid pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Dark mode */
 .bg-dark-background {
-  background-color: #1a202c;
+  background: linear-gradient(to bottom right, #1a202c, #2d3748, #1a202c);
 }
 
 .bg-dark-surface {
@@ -333,7 +443,22 @@ export default {
   border-color: #4a5568;
 }
 
-.text-dark {
-  color: #cbd5e0;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }
 </style>
