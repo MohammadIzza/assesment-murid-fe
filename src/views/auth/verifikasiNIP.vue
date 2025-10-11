@@ -1,41 +1,97 @@
-```vue
 <template>
-	<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-md w-full space-y-8">
-			<div class="text-center">
-				<h2 class="text-2xl font-bold text-gray-900">Verifikasi NIP</h2>
-				<p class="text-sm text-gray-500">Masukkan NIP Anda untuk mengaitkan akun dengan data guru.</p>
-			</div>
+	<div class="relative min-h-screen flex items-center justify-center p-6 auth-font bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50">
+		<!-- Decorative background blobs -->
+		<div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-gradient-to-tr from-primary/20 to-accent/30 blur-3xl"></div>
+		<div class="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-gradient-to-br from-indigo-300/20 to-sky-300/30 blur-3xl"></div>
 
-			<div class="rounded-xl shadow-lg border p-6 bg-white">
-				<form @submit.prevent="submitNip" class="space-y-4">
-					<div>
-						<label for="nip" class="block text-xs font-medium text-gray-700 mb-1">NIP</label>
-						<input
-							id="nip"
-							v-model="nip"
-							type="text"
-							required
-							placeholder="Masukkan NIP"
-							class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
+		<transition name="slide-fade" mode="out-in" appear>
+			<div :key="$route.name" class="relative w-full max-w-6xl">
+				<div class="grid md:grid-cols-5 rounded-3xl overflow-hidden shadow-2xl ring-1 bg-white/70 ring-black/5 backdrop-blur-xl">
+					<!-- Left: Branding -->
+					<div class="relative hidden md:flex md:col-span-2 p-10 bg-gradient-to-b from-primary to-accent text-white items-center justify-center">
+						<div class="absolute inset-0 opacity-20">
+							<div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/40 blur-2xl"></div>
+							<div class="absolute bottom-10 left-10 h-28 w-28 rounded-full bg-black/10 blur-xl"></div>
+						</div>
+						<div class="relative z-10 max-w-sm mx-auto text-center space-y-6">
+							<div class="mx-auto h-16 w-16 bg-white/15 rounded-2xl flex items-center justify-center shadow-inner">
+								<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+								</svg>
+							</div>
+							<div>
+								<h2 class="text-3xl font-extrabold tracking-tight">ARASIT</h2>
+								<p class="text-sm text-white/90">Asessment Rapor SKL Islam Terpadu</p>
+							</div>
+							<div class="mt-2 flex items-center justify-center">
+								<div class="flex items-center gap-3">
+									<div class="bg-white rounded-md shadow-sm h-12 w-28 flex items-center justify-center">
+										<img src="/KlikEdupart.png" alt="KlikEdupart" class="max-h-10 w-auto object-contain" />
+									</div>
+									<span class="flex items-center justify-center text-white/90 text-base font-semibold">×</span>
+									<div class="bg-white rounded-md shadow-sm h-12 w-28 flex items-center justify-center">
+										<img src="/Appapun.png" alt="Appapun" class="max-h-10 w-auto object-contain" />
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 
-					<div v-if="error" class="text-xs text-red-600">{{ error }}</div>
-					<div v-if="success" class="text-xs text-green-600">{{ success }}</div>
+					<!-- Right: Form -->
+					<div class="md:col-span-3 p-6 sm:p-10">
+						<div class="mx-auto max-w-md">
+							<div class="text-center mb-8">
+								<h3 class="text-2xl font-semibold mb-1 text-gray-900">Verifikasi NIP</h3>
+								<p class="text-xs text-gray-600">Masukkan NIP Anda untuk mengaitkan akun dengan data guru.</p>
+							</div>
 
-					<div>
-						<button :disabled="loading" type="submit" class="w-full py-2.5 bg-blue-600 text-white rounded-lg disabled:opacity-50">
-							<span v-if="!loading">Verifikasi NIP</span>
-							<span v-else>Memproses...</span>
-						</button>
+							<form @submit.prevent="submitNip" class="space-y-5">
+								<div>
+									<label for="nip" class="block text-xs font-medium text-gray-700 mb-1">NIP</label>
+									<div class="relative">
+										<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.657-1.343-3-3-3S6 9.343 6 11s1.343 3 3 3 3-1.343 3-3zm6 0a6 6 0 11-12 0 6 6 0 0112 0z" />
+											</svg>
+										</div>
+										<input
+											id="nip"
+											v-model="nip"
+											type="text"
+											inputmode="numeric"
+											autocomplete="one-time-code"
+											autocapitalize="none"
+											spellcheck="false"
+											required
+											placeholder="Masukkan NIP"
+											class="block w-full pl-9 pr-3 py-2.5 rounded-xl shadow-sm placeholder-gray-400 text-sm focus:outline-none focus:ring-2 border transition-colors bg-white/90 border-gray-200 focus:ring-primary focus:border-primary"
+										/>
+									</div>
+								</div>
+
+								<div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-3">
+									<div class="flex">
+										<svg class="h-4 w-4 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+										<p class="ml-2 text-xs text-red-700">{{ error }}</p>
+									</div>
+								</div>
+
+								<div>
+									<button :disabled="loading" type="submit" class="w-full py-2.5 bg-primary hover:bg-blue-600 text-white rounded-xl disabled:opacity-50 transition-colors">
+										<span v-if="!loading">Verifikasi NIP</span>
+										<span v-else>Memproses...</span>
+									</button>
+								</div>
+							</form>
+						</div>
 					</div>
-				</form>
+				</div>
 			</div>
-		</div>
+		</transition>
 	</div>
 </template>
-
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -117,7 +173,9 @@ async function submitNip() {
 </script>
 
 <style scoped>
-.min-h-screen { background-color: #f8fafc; }
+.auth-font { font-family: Inter, Poppins, Nunito, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
+.slide-fade-enter-active,
+.slide-fade-leave-active { transition: all 0.5s ease; }
+.slide-fade-enter-from { opacity: 0; transform: translateY(12px); }
+.slide-fade-leave-to { opacity: 0; transform: translateY(-8px); }
 </style>
-
-```
