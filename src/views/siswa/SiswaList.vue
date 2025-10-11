@@ -987,12 +987,12 @@ const onFileChange = async (event) => {
       
       // Show success notification
       showNotification('success', 'Import Berhasil!', `${importedCount.value} data siswa berhasil diimport`, 2000)
-      
-      // Clear file input
-      event.target.value = ''
-      
-      // Refresh data after successful import
-      await fetchData()
+
+    // Clear file input
+    event.target.value = ''
+    
+    // Refresh data after successful import
+    await fetchData()
     } else {
       throw new Error(response.data.message || 'Gagal mengimport data')
     }
@@ -1349,7 +1349,7 @@ watch([searchQuery, selectedKelas], () => {
 onMounted(async () => {
   await Promise.all([
     fetchKelasList(),
-    fetchData()
+  fetchData()
   ])
 })
 </script>

@@ -121,7 +121,17 @@ export const useKelasStore = defineStore('kelas', {
       this.error = null;
       
       try {
-        const response = await axios.post('/add/kelas', kelasData);
+        // Pastikan id_fase terkirim ke backend
+        const sanitizedData = {
+          id_sekolah: kelasData.id_sekolah || null,
+          id_fase: kelasData.id_fase || null,
+          nama_kelas: kelasData.nama_kelas || '',
+          tingkat: kelasData.tingkat || null,
+          tahun_ajaran: kelasData.tahun_ajaran || null,
+          id_wali_kelas: kelasData.id_wali_kelas || null
+        };
+        
+        const response = await axios.post('/add/kelas', sanitizedData);
         
         if (response.data.success) {
           // Refresh data kelas setelah berhasil menambahkan
@@ -152,6 +162,7 @@ export const useKelasStore = defineStore('kelas', {
         if (Array.isArray(kelasData)) {
           const sanitizedData = kelasData.map(kelas => ({
             id_sekolah: kelas.id_sekolah || null,
+            id_fase: kelas.id_fase || null,
             nama_kelas: kelas.nama_kelas || '',
             tingkat: kelas.tingkat || null,
             tahun_ajaran: kelas.tahun_ajaran || null,
@@ -195,6 +206,7 @@ export const useKelasStore = defineStore('kelas', {
           tingkat: kelasData.tingkat,
           tahun_ajaran: kelasData.tahun_ajaran,
           id_sekolah: kelasData.id_sekolah,
+          id_fase: kelasData.id_fase || null,
           id_wali_kelas: kelasData.id_wali_kelas
         };
         

@@ -156,9 +156,9 @@
             </div>
 
             <!-- Basic Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-              <!-- School Filter -->
-              <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+              <!-- ⭐ SCHOOL FILTER DIHIDE - Sudah otomatis filter by sekolah user yang login -->
+              <!-- <div class="space-y-2">
                 <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -188,8 +188,8 @@
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                   Filter aktif
-      </div>
-    </div>
+                </div>
+              </div> -->
 
               <!-- Tingkat Filter -->
               <div class="space-y-2">
@@ -506,9 +506,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                   </button>
-    </div>
+                </div>
 
-                <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                <!-- ⭐ SCHOOL FILTER TAG DIHIDE - Sudah otomatis filter by sekolah user yang login -->
+                <!-- <div v-if="selectedSchool" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                   <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                   </svg>
@@ -518,7 +519,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                   </button>
-                </div>
+                </div> -->
                 
                 <div v-if="selectedTingkat" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
                   <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -862,6 +863,8 @@ import { useRouter } from 'vue-router'
 import { useKelasStore } from '@/stores/kelas'
 import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import ExcelJS from 'exceljs'
 
 export default {
@@ -871,6 +874,8 @@ export default {
     const kelasStore = useKelasStore()
     const guruStore = useGuruStore()
     const themeStore = useThemeStore()
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
     
     // Reactive data
@@ -897,6 +902,12 @@ export default {
     const filteredKelasList = computed(() => {
       let filtered = [...kelasStore.getKelasList]
 
+      // ⭐ OTOMATIS FILTER BY SEKOLAH USER YANG LOGIN
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId) {
+        filtered = filtered.filter(kelas => kelas.id_sekolah == userSekolahId)
+      }
+
       // Filter by search query (nama_kelas, tahun_ajaran, wali_kelas)
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
@@ -907,10 +918,10 @@ export default {
         )
       }
 
-      // Filter by school
-      if (selectedSchool.value) {
-        filtered = filtered.filter(kelas => kelas.id_sekolah == selectedSchool.value)
-      }
+      // ⭐ Filter by school manual DIHAPUS karena dropdown sekolah akan dihide
+      // if (selectedSchool.value) {
+      //   filtered = filtered.filter(kelas => kelas.id_sekolah == selectedSchool.value)
+      // }
 
       // Filter by tingkat
       if (selectedTingkat.value) {
@@ -990,14 +1001,16 @@ export default {
     })
 
     const hasActiveFilters = computed(() => {
-      return !!(searchQuery.value || selectedSchool.value || selectedTingkat.value || 
+      // ⭐ selectedSchool tidak dihitung karena sudah otomatis filter by sekolah user
+      return !!(searchQuery.value || selectedTingkat.value || 
                selectedJurusan.value || tahunAjaranFilter.value || waliKelasFilter.value || dateFilter.value)
     })
 
     const activeFilterCount = computed(() => {
       let count = 0
       if (searchQuery.value) count++
-      if (selectedSchool.value) count++
+      // ⭐ selectedSchool tidak dihitung karena sudah otomatis filter by sekolah user
+      // if (selectedSchool.value) count++
       if (selectedTingkat.value) count++
       if (tahunAjaranFilter.value) count++
       if (waliKelasFilter.value) count++
@@ -1114,6 +1127,14 @@ export default {
         alert('Format file tidak didukung. Gunakan file .xlsx')
         return
       }
+      
+      // ⭐ VALIDASI: Pastikan user punya id_sekolah
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (!userSekolahId) {
+        alert('ID Sekolah tidak ditemukan. Pastikan Anda sudah login sebagai admin sekolah.')
+        return
+      }
+      
       try {
         isImporting.value = true
         importedCount.value = 0
@@ -1122,6 +1143,12 @@ export default {
           alert('Tidak ada baris data yang valid di file')
           return
         }
+        
+        // ⭐ AUTO-SET id_sekolah untuk setiap row
+        rows.forEach(row => {
+          row.id_sekolah = userSekolahId
+        })
+        
         // Kirim ke backend via store (mendukung array)
         const res = await kelasStore.addKelas(rows)
         importedCount.value = res?.insertedCount || rows.length
@@ -1164,7 +1191,8 @@ export default {
 
   // Kolom yang didukung backend
   // Minimal: nama_kelas sebaiknya ada agar baris dianggap valid
-  const supported = ['id_sekolah', 'nama_kelas', 'tingkat', 'tahun_ajaran', 'id_wali_kelas']
+  // ⭐ id_sekolah DIHAPUS karena akan auto-set dari admin yang login
+  const supported = ['nama_kelas', 'tingkat', 'id_fase', 'tahun_ajaran', 'id_wali_kelas']
 
       const data = []
       worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
@@ -1176,8 +1204,7 @@ export default {
           const col = headerMap[key]
           if (!col) continue
           const raw = row.getCell(col).value
-          if (key === 'id_sekolah') record[key] = toNumberOrNull(raw)
-          else record[key] = toStringOrNull(raw)
+          record[key] = toStringOrNull(raw)
         }
 
         // Consider valid if has at least a nama_kelas
@@ -1195,7 +1222,8 @@ export default {
       const ws = wb.addWorksheet('ImportKelas', {
         views: [{ state: 'frozen', ySplit: 1 }]
       })
-      const headers = ['id_sekolah', 'nama_kelas', 'tingkat', 'tahun_ajaran', 'id_wali_kelas']
+      // ⭐ id_sekolah DIHAPUS - akan auto-set dari admin yang login
+      const headers = ['nama_kelas', 'tingkat', 'id_fase', 'tahun_ajaran', 'id_wali_kelas']
       ws.addRow(headers)
 
       // Style header
@@ -1212,25 +1240,25 @@ export default {
           right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
         }
       })
-      // Emphasize required columns: nama_kelas (B1)
+      // Emphasize required columns: nama_kelas (A1 - sekarang kolom pertama)
       const requiredHeaderStyle = {
         type: 'pattern',
         pattern: 'solid',
         fgColor: { argb: 'FFF59E0B' } // amber
       }
-      ws.getCell('B1').fill = requiredHeaderStyle
+      ws.getCell('A1').fill = requiredHeaderStyle
 
       // Column widths
       ws.columns = [
-        { key: 'id_sekolah', width: 14 },
         { key: 'nama_kelas', width: 32 },
         { key: 'tingkat', width: 12 },
+        { key: 'id_fase', width: 12 },
         { key: 'tahun_ajaran', width: 20 },
         { key: 'id_wali_kelas', width: 15 }
       ]
 
-      // Sample row
-      ws.addRow([1, 'XI IPA 1', 11, '2024/2025', 4])
+      // Sample row (id_sekolah dihapus, id_fase ditambahkan)
+      ws.addRow(['XI IPA 1', 11, 1, '2024/2025', 4])
       ws.getRow(2).eachCell((cell) => {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
@@ -1242,18 +1270,20 @@ export default {
 
       // Data validations for rows 2..201
       for (let r = 2; r <= 201; r++) {
-        // id_sekolah: angka >= 1
+        // ⭐ id_sekolah validation DIHAPUS - auto-set dari admin
+        
+        // Wajib: nama_kelas (A - kolom pertama)
         ws.getCell(`A${r}`).dataValidation = {
-          type: 'whole',
+          type: 'textLength',
           operator: 'greaterThanOrEqual',
           formulae: [1],
-          allowBlank: true,
-          showInputMessage: true,
-          promptTitle: 'id_sekolah',
-          prompt: 'Masukkan angka >= 1'
+          allowBlank: false,
+          showErrorMessage: true,
+          errorTitle: 'Isian wajib',
+          error: 'Nama kelas harus diisi.'
         }
-        // tingkat: pilih dari daftar referensi
-        ws.getCell(`C${r}`).dataValidation = {
+        // tingkat: pilih dari daftar referensi (B - kolom kedua)
+        ws.getCell(`B${r}`).dataValidation = {
           type: 'list',
           allowBlank: true,
           formulae: ['=Referensi!$A$2:$A$13'],
@@ -1261,7 +1291,17 @@ export default {
           errorTitle: 'Nilai tidak valid',
           error: 'Pilih salah satu nilai yang tersedia di daftar.'
         }
-        // tahun_ajaran: format tahun
+        // id_fase: angka >= 1 (C - kolom ketiga)
+        ws.getCell(`C${r}`).dataValidation = {
+          type: 'whole',
+          operator: 'greaterThanOrEqual',
+          formulae: [1],
+          allowBlank: true,
+          showInputMessage: true,
+          promptTitle: 'ID Fase',
+          prompt: 'Masukkan angka >= 1 (opsional)'
+        }
+        // tahun_ajaran: format tahun (D - kolom keempat)
         ws.getCell(`D${r}`).dataValidation = {
           type: 'textLength',
           operator: 'greaterThanOrEqual',
@@ -1271,7 +1311,7 @@ export default {
           promptTitle: 'Tahun Ajaran',
           prompt: 'Format: 2024/2025'
         }
-        // id_wali_kelas: angka >= 1
+        // id_wali_kelas: angka >= 1 (E - kolom kelima)
         ws.getCell(`E${r}`).dataValidation = {
           type: 'whole',
           operator: 'greaterThanOrEqual',
@@ -1280,16 +1320,6 @@ export default {
           showInputMessage: true,
           promptTitle: 'ID Wali Kelas',
           prompt: 'Masukkan angka >= 1'
-        }
-        // Wajib: nama_kelas (B)
-        ws.getCell(`B${r}`).dataValidation = {
-          type: 'textLength',
-          operator: 'greaterThanOrEqual',
-          formulae: [1],
-          allowBlank: false,
-          showErrorMessage: true,
-          errorTitle: 'Isian wajib',
-          error: 'Nama kelas harus diisi.'
         }
       }
 
@@ -1325,14 +1355,7 @@ export default {
       ref.getCell('A13').value = 12
       ref.getCell('B13').value = 'Kelas 12'
       
-      // Contoh id_sekolah
-      ref.getColumn(4).width = 14
-      ref.getColumn(5).width = 32
-      ref.getCell('D1').value = 'id_sekolah'
-      ref.getCell('E1').value = 'nama_sekolah'
-      ref.getRow(1).alignment = { horizontal: 'center' }
-      ref.getCell('D2').value = 1
-      ref.getCell('E2').value = 'SMA Negeri 1 Semarang'
+      // ⭐ Contoh id_sekolah DIHAPUS - auto-set dari admin yang login
       
       // Contoh tahun ajaran
       ref.getColumn(7).width = 15
@@ -1361,15 +1384,15 @@ export default {
       help.getCell('A1').value =
         'Petunjuk Pengisian Template Import Kelas:\n\n' +
         'Kolom & Aturan:\n' +
-        '1) id_sekolah (opsional): angka ID sekolah. Contoh: 1, 2. Lihat sheet Referensi.\n' +
-        '2) nama_kelas (wajib): isi nama lengkap kelas.\n' +
-        '3) tingkat (opsional): pilih dari daftar (1-12). Lihat sheet Referensi.\n' +
+        '1) nama_kelas (wajib): isi nama lengkap kelas.\n' +
+        '2) tingkat (opsional): pilih dari daftar (1-12). Lihat sheet Referensi.\n' +
+        '3) id_fase (opsional): angka ID fase. Contoh: 1, 2.\n' +
         '4) tahun_ajaran (opsional): format tahun ajaran. Contoh: 2024/2025.\n' +
         '5) id_wali_kelas (opsional): angka ID wali kelas. Contoh: 1, 4.\n\n' +
         'Ketentuan Pengisian:\n' +
         '- Isi data pada sheet ImportKelas mulai baris ke-2 (baris pertama adalah header).\n' +
         "- Kolom 'nama_kelas' wajib diisi.\n" +
-        '- id_sekolah membantu mengelompokkan kelas ke sekolah terkait.\n' +
+        '- ID Sekolah akan otomatis disesuaikan dengan akun admin yang login.\n' +
         '- Simpan file sebagai .xlsx lalu lakukan import di aplikasi.'
       help.getCell('A1').alignment = { wrapText: true, vertical: 'top' }
 
@@ -1388,7 +1411,8 @@ export default {
 
     const clearAllFilters = () => {
       searchQuery.value = ''
-      selectedSchool.value = ''
+      // ⭐ selectedSchool tidak direset karena sudah otomatis filter by sekolah user
+      // selectedSchool.value = ''
       selectedTingkat.value = ''
       selectedJurusan.value = ''
       tahunAjaranFilter.value = ''
@@ -1639,7 +1663,8 @@ export default {
     }
 
     // Watch individual filters
-    watch([searchQuery, selectedSchool, selectedTingkat, selectedJurusan, tahunAjaranFilter, waliKelasFilter, dateFilter, sortBy, sortOrder], watchFilters)
+    // ⭐ selectedSchool tidak di-watch karena sudah otomatis filter by sekolah user
+    watch([searchQuery, selectedTingkat, selectedJurusan, tahunAjaranFilter, waliKelasFilter, dateFilter, sortBy, sortOrder], watchFilters)
 
     return {
       kelasStore,
