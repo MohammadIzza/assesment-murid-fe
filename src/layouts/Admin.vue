@@ -16,7 +16,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
     <Navbar />
     
     <!-- Main Content -->
-    <main class="pt-24 transition-colors duration-300">
+    <main class="pt-26 transition-colors duration-300">
       <router-view></router-view>
     </main>
   </div>

@@ -74,9 +74,9 @@
       <!-- ⭐ ADD MODE: Full Width Form -->
       <div v-else-if="isAddMode">
         <div :class="[
-          'rounded-2xl shadow-lg overflow-hidden',
-          isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
-        ]">
+        'rounded-2xl shadow-lg overflow-hidden',
+        isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
+      ]">
           <!-- Enhanced Form Header -->
           <div class="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-10">
             <div class="max-w-6xl mx-auto">
@@ -87,13 +87,13 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                   </div>
-                  <div>
+            <div>
                     <h2 class="text-2xl font-bold text-white mb-1">Tambah Kelas Baru</h2>
                     <p class="text-blue-100">Lengkapi formulir untuk menambahkan kelas baru ke sistem</p>
-                  </div>
+            </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                  <div :class="[
+            <div :class="[
                     'px-4 py-2 rounded-xl backdrop-blur-sm border',
                     isDarkMode ? 'bg-white/10 border-white/20' : 'bg-white/20 border-white/30'
                   ]">
@@ -103,13 +103,13 @@
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
+        </div>
         
-          <form @submit.prevent="submitForm" class="p-8">
+        <form @submit.prevent="submitForm" class="p-8">
             <div class="max-w-6xl mx-auto">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Column -->
             <div :class="[
               'rounded-2xl shadow-md border p-6',
@@ -262,7 +262,7 @@
                   </option>
                 </select>
               </div>
-            </div>
+              </div>
             </div>
 
             <!-- Right Column -->
@@ -287,7 +287,7 @@
                   ]">Data sekolah dan wali kelas</p>
                 </div>
               </div>
-              
+
               <div class="space-y-5">
 
               <!-- Sekolah (READ-ONLY) -->
@@ -534,7 +534,7 @@
                   ]"
                   placeholder="Contoh: 2024/2025"
                 />
-              </div>
+            </div>
 
               <!-- Tingkat -->
               <div>
@@ -568,7 +568,7 @@
                   <option value="11">Kelas 11</option>
                   <option value="12">Kelas 12</option>
                 </select>
-              </div>
+          </div>
 
               <!-- Fase -->
               <div>

@@ -204,7 +204,7 @@
                     v-model="selectedRole" 
                     :disabled="roleLoading"
                     :class="[
-                      'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
                       isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900',
                       roleLoading ? 'opacity-50 cursor-not-allowed' : ''
                     ]"
@@ -1659,7 +1659,7 @@ export default {
       // Fetch role list dan guru data paralel
       await Promise.all([
         fetchRoleList(),
-        loadGuruData()
+      loadGuruData()
       ])
     })
 
@@ -1692,8 +1692,8 @@ export default {
       emailFilter,
       dateFilter,
       quickFilterActive,
-  sortBy,
-  sortOrder,
+      sortBy,
+      sortOrder,
       showAdvancedFilter,
       currentPage,
       itemsPerPage,

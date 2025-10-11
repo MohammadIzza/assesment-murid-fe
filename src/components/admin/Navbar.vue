@@ -1,14 +1,14 @@
 <template>
   <!-- Pastikan menambahkan class dark mode pada navbar -->
-  <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-4 py-3 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8">
-  <div class="flex justify-between items-center h-24">
+  <nav class="bg-white dark:bg-dark-header border-b border-gray-200 dark:border-dark-border px-2 sm:px-4 py-2 sm:py-3 fixed w-full z-50 top-0 left-0 transition-colors duration-300">
+    <div class="mx-auto px-2 sm:px-4 lg:px-8">
+  <div class="flex justify-between items-center h-18 sm:h-22 md:h-26">
         <!-- Logo & Brand -->
-        <div class="flex items-center space-x-4">
-          <RouterLink :to="{ name: 'dashboard' }" class="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity">
+        <div class="flex items-center space-x-3 sm:space-x-4 md:space-x-5 lg:space-x-6 min-w-0 flex-1 ml-2 sm:ml-0">
+          <RouterLink :to="{ name: 'dashboard' }" class="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 hover:opacity-90 transition-opacity min-w-0">
             <!-- Single school logo only (company logo removed) -->
-            <div class="flex items-center">
-              <div class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+            <div class="flex items-center flex-shrink-0">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
                 <template v-if="brandingStore.hasLogo">
                   <img
                     :src="brandingStore.logoObjectUrl"
@@ -19,47 +19,52 @@
                 </template>
                 <template v-else>
                   <div class="w-full h-full flex items-center justify-center bg-blue-600">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
                 </template>
               </div>
             </div>
-            <div class="min-w-0 leading-tight">
-              <h1 class="text-[20px] md:text-[22px] font-semibold tracking-tight text-gray-900 truncate">
-                ARASIT<span v-if="activeSchoolName"> | {{ activeSchoolName }}</span>
+            <div class="min-w-0 leading-tight flex-1">
+              <!-- Desktop nama aplikasi -->
+              <h1 class="text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold tracking-tight text-gray-900 truncate hidden sm:block">
+                <span class="hidden xs:inline sm:inline">ARASIT</span>
+                <span class="xs:hidden sm:hidden">AR</span>
+                <span v-if="activeSchoolName" class="hidden sm:inline"> | {{ activeSchoolName }}</span>
               </h1>
-              <p class="text-xs text-gray-500 -mt-0.5 truncate">Asessment Rapor SKL Islam Terpadu</p>
+              <!-- Desktop tagline -->
+              <p class="text-[10px] sm:text-xs text-gray-500 -mt-0.5 truncate hidden sm:block">Asessment Rapor SKL Islam Terpadu</p>
+              <!-- Mobile: hanya logo tanpa nama -->
             </div>
           </RouterLink>
         </div>
 
         <!-- Navigation Menu -->
-        <div class="hidden md:flex items-center space-x-1">
+        <div class="hidden lg:flex items-center space-x-1 xl:space-x-2">
           <!-- Dashboard -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'dashboard' }"
-            class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             :class="isDashboardActive ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
             </svg>
-            Dashboard
+            <span class="hidden xl:inline">Dashboard</span>
           </RouterLink>
 
           <!-- Assessment Link -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'assesment-index' }"
-            class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             :class="isAssessmentActive ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
-            Assessment
+            <span class="hidden xl:inline">Assessment</span>
           </RouterLink>
 
           <!-- Admin Link removed as admin management is no longer needed -->
@@ -135,20 +140,23 @@
         </div>
 
         <!-- User Profile & Actions -->
-        <div class="flex items-center space-x-2 lg:space-x-4">
+        <div class="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4">
 
           <!-- User Menu - Responsive -->
           <div class="relative group">
-            <div class="flex items-center space-x-2 bg-gray-50 px-2 sm:px-3 py-2 rounded-lg hover:bg-gray-100 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-              <div class="flex items-center justify-center w-7 h-7 bg-blue-600 rounded-full">
-                <span class="text-sm font-semibold text-white">{{ userInitial }}</span>
+            <div class="flex items-center space-x-1 sm:space-x-2 bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-100 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+              <div class="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 bg-blue-600 rounded-full flex-shrink-0">
+                <span class="text-xs sm:text-sm font-semibold text-white">{{ userInitial }}</span>
               </div>
-              <div class="hidden sm:block text-left">
-                <span class="text-sm font-medium text-gray-900 truncate max-w-32">{{ authStore.user?.name || 'User' }}</span>
+              <!-- Desktop: tampilkan nama -->
+              <div class="hidden md:block text-left min-w-0 flex-1">
+                <span class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-20 sm:max-w-32">{{ authStore.user?.name || 'User' }}</span>
               </div>
-              <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 group-hover:rotate-180 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- Desktop: arrow dropdown -->
+              <svg class="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 transition-transform duration-200 group-hover:rotate-180 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
+              <!-- Mobile: hanya ikon tanpa nama dan arrow -->
             </div>
 
             <!-- User Dropdown -->
@@ -202,35 +210,35 @@
           </div>
 
           <!-- Theme Toggle - Around User Profile Dropdown -->
-          <div class="ml-3">
-            <button 
+          <div class="ml-1 sm:ml-2 md:ml-3">
+            <button
               @click="toggleTheme"
-              class="p-2 rounded-full transition-colors duration-200"
+              class="p-1.5 sm:p-2 rounded-full transition-colors duration-200"
               :class="isDarkMode ? 'text-gray-300 hover:text-gray-100 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
               :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
             >
               <!-- Sun icon for light mode -->
-              <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
               <!-- Moon icon for dark mode -->
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
             </button>
           </div>
 
           <!-- Mobile Menu Button -->
-          <div class="md:hidden relative">
-            <button 
+          <div class="lg:hidden relative">
+            <button
               @click.stop="toggleMobileMenu"
-              class="mobile-menu-button p-2 flex items-center justify-center w-10 h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              class="mobile-menu-button p-2 flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
               aria-label="Toggle menu"
             >
-              <svg v-if="!isMobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg v-if="!isMobileMenuOpen" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
-              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg v-else class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
@@ -248,34 +256,37 @@
       leave-from-class="transform translate-y-0 opacity-100"
       leave-to-class="transform -translate-y-full opacity-0"
     >
-      <div 
-        v-show="isMobileMenuOpen" 
+      <div
+        v-show="isMobileMenuOpen"
         @click.stop
-        class="md:hidden fixed top-24 right-0 left-0 bg-white border-t border-gray-200 shadow-lg z-50"
+        :class="[
+          'lg:hidden fixed right-0 left-0 bg-white dark:bg-dark-surface border-t border-gray-200 dark:border-dark-border shadow-lg z-50',
+          navbarHeight > 96 ? 'top-24' : navbarHeight > 80 ? 'top-20' : 'top-16'
+        ]"
       >
         <!-- Menu content -->
-        <div class="px-2 pt-2 pb-3 space-y-1 max-w-7xl mx-auto">
+        <div class="px-3 sm:px-4 pt-3 pb-4 space-y-1 max-w-7xl mx-auto mobile-menu-content">
           <!-- Dashboard Mobile -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'dashboard' }"
             @click="closeMobileMenu"
             class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isDashboardActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            :class="isDashboardActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
             </svg>
             Dashboard
           </RouterLink>
 
           <!-- Assessment Mobile -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'assesment-index' }"
             @click="closeMobileMenu"
             class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isAssessmentActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            :class="isAssessmentActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
             Assessment
@@ -285,52 +296,52 @@
 
           <!-- Data Mobile - Only visible for admin -->
           <template v-if="isUserAdmin">
-            <div class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">
+            <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Data Management
             </div>
             <!-- Guru Link -->
-            <RouterLink 
+            <RouterLink
               :to="{ name: 'guru-list' }"
               @click="closeMobileMenu; logAdminStatus()"
               class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-              :class="isGuruActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+              :class="isGuruActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
             >
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
                 Daftar Guru
               </RouterLink>
-              <RouterLink 
+              <RouterLink
                 :to="{ name: 'SiswaList' }"
                 @click="closeMobileMenu"
                 class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-                :class="isSiswaActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+                :class="isSiswaActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
               >
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                 </svg>
                 Daftar Siswa
               </RouterLink>
-              
-              <RouterLink 
+
+              <RouterLink
                 :to="{ name: 'kelas-list' }"
                 @click="closeMobileMenu"
                 class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-                :class="isKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+                :class="isKelasActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
               >
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
                 Daftar Kelas
               </RouterLink>
 
-              <RouterLink 
+              <RouterLink
                 :to="{ name: 'capaian-kelas-list' }"
                 @click="closeMobileMenu"
                 class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-                :class="isCapaianKelasActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+                :class="isCapaianKelasActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
               >
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
                 Daftar Capaian Kelas
@@ -338,40 +349,40 @@
           </template>
           
           <!-- Reports Mobile -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'laporan-nilai' }"
             @click="closeMobileMenu"
             class="flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-            :class="isLaporanActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+            :class="isLaporanActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
             Laporan
           </RouterLink>
 
           <!-- Divider -->
-          <div class="border-t border-gray-200 my-2"></div>
+          <div class="border-t border-gray-200 dark:border-gray-600 my-2"></div>
 
           <!-- Profile Mobile -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'profile' }"
             @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
             Profil Saya
           </RouterLink>
 
           <!-- Settings Mobile -->
-          <RouterLink 
+          <RouterLink
             :to="{ name: 'settings' }"
             @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
@@ -379,13 +390,13 @@
           </RouterLink>
 
           <!-- Profil Sekolah Mobile (Admin only) -->
-          <RouterLink 
+          <RouterLink
             v-if="isUserAdmin"
             :to="{ name: 'sekolah-profile' }"
             @click="closeMobileMenu"
-            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            class="flex items-center px-3 py-3 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10"/>
             </svg>
@@ -393,11 +404,11 @@
           </RouterLink>
 
           <!-- Logout Mobile -->
-          <button 
+          <button
             @click.stop="handleLogout"
-            class="flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+            class="flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
           >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
             Keluar
@@ -530,6 +541,14 @@ const userInitial = computed(() => {
 
 // Active school name to render in brand title
 const activeSchoolName = computed(() => sekolahScope.activeSekolahName)
+
+// Navbar height for responsive mobile menu positioning
+const navbarHeight = computed(() => {
+  // Calculate navbar height based on screen size (logo diperbesar)
+  if (window.innerWidth >= 1024) return 104 // lg: h-26 (slightly larger for bigger logo)
+  if (window.innerWidth >= 768) return 88   // md: h-22 (slightly larger for bigger logo)
+  return 72 // sm and below: h-18 (slightly larger for bigger logo)
+})
 
 // More reliable admin status check with direct property inspection
 const isUserAdmin = computed(() => {
@@ -664,8 +683,9 @@ onUnmounted(() => {
 <style scoped>
 /* Enhanced hover support for mobile menu button */
 @media (hover: hover) {
-  .group:hover .mobile-menu-button {
+  .mobile-menu-button:hover {
     background-color: rgb(243 244 246);
+    transform: scale(1.05);
   }
 }
 
@@ -674,10 +694,35 @@ onUnmounted(() => {
   transition: all 0.2s ease-out;
 }
 
-/* Ensure hover works properly on touch devices that support it */
-@media (hover: hover) and (pointer: fine) {
-  .group .mobile-menu-button:hover {
-    transform: scale(1.05);
+/* Dark mode support for mobile menu */
+@media (prefers-color-scheme: dark) {
+  .mobile-menu-button:hover {
+    background-color: rgb(55 65 81);
+  }
+}
+
+/* Ensure touch targets are large enough on mobile */
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Improved mobile menu positioning - responsive navbar heights handled by computed property
+   Updated heights for larger logo: h-18 (72px), h-22 (88px), h-26 (104px) */
+
+/* Better text truncation for mobile */
+@media (max-width: 640px) {
+  .truncate {
+    max-width: calc(100vw - 200px);
+  }
+}
+
+/* Improved spacing for mobile menu items */
+@media (max-width: 768px) {
+  .mobile-menu-content {
+    padding: 0.75rem;
   }
 }
 </style>
