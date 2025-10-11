@@ -1,5 +1,5 @@
 <template>
-	<div class="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-500 auth-font overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+	<div :class="['relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-500 auth-font overflow-hidden', { 'bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100': !isDarkMode, 'bg-dark-background': isDarkMode }]">
 		<!-- Animated background elements -->
 		<div class="absolute inset-0 overflow-hidden pointer-events-none">
 			<div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 rounded-full blur-3xl animate-float"></div>
@@ -14,7 +14,10 @@
 		<transition name="scale-fade" mode="out-in" appear>
 			<div :key="$route.name" class="relative w-full max-w-5xl z-10">
 				<!-- Main card -->
-				<div class="grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border bg-white/80 backdrop-blur-2xl border-slate-200/60">
+				<div :class="[
+              'grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border',
+              !isDarkMode ? 'bg-white/80 backdrop-blur-2xl border-slate-200/60' : 'bg-dark-surface/90 backdrop-blur-2xl border-gray-700/50'
+            ]">
 					
 				<!-- Left: Branding Section -->
 				<div class="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
@@ -37,31 +40,31 @@
 								</div>
 							</div>
 
-							<!-- Info section -->
-							<div class="mt-12 space-y-4">
-								<div class="flex items-start gap-3 group">
-									<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-										<svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-										</svg>
-									</div>
-									<div>
-										<h3 class="text-sm font-semibold text-white">Verifikasi Identitas</h3>
-										<p class="text-xs text-gray-400 mt-0.5">Pastikan data guru Anda terhubung dengan benar</p>
-									</div>
+						<!-- Info section -->
+						<div class="mt-12 space-y-4">
+							<div class="flex items-start gap-3 group">
+								<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+									<svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+									</svg>
 								</div>
-								<div class="flex items-start gap-3 group">
-									<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-										<svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-										</svg>
-									</div>
-									<div>
-										<h3 class="text-sm font-semibold text-white">Data Aman</h3>
-										<p class="text-xs text-gray-400 mt-0.5">Informasi Anda dilindungi dengan enkripsi</p>
-									</div>
+								<div>
+									<h3 class="text-sm font-semibold text-white">Validasi Data Kepegawaian</h3>
+									<p class="text-xs text-gray-400 mt-0.5">Hubungkan akun dengan data guru di sistem sekolah</p>
 								</div>
 							</div>
+							<div class="flex items-start gap-3 group">
+								<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+									<svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.2 2a8.963 8.963 0 01-2.474 6.222 8.957 8.957 0 01-5.903 2.661.007.007 0 01-.018 0 8.957 8.957 0 01-5.903-2.661A8.963 8.963 0 0117.852 12z" />
+									</svg>
+								</div>
+								<div>
+									<h3 class="text-sm font-semibold text-white">Akses Penuh Sistem</h3>
+									<p class="text-xs text-gray-400 mt-0.5">Setelah verifikasi, kelola rapor siswa Anda</p>
+								</div>
+							</div>
+						</div>
 						</div>
 
 						<!-- Partner logos -->
@@ -82,30 +85,30 @@
 					<!-- Right: Form Section -->
 					<div class="p-8 sm:p-12 flex items-center">
 						<div class="w-full max-w-md mx-auto">
-							<!-- Header -->
-							<div class="mb-8">
-								<div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 mb-4">
-									<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.2 2a8.963 8.963 0 01-2.474 6.222 8.957 8.957 0 01-5.903 2.661.007.007 0 01-.018 0 8.957 8.957 0 01-5.903-2.661A8.963 8.963 0 0117.852 12z" />
-									</svg>
-								</div>
-								<h3 class="text-3xl font-bold mb-2 text-gray-900">
-									Verifikasi NIP
-								</h3>
-								<p class="text-sm text-gray-600">
-									Masukkan NIP Anda untuk mengaitkan akun dengan data guru dan melanjutkan ke sistem.
-								</p>
+						<!-- Header -->
+						<div class="mb-8">
+							<div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 mb-4">
+								<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.2 2a8.963 8.963 0 01-2.474 6.222 8.957 8.957 0 01-5.903 2.661.007.007 0 01-.018 0 8.957 8.957 0 01-5.903-2.661A8.963 8.963 0 0117.852 12z" />
+								</svg>
 							</div>
+							<h3 class="text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
+								Verifikasi Data Kepegawaian
+							</h3>
+							<p class="text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
+								Masukkan Nomor Induk Pegawai (NIP) untuk menghubungkan akun Anda dengan database guru sekolah
+							</p>
+						</div>
 
 							<form @submit.prevent="submitNip" class="space-y-5">
 								<!-- NIP Input -->
 								<div class="group">
-									<label for="nip" class="block text-sm font-semibold mb-2 text-gray-700">
+									<label for="nip" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
 										Nomor Induk Pegawai (NIP)
 									</label>
 									<div class="relative">
 										<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
-											<svg class="h-5 w-5 transition-colors text-gray-400 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
 											</svg>
 										</div>
@@ -119,10 +122,11 @@
 											spellcheck="false"
 											required
 											placeholder="Masukkan NIP"
-											class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300"
+											class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+											:class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
 										/>
 									</div>
-									<p class="mt-2 text-xs text-gray-500">Contoh: 198501012010011001</p>
+									<p class="mt-2 text-xs" :class="{ 'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode }">Contoh: 198501012010011001</p>
 								</div>
 
 								<!-- Error Message -->
@@ -158,8 +162,8 @@
 
 								<!-- Help text -->
 								<div class="mt-6 text-center">
-									<p class="text-xs text-gray-500">
-										Tidak memiliki NIP? Hubungi administrator sistem
+									<p class="text-xs" :class="{ 'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode }">
+										NIP tidak ditemukan? Hubungi admin sekolah untuk pendataan guru
 									</p>
 								</div>
 							</form>
@@ -171,20 +175,24 @@
 	</div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import Cookies from 'js-cookie'
 import { parseJWT } from '@/utils/jwt'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const nip = ref('')
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
+
+const isDarkMode = computed(() => themeStore.isDarkMode)
 
 async function submitNip() {
 	error.value = ''
@@ -317,6 +325,19 @@ async function submitNip() {
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+/* Dark mode */
+.bg-dark-background {
+  background: linear-gradient(to bottom right, #1a202c, #2d3748, #1a202c);
+}
+
+.bg-dark-surface {
+  background-color: #2d3748;
+}
+
+.border-dark-border {
+  border-color: #4a5568;
 }
 
 /* Custom scrollbar */

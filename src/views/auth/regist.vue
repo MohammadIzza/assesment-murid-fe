@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-500 auth-font overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+  <div :class="['relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-500 auth-font overflow-hidden', { 'bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100': !isDarkMode, 'bg-dark-background': isDarkMode }]">
     <!-- Animated background elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 rounded-full blur-3xl animate-float"></div>
@@ -14,7 +14,10 @@
     <transition name="scale-fade" mode="out-in" appear>
       <div :key="$route.name" class="relative w-full max-w-5xl z-10">
         <!-- Main card -->
-        <div class="grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border bg-white/80 backdrop-blur-2xl border-slate-200/60">
+        <div :class="[
+              'grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border',
+              !isDarkMode ? 'bg-white/80 backdrop-blur-2xl border-slate-200/60' : 'bg-dark-surface/90 backdrop-blur-2xl border-gray-700/50'
+            ]">
           
           <!-- Left: Branding Section -->
           <div class="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
@@ -42,12 +45,12 @@
                 <div class="flex items-start gap-3 group">
                   <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                     <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-sm font-semibold text-white">Cepat & Efisien</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Proses pendaftaran dalam hitungan detik</p>
+                    <h3 class="text-sm font-semibold text-white">Untuk Tenaga Pendidik</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Platform khusus guru untuk menilai siswa</p>
                   </div>
                 </div>
                 <div class="flex items-start gap-3 group">
@@ -57,8 +60,8 @@
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-sm font-semibold text-white">Terverifikasi</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Sistem verifikasi otomatis dan aman</p>
+                    <h3 class="text-sm font-semibold text-white">Verifikasi NIP</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Akun akan diverifikasi dengan data kepegawaian</p>
                   </div>
                 </div>
               </div>
@@ -84,12 +87,15 @@
             <div class="w-full max-w-md mx-auto">
               <!-- Header -->
               <div class="mb-8">
-                <h3 class="text-3xl font-bold mb-2 text-gray-900">
-                  Daftar Akun
+                <h3 class="text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
+                  Pendaftaran Akun Guru
                 </h3>
-                <p class="text-sm text-gray-600">
-                  Sudah memiliki akun?
-                  <router-link to="/login" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors ml-1">
+                <p class="text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
+                  Bergabunglah dengan sistem penilaian terintegrasi untuk mengelola assessment siswa
+                </p>
+                <p class="text-xs mt-2" :class="{ 'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode }">
+                  Sudah punya akun?
+                  <router-link to="/login" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
                     Masuk di sini
                   </router-link>
                 </p>
@@ -98,12 +104,12 @@
               <form class="space-y-4" @submit.prevent="handleRegister">
                 <!-- Name Input -->
                 <div class="group">
-                  <label for="name" class="block text-sm font-semibold mb-2 text-gray-700">
+                  <label for="name" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
                     Nama Lengkap
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
-                      <svg class="h-5 w-5 transition-colors text-gray-400 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
@@ -113,7 +119,8 @@
                       type="text"
                       required
                       v-model="form.name"
-                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300"
+                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
                       placeholder="Masukkan nama lengkap"
                     />
                   </div>
@@ -121,12 +128,12 @@
 
                 <!-- Email Input -->
                 <div class="group">
-                  <label for="email" class="block text-sm font-semibold mb-2 text-gray-700">
+                  <label for="email" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
                     Email
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
-                      <svg class="h-5 w-5 transition-colors text-gray-400 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                       </svg>
                     </div>
@@ -139,7 +146,8 @@
                       autocomplete="username"
                       autocapitalize="none"
                       spellcheck="false"
-                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300"
+                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
                       placeholder="nama@email.com"
                     />
                   </div>
@@ -147,12 +155,12 @@
 
                 <!-- Password Input -->
                 <div class="group">
-                  <label for="password" class="block text-sm font-semibold mb-2 text-gray-700">
+                  <label for="password" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
                     Password
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
-                      <svg class="h-5 w-5 transition-colors text-gray-400 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
@@ -163,12 +171,14 @@
                       required
                       v-model="form.password"
                       autocomplete="new-password"
-                      class="block w-full pl-12 pr-24 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300"
+                      class="block w-full pl-12 pr-24 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
                       placeholder="Min. 6 karakter"
                     />
                     <button
                       type="button"
-                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold transition-colors text-gray-500 hover:text-gray-700"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold transition-colors"
+                      :class="{ 'text-gray-500 hover:text-gray-700': !isDarkMode, 'text-gray-400 hover:text-gray-200': isDarkMode }"
                       @click="showPassword = !showPassword"
                     >
                       {{ showPassword ? 'Sembunyikan' : 'Tampilkan' }}
@@ -178,12 +188,12 @@
 
                 <!-- Confirm Password Input -->
                 <div class="group">
-                  <label for="confirmPassword" class="block text-sm font-semibold mb-2 text-gray-700">
+                  <label for="confirmPassword" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
                     Konfirmasi Password
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-all duration-300">
-                      <svg class="h-5 w-5 transition-colors text-gray-400 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="h-5 w-5 transition-colors" :class="{ 'text-gray-400 group-focus-within:text-blue-500': !isDarkMode, 'text-gray-500 group-focus-within:text-blue-400': isDarkMode }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.2 2a8.963 8.963 0 01-2.474 6.222 8.957 8.957 0 01-5.903 2.661.007.007 0 01-.018 0 8.957 8.957 0 01-5.903-2.661A8.963 8.963 0 0117.852 12z" />
                       </svg>
                     </div>
@@ -193,7 +203,8 @@
                       :type="showPassword ? 'text' : 'password'"
                       required
                       v-model="form.confirmPassword"
-                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300"
+                      class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
                       placeholder="Ulangi password"
                     />
                   </div>
@@ -250,9 +261,10 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -263,6 +275,7 @@ export default {
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
+    const themeStore = useThemeStore()
     
     const form = ref({
       name: '',
@@ -282,6 +295,8 @@ export default {
     const toastTitle = ref('')
     const toastMessage = ref('')
     const toastDuration = ref(4000)
+    
+    const isDarkMode = computed(() => themeStore.isDarkMode)
     
     const showNotification = (type, title, message, duration = 1500) => {
       toastType.value = type
@@ -367,6 +382,7 @@ export default {
       toastTitle,
       toastMessage,
       toastDuration,
+      isDarkMode,
       handleRegister,
       closeToast
     }
@@ -441,6 +457,19 @@ export default {
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+/* Dark mode */
+.bg-dark-background {
+  background: linear-gradient(to bottom right, #1a202c, #2d3748, #1a202c);
+}
+
+.bg-dark-surface {
+  background-color: #2d3748;
+}
+
+.border-dark-border {
+  border-color: #4a5568;
 }
 
 /* Custom scrollbar */

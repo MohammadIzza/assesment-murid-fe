@@ -45,23 +45,23 @@
                 <div class="flex items-start gap-3 group">
                   <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                     <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-sm font-semibold text-white">Sistem Terintegrasi</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Kelola assessment dengan mudah</p>
+                    <h3 class="text-sm font-semibold text-white">Sistem Penilaian Terintegrasi</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Kelola rapor dan assessment siswa dengan mudah</p>
                   </div>
                 </div>
                 <div class="flex items-start gap-3 group">
                   <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                     <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 class="text-sm font-semibold text-white">Aman & Terpercaya</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Data terlindungi dengan enkripsi</p>
+                    <h3 class="text-sm font-semibold text-white">Data Akurat & Real-time</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Laporan perkembangan siswa yang komprehensif</p>
                   </div>
                 </div>
               </div>
@@ -88,12 +88,15 @@
               <!-- Header -->
               <div class="mb-8">
                 <h3 class="text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
-                  Selamat Datang
+                  Masuk ke Portal Guru
                 </h3>
                 <p class="text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
-                  Belum memiliki akun?
-                  <router-link to="/register" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors ml-1">
-                    Daftar sekarang
+                  Akses sistem penilaian dan kelola data siswa Anda
+                </p>
+                <p class="text-xs mt-2" :class="{ 'text-gray-500': !isDarkMode, 'text-gray-400': isDarkMode }">
+                  Belum terdaftar?
+                  <router-link to="/register" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    Daftar sebagai guru
                   </router-link>
                 </p>
               </div>
