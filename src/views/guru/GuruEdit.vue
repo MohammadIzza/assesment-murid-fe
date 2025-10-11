@@ -229,9 +229,9 @@
                 </div>
               </div>
 
-              <!-- Sekolah -->
+              <!-- Sekolah (Read-only/Display) -->
               <div class="group">
-                <label for="id_sekolah" :class="[
+                <label :class="[
                   'block text-sm font-medium mb-2',
                   isDarkMode ? 'text-gray-300' : 'text-gray-700'
                 ]">
@@ -242,20 +242,30 @@
                     Sekolah <span class="text-red-500 ml-1">*</span>
                   </span>
                 </label>
-                <select
-                  v-model="form.id_sekolah"
-                  id="id_sekolah"
-                  required
-                  @change="watchFormChanges"
-                  :class="[
-                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
-                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
-                  ]"
-                >
-                  <option value="" disabled>Pilih Sekolah</option>
-                  <option value="1">SMA Negeri 1 Semarang</option>
-                  <option value="2">SMA Negeri 2 Semarang</option>
-                </select>
+                <!-- ⭐ Sekolah tidak bisa dipilih, otomatis sesuai dengan admin yang login -->
+                <div :class="[
+                  'block w-full px-4 py-3 border rounded-xl transition-all duration-200',
+                  isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-700'
+                ]">
+                  <div class="flex items-center justify-between">
+                    <span class="font-medium">{{ getSchoolName(form.id_sekolah) }}</span>
+                    <span :class="[
+                      'text-xs px-2 py-1 rounded-full',
+                      isDarkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'
+                    ]">
+                      Otomatis
+                    </span>
+                  </div>
+                </div>
+                <p :class="[
+                  'mt-2 text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
+                  <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                  </svg>
+                  Sekolah otomatis disesuaikan dengan akun admin yang login
+                </p>
               </div>
 
               <!-- Role -->
@@ -271,20 +281,43 @@
                     Role/Jabatan <span class="text-red-500 ml-1">*</span>
                   </span>
                 </label>
-                <select
-                  v-model="form.id_role"
-                  id="id_role"
-                  required
-                  @change="watchFormChanges"
-                  :class="[
-                    'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
-                    isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white'
-                  ]"
-                >
-                  <option value="" disabled>Pilih Role</option>
-                  <option value="2">Guru</option>
-                  <option value="3">Kepala Sekolah</option>
-                </select>
+                <div class="relative">
+                  <select
+                    v-model="form.id_role"
+                    id="id_role"
+                    required
+                    @change="watchFormChanges"
+                    :disabled="roleLoading"
+                    :class="[
+                      'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
+                      isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 bg-white',
+                      roleLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    ]"
+                  >
+                    <option value="" disabled>{{ roleLoading ? 'Memuat role...' : 'Pilih Role' }}</option>
+                    <!-- ⭐ Role dari API backend -->
+                    <option 
+                      v-for="role in roleList" 
+                      :key="role.id_role" 
+                      :value="role.id_role"
+                    >
+                      {{ role.nama_role }}
+                    </option>
+                  </select>
+                  <!-- Loading indicator -->
+                  <div v-if="roleLoading" class="absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  </div>
+                </div>
+                <p :class="[
+                  'mt-2 text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">
+                  <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                  </svg>
+                  Role diambil dari database backend
+                </p>
               </div>
 
               <!-- Password -->
@@ -404,6 +437,9 @@ import { reactive, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import axios from '@/plugins/axios'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -416,6 +452,8 @@ export default {
     const router = useRouter()
     const guruStore = useGuruStore()
     const themeStore = useThemeStore()
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
 
     // State
@@ -432,6 +470,10 @@ export default {
     const message = ref('')
     const messageType = ref('')
     const formValid = ref(false)
+    
+    // Role list state
+    const roleList = ref([])
+    const roleLoading = ref(false)
     
     // Toast notification state
     const showToast = ref(false)
@@ -478,6 +520,18 @@ export default {
         await guruStore.fetchGuruDetail(route.params.id)
         if (guruStore.getCurrentGuru) {
           const guru = guruStore.getCurrentGuru
+          
+          // ⭐ VALIDASI: Guru harus dari sekolah yang sama dengan user yang login
+          const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+          if (userSekolahId && guru.id_sekolah != userSekolahId) {
+            showMessage('Anda tidak memiliki akses untuk mengedit guru dari sekolah lain', 'error')
+            showNotification('error', 'Akses Ditolak', 'Anda hanya bisa mengedit guru dari sekolah Anda sendiri')
+            setTimeout(() => {
+              router.push({ name: 'guru-list' })
+            }, 2000)
+            return
+          }
+          
           form.nama = guru.nama || ''
           form.email = guru.email || ''
           form.nip = guru.nip || ''
@@ -498,6 +552,13 @@ export default {
         return
       }
 
+      // ⭐ VALIDASI: Pastikan id_sekolah sesuai dengan sekolah user yang login
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId && form.id_sekolah != userSekolahId) {
+        showMessage('Anda hanya bisa menambah/edit guru untuk sekolah Anda sendiri', 'error')
+        showNotification('error', 'Validasi Gagal', 'Anda tidak memiliki akses untuk mengubah sekolah guru')
+        return
+      }
 
       isSubmitting.value = true
       closeToast()
@@ -578,9 +639,54 @@ export default {
       }, 3000)
     }
 
+    // Helper function untuk display nama sekolah
+    const getSchoolName = (schoolId) => {
+      if (!schoolId) return 'Pilih Sekolah'
+      const schools = {
+        1: 'SMA Negeri 1 Semarang',
+        2: 'SMA Negeri 2 Semarang'
+      }
+      return schools[schoolId] || `Sekolah ID ${schoolId}`
+    }
+
+    // ⭐ Fetch role list dari API backend
+    const fetchRoleList = async () => {
+      roleLoading.value = true
+      try {
+        const response = await axios.get('/list/role')
+        if (response.data && response.data.success) {
+          roleList.value = response.data.data || []
+          console.log('Role list loaded:', roleList.value)
+        } else {
+          console.error('Failed to fetch role list')
+          roleList.value = []
+        }
+      } catch (error) {
+        console.error('Error fetching role list:', error)
+        // Fallback ke hardcoded jika API error
+        roleList.value = [
+          { id_role: 2, nama_role: 'Guru' },
+          { id_role: 3, nama_role: 'Kepala Sekolah' }
+        ]
+      } finally {
+        roleLoading.value = false
+      }
+    }
+
     // Lifecycle
-    onMounted(() => {
-      if (!isAddMode.value) {
+    onMounted(async () => {
+      // ⭐ Fetch role list dari API
+      await fetchRoleList()
+      
+      if (isAddMode.value) {
+        // ⭐ MODE ADD: Otomatis set id_sekolah dari user yang login
+        const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+        if (userSekolahId) {
+          form.id_sekolah = userSekolahId
+          console.log('Auto set id_sekolah untuk guru baru:', userSekolahId)
+        }
+      } else {
+        // MODE EDIT: Load data guru
         loadGuruDetail()
       }
       checkFormValidity()
@@ -598,6 +704,8 @@ export default {
       messageClass,
       isAddMode,
       formValid,
+      roleList,
+      roleLoading,
       showToast,
       toastType,
       toastTitle,
@@ -605,11 +713,14 @@ export default {
       toastDuration,
       guruStore,
       themeStore,
+      authStore,
+      sekolahScope,
       isDarkMode,
       submitForm,
       goBack,
       watchFormChanges,
-      closeToast
+      closeToast,
+      getSchoolName
     }
   }
 }

@@ -417,6 +417,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -429,6 +431,8 @@ export default {
     const router = useRouter()
     const guruStore = useGuruStore()
     const themeStore = useThemeStore()
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
 
     // Toast state
@@ -453,6 +457,17 @@ export default {
     const loadGuruDetail = async () => {
       try {
         await guruStore.fetchGuruDetail(route.params.id)
+        
+        // ⭐ VALIDASI: Guru harus dari sekolah yang sama dengan user yang login
+        const guru = guruStore.getCurrentGuru
+        const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+        
+        if (guru && userSekolahId && guru.id_sekolah != userSekolahId) {
+          showToastMessage('error', 'Akses Ditolak', 'Anda tidak memiliki akses untuk melihat guru dari sekolah lain')
+          setTimeout(() => {
+            router.push({ name: 'guru-list' })
+          }, 2000)
+        }
       } catch (error) {
         console.error('Failed to load guru detail:', error)
       }
@@ -468,6 +483,14 @@ export default {
 
     const confirmDeleteGuru = async () => {
       const guru = guruStore.getCurrentGuru
+      
+      // ⭐ VALIDASI: Hanya bisa delete guru dari sekolah yang sama
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId && guru?.id_sekolah != userSekolahId) {
+        showDeleteModal.value = false
+        showToastMessage('error', 'Akses Ditolak', 'Anda hanya bisa menghapus guru dari sekolah Anda sendiri')
+        return
+      }
       
       try {
         isDeleting.value = true
@@ -607,6 +630,8 @@ export default {
     return {
       guruStore,
       themeStore,
+      authStore,
+      sekolahScope,
       isDarkMode,
       showToast,
       toastType,

@@ -156,9 +156,9 @@
             </div>
 
             <!-- Basic Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-              <!-- School Filter -->
-              <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+              <!-- ⭐ SCHOOL FILTER DIHIDE - Sudah otomatis filter by sekolah user yang login -->
+              <!-- <div class="space-y-2">
                 <label class="flex text-sm font-medium text-gray-700 items-center">
                   <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -189,7 +189,7 @@
                   </svg>
                   Filter aktif
                 </div>
-              </div>
+              </div> -->
               
               <!-- Role Filter -->
               <div class="space-y-2">
@@ -200,16 +200,28 @@
                   Role/Jabatan
                 </label>
                 <div class="relative">
-                  <select v-model="selectedRole" :class="[
-                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
-                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
-                  ]">
-                    <option value="">Semua Role</option>
-                    <option value="2">Guru</option>
-                    <option value="3">Kepala Sekolah</option>
+                  <select 
+                    v-model="selectedRole" 
+                    :disabled="roleLoading"
+                    :class="[
+                      'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                      isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900',
+                      roleLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    ]"
+                  >
+                    <option value="">{{ roleLoading ? 'Memuat...' : 'Semua Role' }}</option>
+                    <!-- ⭐ Role dari API backend -->
+                    <option 
+                      v-for="role in roleList" 
+                      :key="role.id_role" 
+                      :value="role.id_role"
+                    >
+                      {{ role.nama_role }}
+                    </option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg :class="[
+                    <div v-if="roleLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                    <svg v-else :class="[
                       'h-4 w-4',
                       isDarkMode ? 'text-gray-500' : 'text-gray-400'
                     ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -869,6 +881,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
+import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import axios from '@/plugins/axios'
 import ExcelJS from 'exceljs'
 
 export default {
@@ -877,6 +892,8 @@ export default {
     const router = useRouter()
     const guruStore = useGuruStore()
     const themeStore = useThemeStore()
+    const authStore = useAuthStore()
+    const sekolahScope = useSekolahScopeStore()
     const isDarkMode = computed(() => themeStore.isDarkMode)
     
     // Reactive data
@@ -898,10 +915,19 @@ export default {
   const importError = ref('')
   const importedCount = ref(0)
   const fileInputRef = ref(null)
+  // Role list state
+  const roleList = ref([])
+  const roleLoading = ref(false)
 
     // Computed properties
     const filteredGuruList = computed(() => {
       let filtered = [...guruStore.getGuruList]
+
+      // ⭐ OTOMATIS FILTER BY SEKOLAH USER YANG LOGIN
+      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
+      if (userSekolahId) {
+        filtered = filtered.filter(guru => guru.id_sekolah == userSekolahId)
+      }
 
       // Filter by search query (nama, email, NIP)
       if (searchQuery.value) {
@@ -913,10 +939,10 @@ export default {
         )
       }
 
-      // Filter by school
-      if (selectedSchool.value) {
-        filtered = filtered.filter(guru => guru.id_sekolah == selectedSchool.value)
-      }
+      // ⭐ Filter by school manual sudah dihapus karena dropdown sekolah sudah dihide
+      // if (selectedSchool.value) {
+      //   filtered = filtered.filter(guru => guru.id_sekolah == selectedSchool.value)
+      // }
 
       // Filter by role
       if (selectedRole.value) {
@@ -1004,14 +1030,16 @@ export default {
     })
 
     const hasActiveFilters = computed(() => {
-      return !!(searchQuery.value || selectedSchool.value || selectedRole.value || 
+      // ⭐ selectedSchool tidak dihitung karena sudah dihide
+      return !!(searchQuery.value || selectedRole.value || 
                selectedStatus.value || nipFilter.value || emailFilter.value || dateFilter.value)
     })
 
     const activeFilterCount = computed(() => {
       let count = 0
       if (searchQuery.value) count++
-      if (selectedSchool.value) count++
+      // ⭐ selectedSchool tidak dihitung karena sudah dihide
+      // if (selectedSchool.value) count++
       if (selectedRole.value) count++
       if (selectedStatus.value) count++
       if (nipFilter.value) count++
@@ -1348,7 +1376,8 @@ export default {
 
     const clearAllFilters = () => {
       searchQuery.value = ''
-      selectedSchool.value = ''
+      // ⭐ selectedSchool tidak perlu direset karena sudah dihide
+      // selectedSchool.value = ''
       selectedRole.value = ''
       selectedStatus.value = ''
       nipFilter.value = ''
@@ -1602,9 +1631,36 @@ export default {
         .slice(0, 2)
     }
 
+    // ⭐ Fetch role list dari API backend
+    const fetchRoleList = async () => {
+      roleLoading.value = true
+      try {
+        const response = await axios.get('/list/role')
+        if (response.data && response.data.success) {
+          roleList.value = response.data.data || []
+          console.log('Role list loaded:', roleList.value)
+        } else {
+          roleList.value = []
+        }
+      } catch (error) {
+        console.error('Error fetching role list:', error)
+        // Fallback ke hardcoded jika API error
+        roleList.value = [
+          { id_role: 2, nama_role: 'Guru' },
+          { id_role: 3, nama_role: 'Kepala Sekolah' }
+        ]
+      } finally {
+        roleLoading.value = false
+      }
+    }
+
     // Lifecycle
-    onMounted(() => {
-      loadGuruData()
+    onMounted(async () => {
+      // Fetch role list dan guru data paralel
+      await Promise.all([
+        fetchRoleList(),
+        loadGuruData()
+      ])
     })
 
     // Watch filters untuk auto-apply (dengan debounce)
@@ -1619,11 +1675,14 @@ export default {
     }
 
     // Watch individual filters
-    watch([searchQuery, selectedSchool, selectedRole, selectedStatus, nipFilter, emailFilter, dateFilter, sortBy, sortOrder], watchFilters)
+    // ⭐ selectedSchool dihapus dari watch karena sudah dihide
+    watch([searchQuery, selectedRole, selectedStatus, nipFilter, emailFilter, dateFilter, sortBy, sortOrder], watchFilters)
 
     return {
       guruStore,
       themeStore,
+      authStore,
+      sekolahScope,
       isDarkMode,
       searchQuery,
       selectedSchool,
@@ -1633,11 +1692,13 @@ export default {
       emailFilter,
       dateFilter,
       quickFilterActive,
-      sortBy,
-      sortOrder,
+  sortBy,
+  sortOrder,
       showAdvancedFilter,
       currentPage,
       itemsPerPage,
+      roleList,
+      roleLoading,
       filteredGuruList,
       hasActiveFilters,
       activeFilterCount,
