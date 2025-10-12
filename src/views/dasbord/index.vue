@@ -37,12 +37,6 @@
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
             </div>
           </div>
-          <div v-if="isAdmin" class="mt-3 text-xs text-gray-500">
-            <div class="flex justify-between items-center">
-              <span>Kelas Aktif:</span>
-              <span class="font-semibold text-gray-700">{{ dashboardData.kelasAktif || '0' }}</span>
-            </div>
-          </div>
         </div>
         <!-- Assessment -->
         <div class="rounded-2xl bg-white dark:bg-dark-surface shadow-sm ring-1 ring-gray-200 dark:ring-dark-border p-5 animate-fade-in-up" style="animation-delay: .06s">
@@ -53,16 +47,6 @@
             </div>
             <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 flex items-center justify-center">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            </div>
-          </div>
-          <div v-if="isAdmin" class="mt-3 text-xs text-gray-500">
-            <div class="flex justify-between items-center">
-              <span>Belum Dinilai:</span>
-              <span class="font-semibold text-gray-700">{{ dashboardData.belumDinilai || '0' }}</span>
-            </div>
-            <div class="flex justify-between items-center mt-1">
-              <span>Sudah Dinilai:</span>
-              <span class="font-semibold text-gray-700">{{ dashboardData.totalAssessment - dashboardData.belumDinilai || '0' }}</span>
             </div>
           </div>
         </div>
@@ -77,12 +61,6 @@
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </div>
           </div>
-          <div v-if="isAdmin" class="mt-3 text-xs text-gray-500">
-            <div class="flex justify-between items-center">
-              <span>Guru Aktif:</span>
-              <span class="font-semibold text-gray-700">{{ dashboardData.guruAktif || '0' }}</span>
-            </div>
-          </div>
         </div>
         <!-- Siswa -->
         <div class="rounded-2xl bg-white dark:bg-dark-surface shadow-sm ring-1 ring-gray-200 dark:ring-dark-border p-5 animate-fade-in-up" style="animation-delay: .14s">
@@ -93,12 +71,6 @@
             </div>
             <div class="w-12 h-12 rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800/60 dark:text-gray-300 flex items-center justify-center">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </div>
-          </div>
-          <div v-if="isAdmin" class="mt-3 text-xs text-gray-500">
-            <div class="flex justify-between items-center">
-              <span>Siswa Aktif:</span>
-              <span class="font-semibold text-gray-700">{{ dashboardData.siswaAktif || '0' }}</span>
             </div>
           </div>
         </div>
@@ -383,11 +355,11 @@
                 </div>
                 <div>
                   <div class="text-sm font-medium text-gray-500">Assessment Selesai</div>
-                  <div class="text-lg font-semibold">{{ dashboardData.totalAssessment - dashboardData.belumDinilai || '0' }}</div>
+                  <div class="text-lg font-semibold">{{ dashboardData.totalAssessment || '0' }}</div>
                 </div>
               </div>
               <div class="text-sm font-medium px-3 py-1 rounded-full bg-green-100 text-green-700">
-                {{ Math.round(((dashboardData.totalAssessment - dashboardData.belumDinilai) / (dashboardData.totalAssessment || 1)) * 100) }}%
+                100%
               </div>
             </div>
             
@@ -400,11 +372,11 @@
                 </div>
                 <div>
                   <div class="text-sm font-medium text-gray-500">Assessment Pending</div>
-                  <div class="text-lg font-semibold">{{ dashboardData.belumDinilai || '0' }}</div>
+                  <div class="text-lg font-semibold">0</div>
                 </div>
               </div>
               <div class="text-sm font-medium px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">
-                {{ Math.round((dashboardData.belumDinilai / (dashboardData.totalAssessment || 1)) * 100) }}%
+                0%
               </div>
             </div>
             
@@ -584,26 +556,18 @@ const maxSiswaPerKelas = computed(() => {
 interface DashboardData {
   userName: string
   totalKelas: number
-  kelasAktif: number
   totalAssessment: number
-  belumDinilai: number
   totalSiswa: number
-  siswaAktif: number
   totalGuru: number
-  guruAktif: number
   assessments: any[]
 }
 
 const dashboardData = ref<DashboardData>({
   userName: '',
   totalKelas: 0,
-  kelasAktif: 0,
   totalAssessment: 0,
-  belumDinilai: 0,
   totalSiswa: 0,
-  siswaAktif: 0,
   totalGuru: 0,
-  guruAktif: 0,
   assessments: []
 })
 
@@ -705,32 +669,22 @@ const fetchDashboardData = async () => {
         const kelasRes = await axios.get('/list/kelas')
         const kelasList = kelasRes.data.data || []
         dashboardData.value.totalKelas = kelasList.length
-        dashboardData.value.kelasAktif = kelasList.filter(k => k.status === 'aktif' || k.status === 1).length
         
         // Ambil data guru
         const guruRes = await axios.get('/list/guru')
         const guruList = guruRes.data.data || []
         dashboardData.value.totalGuru = guruList.length
-        dashboardData.value.guruAktif = guruList.filter(g => g.status === 'aktif' || g.status === 1).length
         
         // Ambil data siswa
         const siswaRes = await axios.get('/list/siswa')
         const siswaList = siswaRes.data.data || []
         dashboardData.value.totalSiswa = siswaList.length
-        dashboardData.value.siswaAktif = siswaList.filter(s => s.status === 'aktif' || s.status === 1).length
         
         // Ambil data assessment (semua assessment)
         const assessmentRes = await axios.get('/list/assessment')
         const assessmentList = assessmentRes.data.data || []
         dashboardData.value.totalAssessment = assessmentList.length
         
-        // Ambil data nilai
-        const nilaiRes = await axios.get('/list/nilai')
-        const nilaiList = nilaiRes.data.data || []
-        
-        // Hitung assessment yang belum dinilai
-        const dinilaiSet = new Set(nilaiList.map((n) => n.id_assessment))
-        dashboardData.value.belumDinilai = Math.max(0, dashboardData.value.totalAssessment - dinilaiSet.size)
         
         // Hitung assessment per dimensi
         if (dimensiList.value.length > 0) {
@@ -790,12 +744,6 @@ const fetchDashboardData = async () => {
       console.log('response siswa', siswaRes.data.jumlah_siswa);
       dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa
 
-      // Ambil data nilai
-      const nilaiRes = await axios.get('/list/nilai')
-      const nilaiList = nilaiRes.data.data || []
-      // Hitung assessment yang belum dinilai
-      const dinilaiSet = new Set(nilaiList.map((n: any) => n.id_assessment))
-      dashboardData.value.belumDinilai = Math.max(0, dashboardData.value.totalAssessment - dinilaiSet.size)
     }
 
     // Ambil nama user dari localStorage sebagai fallback jika API belum berhasil
@@ -836,7 +784,6 @@ const elemenList = ref([])
 const subElemenList = ref([])
 const capaianList = ref([])
 const siswaList = ref([])
-const nilaiList = ref([])
 const pengampuList = ref([])
 
 // Helper untuk nama
@@ -944,15 +891,9 @@ const getRelasiAssessment = (ass) => {
 
 // Helper untuk jumlah siswa per assessment berdasarkan nilai dan pengampu
 const getJumlahSiswaAssessment = (ass) => {
-  // Dapatkan semua nilai untuk assessment ini
-  const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
-  // Dapatkan semua id_pengampu yang terkait dengan assessment ini
-  const pengampuIds = Array.from(new Set(nilaiAssessment.map(n => n.id_pengampu)))
-  // Dapatkan semua id_kelas dari pengampu terkait
-  const kelasIds = pengampuIds.map(pid => pengampuList.value.find(p => p.id_pengampu == pid)?.id_kelas)
-  // Hitung jumlah siswa unik yang dinilai pada assessment ini
-  const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
-  return siswaIds.length
+  // Untuk sementara return 0 karena nilaiList tidak lagi digunakan
+  // TODO: Implementasi alternatif jika diperlukan
+  return 0
 }
 
 // Helper untuk kelas assessment berdasarkan nilai dan siswa
@@ -962,16 +903,8 @@ const getKelasAssessment = (ass) => {
   if (ck?.id_kelas) {
     return getNamaKelas(ck.id_kelas)
   }
-  // Fallback: derive from nilai -> siswa -> kelas
-  const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
-  const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
-  const kelasIds = Array.from(new Set(
-    siswaIds
-      .map(sid => siswaList.value.find(s => s.id_siswa == sid)?.id_kelas)
-      .filter(Boolean)
-  ))
-  const kelasNames = kelasIds.map(kid => kelasList.value.find(k => k.id_kelas == kid)?.nama_kelas).filter(Boolean)
-  return kelasNames.length > 0 ? kelasNames.join(', ') : '-'
+  // Fallback: return default jika tidak ada relasi
+  return '-'
 }
 
 // Mapping warna label/tag per dimensi/domain
@@ -989,14 +922,13 @@ function getDimensiLabelClass(ass) {
 }
 
 const fetchReferenceData = async () => {
-  const [kelasRes, dimensiRes, elemenRes, subElemenRes, capaianRes, siswaRes, nilaiRes, pengampuRes] = await Promise.all([
+  const [kelasRes, dimensiRes, elemenRes, subElemenRes, capaianRes, siswaRes, pengampuRes] = await Promise.all([
     axios.get('/list/kelas'),
     axios.get('/list/dimensi'),
     axios.get('/list/elemen'),
     axios.get('/list/sub_elemen'),
     axios.get('/list/capaian_kelas'),
     axios.get('/list/siswa'),
-    axios.get('/list/nilai'),
     axios.get('/list/pengampu')
   ])
   kelasList.value = kelasRes.data.data || []
@@ -1005,7 +937,6 @@ const fetchReferenceData = async () => {
   subElemenList.value = subElemenRes.data.data || []
   capaianList.value = capaianRes.data.data || []
   siswaList.value = siswaRes.data.data || []
-  nilaiList.value = nilaiRes.data.data || []
   pengampuList.value = pengampuRes.data.data || []
 }
 

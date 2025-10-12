@@ -395,10 +395,10 @@
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 ]">
                   Urutan: {{ sortOrder === 'asc' ? 'A → Z' : 'Z → A' }}
-      </div>
           </div>
-            </div>
-          
+        </div>
+      </div>
+
             <!-- Active Filter Tags -->
             <div v-if="hasActiveFilters" class="pt-6 border-t border-gray-200">
               <div class="flex flex-wrap items-center gap-3">
