@@ -12,15 +12,26 @@
 		</div>
 
 		<transition name="scale-fade" mode="out-in" appear>
-			<div :key="$route.name" class="relative w-full max-w-5xl z-10">
+			<div :key="$route.name" class="relative w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-5xl z-10">
+				<!-- Mobile Logo Section -->
+				<div class="lg:hidden mb-3 text-center">
+					<div class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 shadow-md mb-2">
+						<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+						</svg>
+					</div>
+					<h2 class="text-lg font-bold text-gray-900 mb-1">ARASIT</h2>
+					<p class="text-[10px] text-gray-600">Assessment Rapor SKL Islam Terpadu</p>
+				</div>
+
 				<!-- Main card -->
 				<div :class="[
-              'grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border',
-              !isDarkMode ? 'bg-white/80 backdrop-blur-2xl border-slate-200/60' : 'bg-dark-surface/90 backdrop-blur-2xl border-gray-700/50'
+              'grid lg:grid-cols-2 rounded-xl lg:rounded-2xl overflow-hidden shadow-lg lg:shadow-xl hover:shadow-xl lg:hover:shadow-2xl transition-all duration-500 border',
+              !isDarkMode ? 'bg-white/90 backdrop-blur-xl border-slate-200/60' : 'bg-dark-surface/90 backdrop-blur-2xl border-gray-700/50'
             ]">
 					
 				<!-- Left: Branding Section -->
-				<div class="relative hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
+				<div class="relative hidden lg:flex flex-col justify-between p-8 lg:p-12 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden">
 					<!-- Decorative elements -->
 					<div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
 					<div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl"></div>
@@ -29,8 +40,8 @@
 						<div class="relative z-10">
 							<!-- Logo and title -->
 							<div class="space-y-6">
-								<div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg hover:scale-110 transition-transform duration-300">
-									<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg hover:scale-110 transition-transform duration-300">
+									<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
 									</svg>
 								</div>
@@ -83,27 +94,27 @@
 					</div>
 
 					<!-- Right: Form Section -->
-					<div class="p-8 sm:p-12 flex items-center">
-						<div class="w-full max-w-md mx-auto">
+					<div class="p-4 sm:p-8 lg:p-12 flex items-center">
+						<div class="w-full max-w-sm sm:max-w-md mx-auto">
 						<!-- Header -->
-						<div class="mb-8">
-							<div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 mb-4">
-								<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<div class="mb-4 lg:mb-8">
+							<div class="inline-flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-blue-50 mb-3 lg:mb-4">
+								<svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.2 2a8.963 8.963 0 01-2.474 6.222 8.957 8.957 0 01-5.903 2.661.007.007 0 01-.018 0 8.957 8.957 0 01-5.903-2.661A8.963 8.963 0 0117.852 12z" />
 								</svg>
 							</div>
-							<h3 class="text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
+							<h3 class="text-lg lg:text-3xl font-bold mb-2" :class="{ 'text-gray-900': !isDarkMode, 'text-gray-100': isDarkMode }">
 								Verifikasi Data Kepegawaian
 							</h3>
-							<p class="text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
+							<p class="text-xs lg:text-sm" :class="{ 'text-gray-600': !isDarkMode, 'text-gray-400': isDarkMode }">
 								Masukkan Nomor Induk Pegawai (NIP) untuk menghubungkan akun Anda dengan database guru sekolah
 							</p>
 						</div>
 
-							<form @submit.prevent="submitNip" class="space-y-5">
+							<form @submit.prevent="submitNip" class="space-y-3 lg:space-y-5">
 								<!-- NIP Input -->
 								<div class="group">
-									<label for="nip" class="block text-sm font-semibold mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
+									<label for="nip" class="block text-xs lg:text-sm font-semibold mb-1 lg:mb-2" :class="{ 'text-gray-700': !isDarkMode, 'text-gray-300': isDarkMode }">
 										Nomor Induk Pegawai (NIP)
 									</label>
 									<div class="relative">
@@ -122,7 +133,7 @@
 											spellcheck="false"
 											required
 											placeholder="Masukkan NIP"
-											class="block w-full pl-12 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+											class="block w-full pl-12 pr-4 py-2 lg:py-3 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
 											:class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
 										/>
 									</div>
@@ -143,7 +154,7 @@
 								<button
 									:disabled="loading"
 									type="submit"
-									class="w-full flex items-center justify-center gap-2 py-3.5 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
+									class="w-full flex items-center justify-center gap-2 py-2 lg:py-3.5 px-4 text-xs lg:text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
 								>
 									<span v-if="!loading" class="flex items-center gap-2">
 										<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,6 +183,18 @@
 				</div>
 			</div>
 		</transition>
+
+		<!-- Mobile Powered by - Bottom -->
+		<div class="lg:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+			<div class="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-sm border border-gray-200/50">
+				<p class="text-[10px] text-gray-500 text-center">Powered by</p>
+				<div class="flex items-center justify-center gap-2 mt-0.5">
+					<img src="/KlikEdupart.png" alt="KlikEdupart" class="h-3 w-auto object-contain" />
+					<span class="text-gray-400 text-[8px]">×</span>
+					<img src="/Appapun.png" alt="Appapun" class="h-3 w-auto object-contain" />
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 <script setup>
