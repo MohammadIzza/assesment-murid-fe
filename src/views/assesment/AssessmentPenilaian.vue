@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div class="min-h-screen bg-gray-50 py-8" style="padding-top: 5rem;">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       <div v-if="loading" class="flex justify-center items-center min-h-[300px]">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

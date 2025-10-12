@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center" style="padding-top: 5rem;">
     <div class="text-center">
       <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -2,7 +2,7 @@
   <div :class="[
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'
-  ]">
+  ]"style="padding-top: 5rem;">
     <!-- Toast Component -->
     <Toast 
       :show="showToast" 

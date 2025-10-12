@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background dark:bg-dark-background py-8">
+  <div class="min-h-screen bg-background dark:bg-dark-background py-8" style="padding-top: 5rem;">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="relative overflow-hidden rounded-2xl p-8 mb-8 text-white shadow-sm ring-1 ring-blue-500/30 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 animate-fade-in">

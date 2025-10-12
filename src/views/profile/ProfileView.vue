@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background dark:bg-dark-background py-6 sm:py-10">
+  <div class="min-h-screen bg-background dark:bg-dark-background py-6 sm:py-10" style="padding-top: 6rem;">
     <!-- Loading skeleton: full page -->
     <div v-if="isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

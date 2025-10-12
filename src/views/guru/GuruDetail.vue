@@ -2,7 +2,7 @@
   <div :class="[
     'min-h-screen py-6 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
-  ]">
+  ]" style="padding-top: 5rem;">
     <!-- Toast Component -->
     <Toast 
       :show="showToast" 

@@ -2,7 +2,7 @@
   <div :class="[
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'
-  ]">
+  ]" style="padding-top: 5rem;">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">

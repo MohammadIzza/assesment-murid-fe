@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div class="min-h-screen bg-gray-50 py-8" style="padding-top: 5rem;">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
     <div class="bg-blue-700 px-8 py-6 rounded-xl mb-8">

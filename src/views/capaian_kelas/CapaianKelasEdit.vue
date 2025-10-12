@@ -2,7 +2,7 @@
   <div :class="[
     'min-h-screen py-8 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gradient-to-br from-purple-50 via-white to-indigo-50'
-  ]">
+  ]" style="padding-top: 5rem;">
     <!-- Toast Notifications -->
     <Toast 
       :show="showToast" 

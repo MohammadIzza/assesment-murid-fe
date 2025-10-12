@@ -1,5 +1,5 @@
 <template>
-  <div :class="['min-h-screen py-6', isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
+  <div :class="['min-h-screen py-6', isDarkMode ? 'bg-gray-900' : 'bg-gray-50']" style="padding-top: 5rem;">
     <!-- Toast Component -->
     <Toast 
       :show="showToast" 

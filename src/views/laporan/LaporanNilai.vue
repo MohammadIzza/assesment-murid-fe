@@ -1,6 +1,6 @@
 <!-- filepath: g:\KERJAAN\Om Nusa\assesment-murid-fe\src\views\laporan\LaporanNilai.vue -->
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-8" style="padding-top: 5rem;">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
   <div class="bg-blue-700 dark:bg-blue-900 px-8 py-6 rounded-2xl shadow-sm ring-1 ring-black/10 dark:ring-white/10 mb-8">

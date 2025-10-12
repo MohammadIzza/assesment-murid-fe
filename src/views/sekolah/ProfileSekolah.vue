@@ -1,5 +1,5 @@
 <template>
-  <div :class="['min-h-screen py-8 transition-colors duration-300', isDark ? 'bg-dark-background' : 'bg-gray-50']">
+  <div :class="['min-h-screen py-8 transition-colors duration-300', isDark ? 'bg-dark-background' : 'bg-gray-50']" style="padding-top: 6rem;">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Page header -->
       <div class="mb-6 sm:mb-8">
