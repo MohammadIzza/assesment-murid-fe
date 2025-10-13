@@ -25,7 +25,7 @@
       </div>
 
       <!-- Statistik Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <!-- Total Kelas -->
         <div class="rounded-2xl bg-white dark:bg-dark-surface shadow-sm ring-1 ring-gray-200 dark:ring-dark-border p-5 animate-fade-in-up" style="animation-delay: .02s">
           <div class="flex items-center justify-between">
@@ -50,8 +50,8 @@
             </div>
           </div>
         </div>
-        <!-- Guru -->
-        <div class="rounded-2xl bg-white dark:bg-dark-surface shadow-sm ring-1 ring-gray-200 dark:ring-dark-border p-5 animate-fade-in-up" style="animation-delay: .10s">
+        <!-- Guru (hanya untuk Admin) -->
+        <div v-if="isAdmin" class="rounded-2xl bg-white dark:bg-dark-surface shadow-sm ring-1 ring-gray-200 dark:ring-dark-border p-5 animate-fade-in-up" style="animation-delay: .10s">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-xs text-gray-500 dark:text-dark-text-secondary">Total Guru</div>
@@ -204,10 +204,11 @@
                 class="block w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-dark-input text-gray-900 dark:text-dark-text"
               >
                 <option value="">Semua Kelas</option>
-                <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+                <option v-for="kelas in kelasListForUser" :key="kelas.id_kelas" :value="kelas.id_kelas">
                   {{ kelas.nama_kelas }}
                 </option>
               </select>
+              <p v-if="!isAdmin && kelasListForUser.length === 0" class="text-xs text-amber-600 mt-1">Anda belum terdaftar sebagai pengampu kelas mana pun.</p>
             </div>
 
             <!-- Filter Dimensi -->
@@ -518,16 +519,12 @@ import { parseJWT } from '@/utils/jwt'
 import { getGuruByUserId, getGuruByEmail } from '@/services/api'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
-import { useGuruStore } from '@/stores/guru'
-import { useKelasStore } from '@/stores/kelas'
-import { useSiswaStore } from '@/stores/siswa'
+// Removed unused store imports to avoid lint/TS errors
 
 // Add store
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
-const guruStore = useGuruStore();
-const kelasStore = useKelasStore();
-const siswaStore = useSiswaStore();
+// Removed unused store instances
 
 const isDarkMode = computed(() => themeStore.isDarkMode);
 const isAdmin = computed(() => authStore.isAdmin);
@@ -577,7 +574,8 @@ const userData = ref({
   email: '',
   nip: '',
   id_sekolah: null,
-  id_role: null
+  id_role: null,
+  id_guru: null
 })
 
 const loading = ref(true)
@@ -768,14 +766,7 @@ const getRoleName = (roleId) => {
   return roles[roleId] || 'Guru'
 }
 
-// Helper function untuk school name
-const getSchoolName = (schoolId) => {
-  const schools = {
-    1: 'SMA Negeri 1 Semarang',
-    2: 'SMA Negeri 2 Semarang'
-  }
-  return schools[schoolId] || 'Tidak Diketahui'
-}
+// Removed unused getSchoolName helper
 
 // Data referensi
 const kelasList = ref([])
@@ -786,16 +777,36 @@ const capaianList = ref([])
 const siswaList = ref([])
 const pengampuList = ref([])
 
+// Access-control: allowed kelas for current user (normalize to strings)
+const allowedKelasIds = computed(() => {
+  try {
+    if (isAdmin.value) return new Set((kelasList.value || []).map(k => String(k.id_kelas)))
+    // derive current guru id from fetched userData
+    const gid = userData.value?.id_guru || null
+    if (!gid) {
+      // try to infer from pengampu list by email if available
+      return new Set((pengampuList.value || []).filter(() => false).map(() => '')) // empty set
+    }
+    const rows = Array.isArray(pengampuList.value) ? pengampuList.value : []
+    return new Set(rows.filter(p => String(p.id_guru) === String(gid)).map(p => String(p.id_kelas)))
+  } catch (e) {
+    return new Set()
+  }
+})
+
+// Kelas list filtered for user
+const kelasListForUser = computed(() => {
+  const list = kelasList.value || []
+  if (isAdmin.value) return list
+  const allowed = allowedKelasIds.value
+  return list.filter(k => allowed.has(String(k.id_kelas)))
+})
+
 // Helper untuk nama
 const getNamaKelas = id => kelasList.value.find(k => k.id_kelas == id)?.nama_kelas || '-';
 const getNamaDimensi = id => dimensiList.value.find(d => d.id_dimensi == id)?.nama_dimensi || '-';
 const getNamaElemen = id => elemenList.value.find(e => e.id_elemen == id)?.nama_elemen || '-';
-const getNamaSubElemen = id => subElemenList.value.find(se => se.id_sub_elemen == id)?.nama_sub_elemen || '-';
-// capaianList now holds rows from capaian_kelas: { id, id_sub_elemen, id_kelas, indikator, nama_ck, kode_ck }
-const getNamaCapaian = id => {
-  const ck = capaianList.value.find(c => c.id == id)
-  return ck?.indikator || ck?.nama_ck || '-'
-}
+// Removed unused helpers getNamaSubElemen and getNamaCapaian
 const getJumlahSiswa = id_kelas => siswaList.value.filter(s => s.id_kelas == id_kelas).length;
 
 // Computed property for active filters
@@ -812,6 +823,14 @@ const filteredElemenList = computed(() => {
 const filteredAssessments = computed(() => {
   let filtered = dashboardData.value.assessments
 
+  // Guru can only see assessments from allowed classes
+  if (!isAdmin.value) {
+    filtered = filtered.filter(ass => {
+      const ck = capaianList.value.find(c => c.id == ass.id_capaian_kelas)
+      return ck?.id_kelas ? allowedKelasIds.value.has(String(ck.id_kelas)) : false
+    })
+  }
+
   // Filter by search query
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
@@ -823,20 +842,9 @@ const filteredAssessments = computed(() => {
   // Filter by kelas
   if (filterKelas.value) {
     filtered = filtered.filter(ass => {
-      // Prefer kelas from capaian_kelas relation if available
+      // Filter hanya berdasarkan relasi capaian_kelas -> id_kelas
       const ck = capaianList.value.find(c => c.id == ass.id_capaian_kelas)
-      if (ck?.id_kelas) {
-        return String(ck.id_kelas) === String(filterKelas.value)
-      }
-      // Fallback: derive kelas from nilai -> siswa
-      const nilaiAssessment = nilaiList.value.filter(n => n.id_assessment == ass.id_assessment)
-      const siswaIds = Array.from(new Set(nilaiAssessment.map(n => n.id_siswa)))
-      const kelasIds = Array.from(new Set(
-        siswaIds
-          .map(sid => siswaList.value.find(s => s.id_siswa == sid)?.id_kelas)
-          .filter(Boolean)
-      ))
-      return kelasIds.includes(parseInt(filterKelas.value))
+      return ck?.id_kelas ? String(ck.id_kelas) === String(filterKelas.value) : false
     })
   }
 
@@ -874,6 +882,14 @@ watch(filterDimensi, (newDimensi) => {
   }
 })
 
+// Guard: ensure guru cannot select non-allowed kelas in filter
+watch(filterKelas, (val) => {
+  if (!isAdmin.value && val && !allowedKelasIds.value.has(String(val))) {
+    // reset silently
+    filterKelas.value = ''
+  }
+})
+
 // Helper relasi assessment (dimensi, elemen, sub elemen, capaian)
 const getRelasiAssessment = (ass) => {
   // Assessment sekarang mengacu ke capaian_kelas melalui id_capaian_kelas
@@ -889,11 +905,16 @@ const getRelasiAssessment = (ass) => {
   }
 }
 
-// Helper untuk jumlah siswa per assessment berdasarkan nilai dan pengampu
+// Helper untuk jumlah siswa per assessment berbasis kelas dari capaian_kelas
 const getJumlahSiswaAssessment = (ass) => {
-  // Untuk sementara return 0 karena nilaiList tidak lagi digunakan
-  // TODO: Implementasi alternatif jika diperlukan
-  return 0
+  if (!ass) return 0
+  // Cari relasi capaian_kelas untuk mendapatkan id_kelas
+  const ck = capaianList.value.find(c => c.id == ass.id_capaian_kelas)
+  const idKelas = ck?.id_kelas
+  if (!idKelas) return 0
+  // Hitung jumlah siswa pada kelas tersebut dari referensi siswaList
+  const count = siswaList.value.filter(s => String(s.id_kelas) === String(idKelas)).length
+  return count
 }
 
 // Helper untuk kelas assessment berdasarkan nilai dan siswa

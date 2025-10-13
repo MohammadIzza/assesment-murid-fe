@@ -10,54 +10,58 @@
         </div>
       </div>
     </div>
-  
-     <!-- Tombol -->
-      <div flex>
-        <button 
-          @click="toggleHistory(getGuru(currentEmailUser))"
-          class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-lg font-medium flex items-center gap-2"
-        >
-          History
-          <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" 
-              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M19 9l-7 7-7-7" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" 
-              class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-
-        <!-- Data History -->
-        <div v-if="isOpen" class="p-4 border rounded-lg bg-gray-100 mt-3">
-          <h3 class="font-semibold mb-4">Riwayat Assessment</h3>
+    
+    <!-- History Card -->
+    <div class="mb-6">
+      <div class="rounded-2xl bg-white dark:bg-gray-800 shadow border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between p-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Riwayat Assessment</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Entri terakhir dari penilaian Anda</p>
+            </div>
+          </div>
+          <button 
+            @click="toggleHistory(getGuru(currentEmailUser))"
+            class="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-lg text-sm font-medium"
+          >
+            <span class="mr-2">{{ isOpen ? 'Sembunyikan' : 'Tampilkan' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" :class="['w-4 h-4 transition-transform', isOpen ? 'rotate-180' : '']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+        <div v-if="isOpen" class="border-t border-gray-200 dark:border-gray-700">
           <div class="overflow-x-auto">
-            <table class="min-w-full border border-gray-300 bg-white rounded-lg shadow-sm">
-              <thead class="bg-yellow-400">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th class="px-4 py-2 border text-left">Nama Siswa</th>
-                  <th class="px-4 py-2 border text-left">Assessment</th>
-                  <th class="px-4 py-2 border text-left">Nilai</th>
-                  <th class="px-4 py-2 border text-left">Waktu Input</th>
+                  <th class="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Nama Siswa</th>
+                  <th class="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Assessment</th>
+                  <th class="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Nilai</th>
+                  <th class="px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200">Waktu Input</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50">
-                  <td class="px-4 py-2 border">{{ getSiswa(row.id_siswa) }}</td>
-                  <td class="px-4 py-2 border">{{ getAssessment(row.id_assessment) }}</td>
-                  <td class="px-4 py-2 border text-center">{{ row.nilai }}</td>
-                  <td class="px-4 py-2 border">{{ formatDate(row.tanggal_input) }}</td>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="(row, index) in historyData" :key="index" class="hover:bg-gray-50 dark:hover:bg-blue-900/30">
+                  <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ getSiswa(row.id_siswa) }}</td>
+                  <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ getAssessment(row.id_assessment) }}</td>
+                  <td class="px-4 py-2 text-gray-900 dark:text-gray-100 font-medium">{{ row.nilai }}</td>
+                  <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ formatDate(row.tanggal_input) }}</td>
                 </tr>
-
-                 <tr v-if="historyData.length === 0">
-                  <td colspan="4" class="px-4 py-2 text-center text-gray-500">Tidak ada riwayat assesment</td>
+                <tr v-if="historyData.length === 0">
+                  <td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">Tidak ada riwayat assessment</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+      </div>
     </div>
 
     <!-- Global Search Section - Always visible -->
@@ -138,10 +142,13 @@
         class="block w-full max-w-md px-3 py-2 border border-blue-400 dark:border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-medium shadow-sm"
       >
         <option value="">Pilih Kelas</option>
-        <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+        <option v-for="kelas in kelasListForUser" :key="kelas.id_kelas" :value="kelas.id_kelas">
           {{ kelas.nama_kelas }}
         </option>
       </select>
+      <span v-if="!isAdmin && kelasListForUser.length === 0" class="text-amber-600 dark:text-amber-400 text-xs mt-2">
+        Anda belum terdaftar sebagai pengampu kelas mana pun. Hubungi admin jika ini tidak sesuai.
+      </span>
       <span v-if="!selectedKelas" class="text-red-600 dark:text-red-400 text-xs mt-1 block">* Pilih kelas terlebih dahulu sebelum filter lain</span>
     </div>
     <!-- Filter & Action Section Card Compact -->
@@ -493,6 +500,34 @@ const isEditMode = ref(false)
 const selectedAssessment = ref(null)
 // GANTI: kelasList pakai computed agar reactive ke store
 const kelasList = computed(() => kelasStore.getKelasList)
+// Role & access helpers
+const isAdmin = computed(() => authStore.isAdmin)
+const currentGuruIdComputed = computed(() => {
+  const id = guruStore.getCurrentGuruId
+  if (id) return id
+  const email = authStore.getUser?.email
+  const found = guruStore.getGuruList?.find?.(g => String(g.email || '').toLowerCase() === String(email || '').toLowerCase())
+  return found?.id_guru || null
+})
+// Allowed kelas IDs for current user (normalize to strings)
+const allowedKelasIds = computed(() => {
+  try {
+    if (isAdmin.value) return new Set((kelasList.value || []).map(k => String(k.id_kelas)))
+    const gid = currentGuruIdComputed.value
+    if (!gid) return new Set()
+    const rows = Array.isArray(pengampuList.value) ? pengampuList.value : []
+    return new Set(rows.filter(p => p.id_guru == gid).map(p => String(p.id_kelas)))
+  } catch (e) {
+    return new Set()
+  }
+})
+// Kelas list to present to user
+const kelasListForUser = computed(() => {
+  const list = kelasList.value || []
+  if (isAdmin.value) return list
+  const allowed = allowedKelasIds.value
+  return list.filter(k => allowed.has(String(k.id_kelas)))
+})
 const dimensiList = ref([])
 const elemenList = ref([])
 const subElemenList = ref([])
@@ -633,8 +668,9 @@ const onGlobalSearch = () => {
   const query = globalSearchQuery.value.toLowerCase().trim()
   const results = []
 
-  // Search in all students (not just current class)
+  // Search in all students (not just current class) but restrict for guru
   allSiswaList.value.forEach((siswa, index) => {
+    if (!isAdmin.value && !allowedKelasIds.value.has(String(siswa.id_kelas))) return
     if (siswa.nama.toLowerCase().includes(query)) {
       results.push({
         siswa,
@@ -771,7 +807,7 @@ const highlightSearchText = (text) => {
 
 // Helper function to get class name by ID
 const getKelasNameById = (id_kelas) => {
-  const kelas = kelasList.value.find(k => k.id_kelas == id_kelas)
+  const kelas = (kelasListForUser.value || []).find(k => k.id_kelas == id_kelas) || (kelasList.value || []).find(k => k.id_kelas == id_kelas)
   return kelas ? kelas.nama_kelas : 'N/A'
 }
 
@@ -1093,11 +1129,15 @@ const getSubElemenForElemen = (id_elemen) => {
   return subElemenList.value.filter(se => se.id_elemen == id_elemen);
 }
 
-// Get Capaian for a Sub Elemen
+// Get Capaian for a Sub Elemen (respect selectedCapaian when set)
 const getCapaianForSubElemen = (id_sub_elemen) => {
-  if (!id_sub_elemen || !selectedKelas.value) return [];
-  // Filter by sub elemen saja; fase diasumsikan dari kelas saat fetch
-  return capaianList.value.filter(c => c.id_sub_elemen == id_sub_elemen);
+  if (!id_sub_elemen || !selectedKelas.value) return []
+  let list = capaianList.value.filter(c => c.id_sub_elemen == id_sub_elemen)
+  if (selectedCapaian.value) {
+    const sel = String(selectedCapaian.value)
+    list = list.filter(c => String(c.id_capaian) === sel || String(c.id_ck) === sel)
+  }
+  return list
 }
 
 // Fetch data functions
@@ -1383,6 +1423,14 @@ const onKelasChange = async () => {
   // Clear search when changing class
   clearGlobalSearch()
 
+  // Access guard for guru: only allowed classes
+  if (!isAdmin.value && selectedKelas.value && !allowedKelasIds.value.has(String(selectedKelas.value))) {
+    const nama = getNamaKelas(selectedKelas.value)
+    showInfoToast(`Anda bukan pengampu kelas ${nama || selectedKelas.value}. Pilih kelas yang Anda ampu.`)
+    selectedKelas.value = ''
+    return
+  }
+
   if (selectedKelas.value) {
     await Promise.all([
       fetchSiswaByKelas(selectedKelas.value),
@@ -1613,10 +1661,15 @@ const saveAssessment = async (formData) => {
       return `${startYear}/${startYear + 1}`
     }
 
-    // If pengampu mapping not found, attempt to create one automatically
+    // If pengampu mapping not found
     if (!id_pengampu_resolved) {
+      // Guru cannot auto-create mapping; block the operation
+      if (!isAdmin.value) {
+        throw new Error('Anda bukan pengampu kelas ini. Hubungi admin untuk menambahkan pengampu.')
+      }
+      // Admin may auto-create mapping
       if (!currentGuruId || !kelasIdForMapping) {
-        throw new Error('Pengampu untuk guru/kelas ini tidak ditemukan dan tidak bisa dibuat otomatis (guru/kelas tidak valid).')
+        throw new Error('Pengampu untuk guru/kelas ini tidak valid. (guru/kelas tidak ditemukan)')
       }
       try {
         const payloadPengampu = {
@@ -1636,7 +1689,7 @@ const saveAssessment = async (formData) => {
           throw new Error(resPeng?.data?.message || 'Gagal membuat mapping pengampu')
         }
       } catch (e) {
-        throw new Error(`Pengampu untuk guru/kelas ini tidak ditemukan. Otomatis membuat mapping gagal: ${e.message || e}`)
+        throw new Error(`Otomatis membuat mapping pengampu gagal: ${e.message || e}`)
       }
     }
 

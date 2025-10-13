@@ -1,6 +1,9 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8" style="padding-top: 5rem;">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div v-if="forbidden" class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded relative mb-6">
+        Anda bukan pengampu kelas untuk assessment ini. Akses dibatasi.
+      </div>
       <div v-if="loading" class="flex justify-center items-center min-h-[300px]">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
@@ -38,13 +41,13 @@
                   <td class="px-4 py-2">
                     <div class="flex gap-3">
                       <label v-for="opt in ['MB','SB','BSH','SAB']" :key="opt" class="flex items-center gap-1">
-                        <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiMap[siswa.id_siswa]" />
+                        <input type="radio" :name="'nilai-' + siswa.id_siswa" :value="opt" v-model="nilaiMap[siswa.id_siswa]" :disabled="forbidden" />
                         <span>{{ opt }}</span>
                       </label>
                     </div>
                   </td>
                   <td class="px-4 py-2">
-                    <button @click="simpanNilai(siswa)" :disabled="nilaiLoading[siswa.id_siswa]" class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+                    <button @click="simpanNilai(siswa)" :disabled="nilaiLoading[siswa.id_siswa] || forbidden" class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
                       <span v-if="nilaiLoading[siswa.id_siswa]">Menyimpan...</span>
                       <span v-else>Simpan</span>
                     </button>
@@ -73,6 +76,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
+import { useAuthStore } from '@/stores/auth'
+import { useGuruStore } from '@/stores/guru'
 
 const route = useRoute()
 const assessment = ref(null)
@@ -84,6 +89,7 @@ const error = ref(null)
 const notif = ref('')
 const notifType = ref('success')
 const loadingSubmit = ref(false)
+const forbidden = ref(false)
 
 const fetchAssessmentAndSiswa = async () => {
   loading.value = true
@@ -98,6 +104,21 @@ const fetchAssessmentAndSiswa = async () => {
     }
     // Fetch siswa list (by kelas)
     const idKelas = assessment.value.id_kelas
+    // Access guard for guru
+    const authStore = useAuthStore()
+    if (!authStore.isAdmin) {
+      const guruStore = useGuruStore()
+      let currentGuruId = guruStore.getCurrentGuruId
+      if (!currentGuruId) {
+        try { await guruStore.fetchCurrentGuruFromToken() } catch (e) {}
+        currentGuruId = guruStore.getCurrentGuruId
+      }
+      const pengRes = await axios.get('/list/pengampu')
+      const allowed = (pengRes.data?.data || []).some(p => p.id_guru == currentGuruId && p.id_kelas == idKelas)
+      if (!allowed) {
+        forbidden.value = true
+      }
+    }
     const resSiswa = await axios.get(`/list/siswa?id_kelas=${idKelas}`)
     if (resSiswa.data.success) {
       siswaList.value = resSiswa.data.data
@@ -157,6 +178,11 @@ const simpanNilai = async (siswa) => {
 const submitAll = async () => {
   notif.value = ''
   notifType.value = 'success'
+  if (forbidden.value) {
+    notif.value = 'Anda tidak berhak menginput nilai untuk kelas ini.'
+    notifType.value = 'error'
+    return
+  }
   // Validasi: semua siswa harus dipilih nilainya
   const belumDinilai = siswaList.value.filter(siswa => !nilaiMap.value[siswa.id_siswa])
   if (belumDinilai.length > 0) {

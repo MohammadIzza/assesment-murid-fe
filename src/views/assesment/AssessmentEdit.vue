@@ -1,6 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8" style="padding-top: 5rem;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div v-if="forbidden" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+        <p class="text-yellow-800 font-semibold">Akses ditolak</p>
+        <p class="text-yellow-700 text-sm">Anda bukan pengampu kelas ini. Hubungi admin bila ini seharusnya diperbolehkan.</p>
+      </div>
       <div v-if="loading" class="flex justify-center py-8">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
@@ -62,6 +66,7 @@
                             :value="nilaiOption" 
                             v-model="row.nilai"
                             @change="markAsChanged(row.id_siswa)"
+                            :disabled="forbidden"
                             class="sr-only"
                           />
                           <div class="relative">
@@ -94,7 +99,7 @@
             <div v-if="nilaiSiswaList.length > 0" class="mt-8 flex justify-center">
               <button 
                 @click="saveChanges" 
-                :disabled="saving || !hasChanges"
+                :disabled="saving || !hasChanges || forbidden"
                 class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 :class="saving || !hasChanges 
                   ? 'bg-gray-400 cursor-not-allowed' 
@@ -137,6 +142,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
+import { useAuthStore } from '@/stores/auth'
+import { useGuruStore } from '@/stores/guru'
 
 const route = useRoute()
 const idAssessment = route.params.id
@@ -157,6 +164,7 @@ const saving = ref(false)
 const message = ref('')
 const messageType = ref('success')
 const error = ref(null)
+const forbidden = ref(false)
 
 const hasChanges = computed(() => changedItems.value.size > 0)
 
@@ -236,6 +244,9 @@ const fetchAssessment = async () => {
 }
 
 onMounted(async () => {
+  // Resolve access first
+  const authStore = useAuthStore()
+  const guruStore = useGuruStore()
   if (idAssessment) {
     await fetchAssessment()
   } else {
@@ -255,7 +266,7 @@ onMounted(async () => {
     }
 
     // 2. Trace relasi via capaian_kelas -> sub_elemen -> elemen -> dimensi -> kelas
-    const ckList = (await axios.get('/list/capaian_kelas')).data.data
+  const ckList = (await axios.get('/list/capaian_kelas')).data.data
     const ck = ckList.find(x => x.id === assessment.value.id_capaian_kelas)
     if (ck) {
       const subElemenList = (await axios.get('/list/sub_elemen')).data.data
@@ -267,6 +278,23 @@ onMounted(async () => {
       const kelasList = (await axios.get('/list/kelas')).data.data
       kelas.value = kelasList.find(k => k.id_kelas == ck.id_kelas) || null
       capaian.value = { deskripsi: ck.nama_ck }
+
+      // Access guard: if user is guru and not pengampu of kelas, mark forbidden
+      const isAdmin = authStore.isAdmin
+      if (!isAdmin) {
+        // resolve current guru id
+        let currentGuruId = guruStore.getCurrentGuruId
+        if (!currentGuruId) {
+          try { await guruStore.fetchCurrentGuruFromToken() } catch (e) {}
+          currentGuruId = guruStore.getCurrentGuruId
+        }
+        // load pengampu and check
+        const pengRes = await axios.get('/list/pengampu')
+        const allowed = (pengRes.data?.data || []).some(p => p.id_guru == currentGuruId && p.id_kelas == ck.id_kelas)
+        if (!allowed) {
+          forbidden.value = true
+        }
+      }
     }
 
     // 3. Fetch nilai & siswa

@@ -69,6 +69,8 @@
                       {{ kelas.nama_kelas }}
                     </option>
                   </select>
+                  <p v-if="!isAdmin && kelasList.length === 0" class="mt-1 text-xs text-amber-600">Anda belum terdaftar sebagai pengampu kelas mana pun.</p>
+                  <p v-else-if="kelasWarning" class="mt-1 text-xs text-amber-600">{{ kelasWarning }}</p>
                 </div>
 
                 <!-- Dimensi -->
@@ -327,6 +329,8 @@ import { useCapaianStore } from '@/stores/capaian'
 import { useAssesmentStore } from '@/stores/assesment'
 import { useThemeStore } from '@/stores/theme'
 import axios from '@/plugins/axios'
+import { useAuthStore } from '@/stores/auth'
+import { useGuruStore } from '@/stores/guru'
 
 // Props
 const props = defineProps({
@@ -351,6 +355,8 @@ const subElemenStore = useSubElemenStore()
 const capaianStore = useCapaianStore()
 const themeStore = useThemeStore()
 const assessmentStore = useAssesmentStore()
+const authStore = useAuthStore()
+const guruStore = useGuruStore()
 
 // Computed properties
 const isDarkMode = computed(() => themeStore.isDarkMode)
@@ -367,6 +373,8 @@ const subElemenList = ref([])
 const capaianList = ref([])
 const assessmentNumber = ref(1)
 const autoNaming = ref(true)
+const kelasWarning = ref('')
+const pengampuList = ref([])
 // focus refs
 const namaRef = ref(null)
 const kelasRef = ref(null)
@@ -387,7 +395,32 @@ const form = ref({
 })
 
 // Computed properties
-const kelasList = computed(() => kelasStore.getKelasList)
+const isAdmin = computed(() => authStore.isAdmin)
+const currentGuruIdComputed = computed(() => {
+  const id = guruStore.getCurrentGuruId
+  if (id) return id
+  const email = authStore.getUser?.email
+  const found = guruStore.getGuruList?.find?.(g => String(g.email || '').toLowerCase() === String(email || '').toLowerCase())
+  return found?.id_guru || null
+})
+const allowedKelasIds = computed(() => {
+  try {
+    const all = kelasStore.getKelasList || []
+    if (isAdmin.value) return new Set((all.map(k => String(k.id_kelas))))
+    const gid = currentGuruIdComputed.value
+    if (!gid) return new Set()
+    const rows = Array.isArray(pengampuList.value) ? pengampuList.value : []
+    return new Set(rows.filter(p => p.id_guru == gid).map(p => String(p.id_kelas)))
+  } catch (e) {
+    return new Set()
+  }
+})
+const kelasList = computed(() => {
+  const list = kelasStore.getKelasList || []
+  if (isAdmin.value) return list
+  const allowed = allowedKelasIds.value
+  return list.filter(k => allowed.has(String(k.id_kelas)))
+})
 const dimensiList = computed(() => dimensiStore.getDimensiList)
 
 const filteredSiswaList = computed(() => {
@@ -525,6 +558,13 @@ function getIdFaseFromKelas(namaKelas) {
 
 // Event Handlers for filtering - mengadopsi logika dari index.vue
 const onKelasChange = async () => {
+  // Access guard: guru hanya boleh memilih kelas yang diampu
+  if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(form.value.id_kelas)) {
+    kelasWarning.value = 'Anda bukan pengampu kelas ini. Pilih kelas yang Anda ampu.'
+    form.value.id_kelas = ''
+    return
+  }
+  kelasWarning.value = ''
   // Reset dependent fields
   form.value.id_dimensi = ''
   form.value.id_elemen = ''
@@ -779,9 +819,26 @@ onMounted(async () => {
       kelasStore.fetchKelasList(),
       dimensiStore.fetchDimensiList()
     ])
+
+    // Resolve current guru and pengampu mapping for access control
+    try {
+      if (!guruStore.getCurrentGuruId) {
+        await guruStore.fetchCurrentGuruFromToken()
+      }
+    } catch {}
+    try {
+      const resPeng = await axios.get('/list/pengampu')
+      if (resPeng.data?.success) pengampuList.value = resPeng.data.data || []
+    } catch {}
     
     // Load initial form (both edit and create when parent preselects)
     loadFormData()
+
+    // Guard prefilled kelas if not allowed (for guru)
+    if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(form.value.id_kelas)) {
+      kelasWarning.value = 'Anda bukan pengampu kelas ini. Pilih kelas yang Anda ampu.'
+      form.value.id_kelas = ''
+    }
 
     // Focus first required field
     requestAnimationFrame(() => {
