@@ -282,6 +282,7 @@ export default {
     const loading = ref(false)
     const error = ref('')
     const success = ref('')
+    const showPassword = ref(false)
     
     // Toast notification state
     const showToast = ref(false)
@@ -374,6 +375,7 @@ export default {
       loading,
       error,
       success,
+      showPassword,
       showToast,
       toastType,
       toastTitle,

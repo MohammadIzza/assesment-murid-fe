@@ -211,13 +211,21 @@
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
-                      :type="showPassword ? 'text' : 'password'"
+                      :type="showConfirmPassword ? 'text' : 'password'"
                       required
                       v-model="form.confirmPassword"
-                      class="block w-full pl-12 pr-4 py-1.5 lg:py-3 rounded-lg text-[10px] lg:text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
+                      class="block w-full pl-12 pr-24 py-1.5 lg:py-3 rounded-lg text-[10px] lg:text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 border"
                       :class="!isDarkMode ? 'bg-slate-50 border-slate-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 hover:border-slate-300' : 'bg-dark-surface/80 border-dark-border text-gray-100 placeholder-gray-500 focus:border-blue-400 focus:ring-blue-400/20'"
                       placeholder="Ulangi password"
                     />
+                    <button
+                      type="button"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold transition-colors"
+                      :class="{ 'text-gray-500 hover:text-gray-700': !isDarkMode, 'text-gray-400 hover:text-gray-200': isDarkMode }"
+                      @click="showConfirmPassword = !showConfirmPassword"
+                    >
+                      {{ showConfirmPassword ? 'Sembunyikan' : 'Tampilkan' }}
+                    </button>
                   </div>
                 </div>
 
@@ -311,6 +319,7 @@ export default {
     const error = ref('')
     const success = ref('')
     const showPassword = ref(false)
+    const showConfirmPassword = ref(false)
     
     // Toast notification state
     const showToast = ref(false)
@@ -400,6 +409,7 @@ export default {
       error,
       success,
       showPassword,
+      showConfirmPassword,
       showToast,
       toastType,
       toastTitle,
