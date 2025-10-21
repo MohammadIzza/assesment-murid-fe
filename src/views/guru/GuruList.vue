@@ -1155,11 +1155,16 @@ export default {
           alert('Tidak ada baris data yang valid di file')
           return
         }
-        // Kirim ke backend via store (mendukung array)
-        const res = await guruStore.addGuru(rows)
-        importedCount.value = res?.insertedCount || rows.length
-        await loadGuruData()
-        alert(`Import selesai. Berhasil menambahkan ${importedCount.value} data.`)
+        // ✅ KIRIM KE BACKEND API LANGSUNG (SESUAI BACKEND)
+        const response = await axios.post('/add/guru', rows)
+        
+        if (response.data.success) {
+          importedCount.value = response.data.insertedCount || rows.length
+          await loadGuruData()
+          alert(`Import selesai. Berhasil menambahkan ${importedCount.value} data.`)
+        } else {
+          throw new Error(response.data.message || 'Gagal mengimport data')
+        }
       } catch (err) {
         // Error handling
         importError.value = err?.message || 'Gagal mengimpor data.'
