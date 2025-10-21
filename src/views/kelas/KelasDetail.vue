@@ -913,6 +913,10 @@ export default {
     // Fase list state
     const faseList = ref([])
     const faseLoading = ref(false)
+    
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
 
     // ⭐ NEW: Siswa list state
     const siswaList = ref([])
@@ -1060,11 +1064,9 @@ export default {
 
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || 'Sekolah Lain'
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || 'Sekolah Lain'
     }
 
     const getSchoolClass = (schoolId) => {
@@ -1119,7 +1121,6 @@ export default {
           faseList.value = response.data.data || []
         }
       } catch (error) {
-        console.error('Failed to fetch fase list:', error)
         // Try alternative endpoint
         try {
           const altResponse = await axios.get('/list/fase')
@@ -1127,11 +1128,27 @@ export default {
             faseList.value = altResponse.data.data || []
           }
         } catch (altError) {
-          console.error('Alternative endpoint also failed:', altError)
           faseList.value = []
         }
       } finally {
         faseLoading.value = false
+      }
+    }
+
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
       }
     }
 
@@ -1227,6 +1244,7 @@ export default {
       await Promise.all([
         loadGuruList(),
         fetchFaseList(),
+        fetchSekolahList(),
         fetchSiswaByKelas(),
         fetchPengampuByKelas()
       ])

@@ -291,6 +291,10 @@ const hasChanges = ref(false)
 const kelasList = ref([])
 const kelasLoading = ref(false)
 
+// ✅ SEKOLAH LIST STATE
+const sekolahList = ref([])
+const sekolahLoading = ref(false)
+
 // Computed properties
 const isAddMode = computed(() => {
   return route.name === 'SiswaAdd'
@@ -408,11 +412,9 @@ const watchFormChanges = () => {
 
 // ⭐ Helper function untuk menampilkan nama sekolah
 const getSchoolName = (id_sekolah) => {
-  const schools = {
-    1: 'SMA Negeri 1 Semarang',
-    2: 'SMA Negeri 2 Semarang'
-  }
-  return schools[id_sekolah] || 'Sekolah tidak diketahui'
+  // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+  const sekolah = sekolahList.value.find(s => s.id_sekolah == id_sekolah)
+  return sekolah?.nama_sekolah || sekolah?.nama || 'Sekolah tidak diketahui'
 }
 
 // ⭐ Fetch kelas dari API
@@ -421,9 +423,7 @@ const fetchKelasList = async () => {
   try {
     const response = await axios.get('/list/kelas')
     kelasList.value = response.data.data || []
-    console.log('Kelas list fetched:', kelasList.value.length)
   } catch (error) {
-    console.error('Error fetching kelas list:', error)
     // Fallback ke hardcoded jika API gagal
     kelasList.value = [
       { id_kelas: 1, nama_kelas: 'Kelas X', id_sekolah: 1 },
@@ -432,6 +432,23 @@ const fetchKelasList = async () => {
     ]
   } finally {
     kelasLoading.value = false
+  }
+}
+
+// ✅ FETCH SEKOLAH LIST DARI API
+const fetchSekolahList = async () => {
+  sekolahLoading.value = true
+  try {
+    const response = await axios.get('/list/sekolah')
+    if (response.data && response.data.success) {
+      sekolahList.value = response.data.data || []
+    } else {
+      sekolahList.value = []
+    }
+  } catch (error) {
+    sekolahList.value = []
+  } finally {
+    sekolahLoading.value = false
   }
 }
 
@@ -451,8 +468,11 @@ onMounted(async () => {
     }
   }
   
-  // ⭐ Fetch kelas list dari API
-  await fetchKelasList()
+  // ⭐ Fetch kelas list dan sekolah list dari API
+  await Promise.all([
+    fetchKelasList(),
+    fetchSekolahList()
+  ])
   
   fetchSiswaData()
 })

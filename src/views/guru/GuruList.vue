@@ -171,8 +171,9 @@
                     isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
                   ]">
                     <option value="">Semua Sekolah</option>
-                    <option value="1">SMA Negeri 1 Semarang</option>
-                    <option value="2">SMA Negeri 2 Semarang</option>
+                    <option v-for="sekolah in sekolahList" :key="sekolah.id_sekolah" :value="sekolah.id_sekolah">
+                      {{ sekolah.nama_sekolah || sekolah.nama }}
+                    </option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <svg :class="[
@@ -918,6 +919,10 @@ export default {
   // Role list state
   const roleList = ref([])
   const roleLoading = ref(false)
+  
+  // ✅ SEKOLAH LIST STATE
+  const sekolahList = ref([])
+  const sekolahLoading = ref(false)
 
     // Computed properties
     const filteredGuruList = computed(() => {
@@ -1080,7 +1085,7 @@ export default {
       try {
         await guruStore.fetchGuruList()
       } catch (error) {
-        console.error('Failed to load guru data:', error)
+        // Error handling
       }
     }
 
@@ -1102,17 +1107,16 @@ export default {
         if (Object.keys(apiFilters).length > 0) {
           try {
             await guruStore.fetchGuruListWithFilters(apiFilters)
-            console.log('Filter diterapkan melalui API')
             return
           } catch (error) {
-            console.log('API filter tidak tersedia, menggunakan filter frontend')
+            // API filter tidak tersedia, menggunakan filter frontend
           }
         }
         
         // Fallback ke loading data biasa dan filter di frontend
         await loadGuruData()
       } catch (error) {
-        console.error('Failed to apply filters:', error)
+        // Error handling
       }
     }
 
@@ -1157,7 +1161,7 @@ export default {
         await loadGuruData()
         alert(`Import selesai. Berhasil menambahkan ${importedCount.value} data.`)
       } catch (err) {
-        console.error('Import error:', err)
+        // Error handling
         importError.value = err?.message || 'Gagal mengimpor data.'
         alert(importError.value)
       } finally {
@@ -1341,7 +1345,7 @@ export default {
       ref.getCell('E1').value = 'nama_sekolah'
       ref.getRow(1).alignment = { horizontal: 'center' }
       ref.getCell('D2').value = 1
-      ref.getCell('E2').value = 'SMA Negeri 1 Semarang'
+      ref.getCell('E2').value = 'Contoh Sekolah'
 
       // Sheet 3: Petunjuk
       const help = wb.addWorksheet('Petunjuk')
@@ -1504,7 +1508,7 @@ export default {
           printWindow.print()
         }
       } catch (error) {
-        console.error('Print error:', error)
+        // Error handling
         alert('Terjadi kesalahan saat mencetak data!')
       }
     }
@@ -1569,21 +1573,19 @@ export default {
           document.body.removeChild(link)
           
           // Show success message
-          console.log('Data exported successfully')
+          // Data exported successfully
         }
       } catch (error) {
-        console.error('Export error:', error)
+        // Error handling
         alert('Terjadi kesalahan saat mengekspor data!')
       }
     }
 
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || 'Sekolah Lain'
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || 'Sekolah Lain'
     }
 
     const getSchoolClass = (schoolId) => {
@@ -1638,12 +1640,10 @@ export default {
         const response = await axios.get('/list/role')
         if (response.data && response.data.success) {
           roleList.value = response.data.data || []
-          console.log('Role list loaded:', roleList.value)
         } else {
           roleList.value = []
         }
       } catch (error) {
-        console.error('Error fetching role list:', error)
         // Fallback ke hardcoded jika API error
         roleList.value = [
           { id_role: 2, nama_role: 'Guru' },
@@ -1654,12 +1654,30 @@ export default {
       }
     }
 
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Lifecycle
     onMounted(async () => {
-      // Fetch role list dan guru data paralel
+      // Fetch role list, sekolah list, dan guru data paralel
       await Promise.all([
         fetchRoleList(),
-      loadGuruData()
+        fetchSekolahList(),
+        loadGuruData()
       ])
     })
 

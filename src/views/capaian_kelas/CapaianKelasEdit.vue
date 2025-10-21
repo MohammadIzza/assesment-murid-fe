@@ -625,7 +625,7 @@ export default {
           toastType.value = 'success'
           toastTitle.value = 'Berhasil'
           toastMessage.value = res?.message || 'Data capaian kelas berhasil diperbarui'
-          setTimeout(() => router.push({ name: 'capaian-kelas-detail', params: { id: route.params.id } }), 800)
+          setTimeout(() => router.push({ name: 'capaian-kelas-list' }), 800)
         }
 
       } catch (error) {
@@ -654,22 +654,34 @@ export default {
       checkFormValidity()
     }
 
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
+
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // ⭐ Helper function: Get nama sekolah from ID
     const getSekolahName = (sekolahId) => {
       if (!sekolahId) return ''
       
-      // Cari dari sekolahScope
-      const sekolahList = sekolahScope.sekolahList || []
-      const sekolah = sekolahList.find(s => s.id_sekolah == sekolahId)
-      if (sekolah) return sekolah.nama_sekolah
-      
-      // Fallback: dari authStore
-      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
-      if (sekolahId == userSekolahId) {
-        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${sekolahId}`
-      }
-      
-      return `Sekolah ${sekolahId}`
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == sekolahId)
+      return sekolah?.nama_sekolah || sekolah?.nama || `Sekolah ${sekolahId}`
     }
 
     // Lifecycle
@@ -693,6 +705,7 @@ export default {
     onMounted(async () => {
       // load initial lists
       await Promise.all([
+        fetchSekolahList(),
         kelasStore.fetchKelasList(),
         dimensiStore.fetchDimensiList()
       ])

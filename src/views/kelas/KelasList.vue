@@ -171,8 +171,9 @@
                     isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
                   ]">
                     <option value="">Semua Sekolah</option>
-                    <option value="1">SMA Negeri 1 Semarang</option>
-                    <option value="2">SMA Negeri 2 Semarang</option>
+                    <option v-for="sekolah in sekolahList" :key="sekolah.id_sekolah" :value="sekolah.id_sekolah">
+                      {{ sekolah.nama_sekolah || sekolah.nama }}
+                    </option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <svg :class="[
@@ -779,6 +780,7 @@ import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import axios from '@/plugins/axios'
 
 export default {
   name: 'KelasList',
@@ -805,6 +807,10 @@ export default {
     const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
+    
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
 
     // Computed properties
     const filteredKelasList = computed(() => {
@@ -953,17 +959,33 @@ export default {
       return pages
     })
 
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Methods
     const loadKelasData = async () => {
       try {
         await kelasStore.fetchKelasListWithSiswaCount()
       } catch (error) {
-        console.error('Failed to load kelas data:', error)
         // Fallback ke method biasa jika method dengan count gagal
         try {
           await kelasStore.fetchKelasList()
         } catch (fallbackError) {
-          console.error('Fallback method also failed:', fallbackError)
+          // Error handling
         }
       }
     }
@@ -1521,11 +1543,9 @@ export default {
 
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || 'Sekolah Lain'
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || 'Sekolah Lain'
     }
 
     const getSchoolClass = (schoolId) => {
@@ -1554,9 +1574,12 @@ export default {
 
 
     // Lifecycle
-    onMounted(() => {
-      loadKelasData()
-      loadGuruData()
+    onMounted(async () => {
+      await Promise.all([
+        fetchSekolahList(),
+        loadKelasData(),
+        loadGuruData()
+      ])
     })
 
     // Watch filters untuk auto-apply (dengan debounce)

@@ -10,6 +10,77 @@
       :message="toastMessage" 
       @close="showToast = false" 
     />
+    
+    <!-- ✅ MODAL KONFIRMASI HAPUS -->
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40" aria-hidden="true" @click="cancelDelete"></div>
+        
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div :class="[
+          'relative inline-block align-bottom rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-50',
+          isDarkMode ? 'bg-dark-surface' : 'bg-white'
+        ]">
+          <div :class="[
+            'px-6 pt-6 pb-4 sm:p-6 sm:pb-4',
+            isDarkMode ? 'bg-dark-surface' : 'bg-white'
+          ]">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-14 w-14 rounded-full bg-red-100 sm:mx-0 sm:h-12 sm:w-12">
+                <svg class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 :class="[
+                  'text-lg leading-6 font-semibold',
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                ]" id="modal-title">
+                  Konfirmasi Hapus Capaian Kelas
+                </h3>
+                <div class="mt-3">
+                  <p class="text-sm text-gray-600">
+                    Apakah Anda yakin ingin menghapus data capaian kelas ini?
+                  </p>
+                  <p class="text-sm text-red-600 mt-2 font-medium">
+                    Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data terkait.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div :class="[
+            'px-6 py-4 sm:px-6 sm:flex sm:flex-row-reverse',
+            isDarkMode ? 'bg-dark-surface' : 'bg-gray-50'
+          ]">
+            <button
+              type="button"
+              @click="confirmDelete"
+              :disabled="isDeleting"
+              class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="isDeleting" class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              {{ isDeleting ? 'Menghapus...' : 'Hapus' }}
+            </button>
+            <button
+              type="button"
+              @click="cancelDelete"
+              :disabled="isDeleting"
+              :class="[
+                'mt-3 w-full inline-flex justify-center rounded-xl border shadow-sm px-4 py-2 text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed',
+                isDarkMode ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+              ]"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div :class="[
@@ -490,6 +561,11 @@ export default {
   const toastType = ref('info')
   const toastTitle = ref('')
   const toastMessage = ref('')
+  
+  // ✅ MODAL HAPUS STATE
+  const showDeleteModal = ref(false)
+  const deleteTargetId = ref(null)
+  const isDeleting = ref(false)
 
     // Computed properties
     const filteredCapaianKelasList = computed(() => {
@@ -538,21 +614,33 @@ export default {
       return Math.min(currentPage.value * itemsPerPage.value, filteredCapaianKelasList.value.length)
     })
 
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
+
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Helper functions
     const getSekolahName = (sekolahId) => {
       if (!sekolahId) return '-'
-      // Cari dari sekolahScope atau authStore
-      const sekolahList = sekolahScope.sekolahList || []
-      const sekolah = sekolahList.find(s => s.id_sekolah == sekolahId)
-      if (sekolah) return sekolah.nama_sekolah || `Sekolah ${sekolahId}`
-      
-      // Fallback: jika user login dari sekolah ini, ambil dari authStore
-      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
-      if (sekolahId == userSekolahId) {
-        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${sekolahId}`
-      }
-      
-      return `Sekolah ${sekolahId}`
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == sekolahId)
+      return sekolah?.nama_sekolah || sekolah?.nama || `Sekolah ${sekolahId}`
     }
 
     const getSubElemenName = (subElemenId) => {
@@ -619,21 +707,38 @@ export default {
         }
       }
       
-      if (confirm('Apakah Anda yakin ingin menghapus data capaian kelas ini?')) {
-        try {
-          await capaianKelasStore.deleteCapaianKelas(id)
-          showToast.value = true
-          toastType.value = 'success'
-          toastTitle.value = 'Berhasil'
-          toastMessage.value = 'Data capaian kelas berhasil dihapus'
-        } catch (error) {
-          console.error('Failed to delete capaian kelas:', error)
-          showToast.value = true
-          toastType.value = 'error'
-          toastTitle.value = 'Gagal'
-          toastMessage.value = 'Gagal menghapus data capaian kelas'
-        }
+      // ✅ TAMPILKAN MODAL KONFIRMASI HAPUS
+      showDeleteModal.value = true
+      deleteTargetId.value = id
+    }
+
+    // ✅ FUNGSI KONFIRMASI HAPUS
+    const confirmDelete = async () => {
+      if (!deleteTargetId.value) return
+      
+      isDeleting.value = true
+      try {
+        await capaianKelasStore.deleteCapaianKelas(deleteTargetId.value)
+        showToast.value = true
+        toastType.value = 'success'
+        toastTitle.value = 'Berhasil'
+        toastMessage.value = 'Data capaian kelas berhasil dihapus'
+        showDeleteModal.value = false
+        deleteTargetId.value = null
+      } catch (error) {
+        showToast.value = true
+        toastType.value = 'error'
+        toastTitle.value = 'Gagal'
+        toastMessage.value = 'Gagal menghapus data capaian kelas'
+      } finally {
+        isDeleting.value = false
       }
+    }
+
+    // ✅ FUNGSI BATAL HAPUS
+    const cancelDelete = () => {
+      showDeleteModal.value = false
+      deleteTargetId.value = null
     }
 
     const onDimensiChange = async () => {
@@ -1138,7 +1243,11 @@ export default {
 
         const printWindow = window.open('', '_blank')
         if (!printWindow) {
-          alert('Popup diblokir! Mohon izinkan popup untuk fungsi print.')
+          // ✅ GANTI ALERT NATIVE DENGAN TOAST CUSTOM
+          showToast.value = true
+          toastType.value = 'error'
+          toastTitle.value = 'Popup Diblokir'
+          toastMessage.value = 'Mohon izinkan popup untuk fungsi print.'
           return
         }
 
@@ -1303,8 +1412,11 @@ export default {
     }
 
     // Lifecycle
-    onMounted(() => {
-      loadCapaianKelasData()
+    onMounted(async () => {
+      await Promise.all([
+        fetchSekolahList(),
+        loadCapaianKelasData()
+      ])
     })
 
     return {
@@ -1325,6 +1437,8 @@ export default {
       goToAddCapaianKelas,
       editCapaianKelas,
       deleteCapaianKelas,
+      confirmDelete,
+      cancelDelete,
       getSekolahName,
       getSubElemenName,
       // filters
@@ -1349,6 +1463,10 @@ export default {
       toastType,
       toastTitle,
       toastMessage,
+      // ✅ MODAL HAPUS STATE
+      showDeleteModal,
+      deleteTargetId,
+      isDeleting,
       // print
       printData
     }

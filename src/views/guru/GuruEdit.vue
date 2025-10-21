@@ -475,6 +475,10 @@ export default {
     const roleList = ref([])
     const roleLoading = ref(false)
     
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
+    
     // Toast notification state
     const showToast = ref(false)
     const toastType = ref('info')
@@ -642,11 +646,9 @@ export default {
     // Helper function untuk display nama sekolah
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Pilih Sekolah'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || `Sekolah ID ${schoolId}`
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || `Sekolah ID ${schoolId}`
     }
 
     // ⭐ Fetch role list dari API backend
@@ -656,13 +658,10 @@ export default {
         const response = await axios.get('/list/role')
         if (response.data && response.data.success) {
           roleList.value = response.data.data || []
-          console.log('Role list loaded:', roleList.value)
         } else {
-          console.error('Failed to fetch role list')
           roleList.value = []
         }
       } catch (error) {
-        console.error('Error fetching role list:', error)
         // Fallback ke hardcoded jika API error
         roleList.value = [
           { id_role: 2, nama_role: 'Guru' },
@@ -673,17 +672,36 @@ export default {
       }
     }
 
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Lifecycle
     onMounted(async () => {
-      // ⭐ Fetch role list dari API
-      await fetchRoleList()
+      // ⭐ Fetch role list dan sekolah list dari API
+      await Promise.all([
+        fetchRoleList(),
+        fetchSekolahList()
+      ])
       
       if (isAddMode.value) {
         // ⭐ MODE ADD: Otomatis set id_sekolah dari user yang login
         const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
         if (userSekolahId) {
           form.id_sekolah = userSekolahId
-          console.log('Auto set id_sekolah untuk guru baru:', userSekolahId)
         }
       } else {
         // MODE EDIT: Load data guru

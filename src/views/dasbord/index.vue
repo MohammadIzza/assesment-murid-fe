@@ -697,7 +697,7 @@ const fetchDashboardData = async () => {
     let guruId = null
     
     try {
-      const resultGet = await getGuruByUserId(userId)
+    const resultGet = await getGuruByUserId(userId)
       guruId = resultGet.data?.id_guru || null
     } catch (apiErr) {
       // FALLBACK: Try to find guru by email
@@ -795,17 +795,17 @@ const fetchDashboardData = async () => {
       }
       
       try {
-        // Ambil data kelas
-        const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
+      // Ambil data kelas
+      const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
         dashboardData.value.totalKelas = kelasRes.data.jumlah_kelas || 0
 
-        // Ambil data assessment
-        const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
-        dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
-        dashboardData.value.assessments = assessmentRes.data.data || []
+      // Ambil data assessment
+      const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
+      dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
+      dashboardData.value.assessments = assessmentRes.data.data || []
 
-        // Ambil data siswa
-        const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
+      // Ambil data siswa
+      const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
         dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa || 0
       } catch (guruErr) {
         // Set default values on error

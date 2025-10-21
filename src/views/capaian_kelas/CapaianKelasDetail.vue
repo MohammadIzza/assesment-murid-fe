@@ -3,6 +3,15 @@
     'min-h-screen py-6 transition-colors duration-300',
     isDarkMode ? 'bg-dark-background' : 'bg-gray-50'
   ]" style="padding-top: 5rem;">
+    <!-- Toast Component -->
+    <Toast 
+      :show="showToast" 
+      :type="toastType" 
+      :title="toastTitle" 
+      :message="toastMessage" 
+      @close="showToast = false" 
+    />
+    
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="mb-8">
@@ -293,9 +302,13 @@ import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import { useSubElemenStore } from '@/stores/subElemen'
 import axios from '@/plugins/axios'
+import Toast from '@/components/common/Toast.vue'
 
 export default {
   name: 'CapaianKelasDetail',
+  components: {
+    Toast
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -305,6 +318,12 @@ export default {
     const authStore = useAuthStore()
     const sekolahScope = useSekolahScopeStore()
     const subElemenStore = useSubElemenStore()
+
+    // ✅ TOAST STATE
+    const showToast = ref(false)
+    const toastType = ref('info')
+    const toastTitle = ref('')
+    const toastMessage = ref('')
 
     // Methods
     const loadCapaianKelasDetail = async () => {
@@ -317,8 +336,12 @@ export default {
           const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
           
           if (userSekolahId && capaianKelas.id_sekolah != userSekolahId) {
-            alert('Anda tidak memiliki akses untuk melihat capaian kelas dari sekolah lain')
-            router.push({ name: 'capaian-kelas-list' })
+            // ✅ GANTI ALERT NATIVE DENGAN TOAST CUSTOM
+            showToast.value = true
+            toastType.value = 'error'
+            toastTitle.value = 'Akses Ditolak'
+            toastMessage.value = 'Anda tidak memiliki akses untuk melihat capaian kelas dari sekolah lain'
+            setTimeout(() => router.push({ name: 'capaian-kelas-list' }), 2000)
             return
           }
         }
@@ -340,21 +363,33 @@ export default {
       return kode.charAt(0).toUpperCase()
     }
 
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
+
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
       
-      // Cari dari sekolahScope
-      const sekolahList = sekolahScope.sekolahList || []
-      const sekolah = sekolahList.find(s => s.id_sekolah == schoolId)
-      if (sekolah) return sekolah.nama_sekolah
-      
-      // Fallback: dari authStore
-      const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
-      if (schoolId == userSekolahId) {
-        return authStore.user?.schoolName || sekolahScope.activeSekolahName || `Sekolah ${schoolId}`
-      }
-      
-      return `Sekolah ${schoolId}`
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || `Sekolah ${schoolId}`
     }
 
     const getSubElemenName = (subElemenId) => {
@@ -380,9 +415,12 @@ export default {
 
     // Lifecycle
     onMounted(async () => {
-      // Load sub elemen list untuk mapping nama
-      await subElemenStore.fetchSubElemenList()
-      await loadCapaianKelasDetail()
+      // Load sub elemen list dan sekolah list untuk mapping nama
+      await Promise.all([
+        fetchSekolahList(),
+        subElemenStore.fetchSubElemenList(),
+        loadCapaianKelasDetail()
+      ])
     })
 
     onUnmounted(() => {
@@ -400,7 +438,12 @@ export default {
       getSchoolName,
       getSubElemenName,
       getSchoolClass,
-      getCapaianClass
+      getCapaianClass,
+      // ✅ TOAST STATE
+      showToast,
+      toastType,
+      toastTitle,
+      toastMessage
     }
   }
 }

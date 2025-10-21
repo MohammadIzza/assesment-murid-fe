@@ -1196,6 +1196,10 @@ export default {
     const faseList = ref([])
     const faseLoading = ref(false)
     
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
+    
     // Toast notification state
     const showToast = ref(false)
     const toastType = ref('info')
@@ -1358,11 +1362,9 @@ export default {
     // Helper function untuk get school name
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || `Sekolah ID ${schoolId}`
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || `Sekolah ID ${schoolId}`
     }
 
     // Fetch fase list from API
@@ -1381,10 +1383,30 @@ export default {
       }
     }
 
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Lifecycle
     onMounted(async () => {
-      // Fetch fase list (parallel dengan load data lain)
-      fetchFaseList()
+      // Fetch fase list dan sekolah list (parallel dengan load data lain)
+      await Promise.all([
+        fetchFaseList(),
+        fetchSekolahList()
+      ])
       
       if (!isAddMode.value) {
         loadKelasDetail()

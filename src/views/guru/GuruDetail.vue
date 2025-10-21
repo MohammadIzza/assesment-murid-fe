@@ -419,6 +419,7 @@ import { useGuruStore } from '@/stores/guru'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
+import axios from '@/plugins/axios'
 import Toast from '@/components/common/Toast.vue'
 
 export default {
@@ -444,6 +445,10 @@ export default {
     // Delete modal state
     const showDeleteModal = ref(false)
     const isDeleting = ref(false)
+    
+    // ✅ SEKOLAH LIST STATE
+    const sekolahList = ref([])
+    const sekolahLoading = ref(false)
 
     // Toast helper
     const showToastMessage = (type, title, message) => {
@@ -469,7 +474,7 @@ export default {
           }, 2000)
         }
       } catch (error) {
-        console.error('Failed to load guru detail:', error)
+        // Error handling
       }
     }
 
@@ -495,9 +500,7 @@ export default {
       try {
         isDeleting.value = true
         
-        console.log('Deleting guru with route params:', route.params)
-        console.log('Guru ID from route:', route.params.id)
-        console.log('Current guru data:', guru)
+        // Deleting guru
         
         await guruStore.deleteGuru(route.params.id)
         
@@ -521,8 +524,7 @@ export default {
         isDeleting.value = false
         showDeleteModal.value = false
         
-        console.error('Failed to delete guru:', error)
-        console.error('Error details:', error.response?.data)
+        // Error handling
         
         // Show error message yang lebih detail
         let errorMessage = 'Terjadi kesalahan saat menghapus guru'
@@ -575,11 +577,9 @@ export default {
 
     const getSchoolName = (schoolId) => {
       if (!schoolId) return 'Tidak Diketahui'
-      const schools = {
-        1: 'SMA Negeri 1 Semarang',
-        2: 'SMA Negeri 2 Semarang'
-      }
-      return schools[schoolId] || 'Sekolah Lain'
+      // ✅ AMBIL DARI API: Cari di sekolahList yang sudah di-fetch
+      const sekolah = sekolahList.value.find(s => s.id_sekolah == schoolId)
+      return sekolah?.nama_sekolah || sekolah?.nama || 'Sekolah Lain'
     }
 
     const getSchoolClass = (schoolId) => {
@@ -618,9 +618,30 @@ export default {
       return guru?.email ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
     }
 
+    // ✅ FETCH SEKOLAH LIST DARI API
+    const fetchSekolahList = async () => {
+      sekolahLoading.value = true
+      try {
+        const response = await axios.get('/list/sekolah')
+        if (response.data && response.data.success) {
+          sekolahList.value = response.data.data || []
+        } else {
+          sekolahList.value = []
+        }
+      } catch (error) {
+        sekolahList.value = []
+      } finally {
+        sekolahLoading.value = false
+      }
+    }
+
     // Lifecycle
-    onMounted(() => {
-      loadGuruDetail()
+    onMounted(async () => {
+      // Fetch sekolah list dan guru detail paralel
+      await Promise.all([
+        fetchSekolahList(),
+        loadGuruDetail()
+      ])
     })
 
     onUnmounted(() => {

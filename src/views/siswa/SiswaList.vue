@@ -161,8 +161,9 @@
                   isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'border-gray-300 bg-white text-gray-900'
                 ]">
                   <option value="">Semua Sekolah</option>
-                  <option value="1">SMA Negeri 1 Semarang</option>
-                  <option value="2">SMA Negeri 2 Semarang</option>
+                  <option v-for="sekolah in sekolahList" :key="sekolah.id_sekolah" :value="sekolah.id_sekolah">
+                    {{ sekolah.nama_sekolah || sekolah.nama }}
+                  </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -659,6 +660,10 @@ const importedCount = ref(0)
 const kelasList = ref([])
 const kelasLoading = ref(false)
 
+// ✅ SEKOLAH LIST STATE
+const sekolahList = ref([])
+const sekolahLoading = ref(false)
+
 // Computed properties
 // ⭐ Filter kelas berdasarkan sekolah user yang login
 const filteredKelasList = computed(() => {
@@ -844,12 +849,27 @@ const fetchKelasList = async () => {
   try {
     const response = await axios.get('/list/kelas')
     kelasList.value = response.data.data || []
-    console.log('Kelas list fetched for filter:', kelasList.value.length)
   } catch (error) {
-    console.error('Error fetching kelas list:', error)
     kelasList.value = []
   } finally {
     kelasLoading.value = false
+  }
+}
+
+// ✅ FETCH SEKOLAH LIST DARI API
+const fetchSekolahList = async () => {
+  sekolahLoading.value = true
+  try {
+    const response = await axios.get('/list/sekolah')
+    if (response.data && response.data.success) {
+      sekolahList.value = response.data.data || []
+    } else {
+      sekolahList.value = []
+    }
+  } catch (error) {
+    sekolahList.value = []
+  } finally {
+    sekolahLoading.value = false
   }
 }
 
@@ -1349,7 +1369,8 @@ watch([searchQuery, selectedKelas], () => {
 onMounted(async () => {
   await Promise.all([
     fetchKelasList(),
-  fetchData()
+    fetchSekolahList(),
+    fetchData()
   ])
 })
 </script>
