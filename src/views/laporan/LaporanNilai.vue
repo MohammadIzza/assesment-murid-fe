@@ -29,7 +29,7 @@
             class="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors duration-200 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
           >
             <option value="">Semua Kelas</option>
-            <option v-for="kelas in kelasList" :key="kelas.id_kelas" :value="kelas.id_kelas">
+            <option v-for="kelas in kelasListForUser" :key="kelas.id_kelas" :value="kelas.id_kelas">
               {{ kelas.nama_kelas }}
             </option>
           </select>
@@ -532,6 +532,8 @@ import { useCapaianStore } from '@/stores/capaian';
 import { useAssesmentStore } from '@/stores/assesment';
 import { useThemeStore } from '@/stores/theme';
 import { useSekolahScopeStore } from '@/stores/sekolahScope';
+import { useAuthStore } from '@/stores/auth';
+import { useGuruStore } from '@/stores/guru';
 import axios from '@/plugins/axios';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
@@ -545,6 +547,8 @@ const capaianStore = useCapaianStore();
 const assessmentStore = useAssesmentStore();
 const themeStore = useThemeStore();
 const sekolahScope = useSekolahScopeStore();
+const authStore = useAuthStore();
+const guruStore = useGuruStore();
 
 // State
 const loading = ref(false);
@@ -565,6 +569,7 @@ const capaianList = ref([]);
 const siswaList = ref([]);
 const assessmentList = ref([]);
 const siswaCapaianList = ref([]);
+const pengampuList = ref([]);
 
 // Stats
 const totalAssessments = ref(0);
@@ -583,6 +588,31 @@ const distChartRef = ref(null);
 let distChartInstance = null;
 
 // Computed
+const isAdmin = computed(() => authStore.isAdmin);
+const currentGuruIdComputed = computed(() => {
+  const id = guruStore.getCurrentGuruId;
+  if (id) return id;
+  const email = authStore.getUser?.email;
+  const found = guruStore.getGuruList?.find?.(g => String(g.email || '').toLowerCase() === String(email || '').toLowerCase());
+  return found?.id_guru || null;
+});
+const allowedKelasIds = computed(() => {
+  try {
+    if (isAdmin.value) return new Set((kelasList.value || []).map(k => String(k.id_kelas)));
+    const gid = currentGuruIdComputed.value;
+    if (!gid) return new Set();
+    const rows = Array.isArray(pengampuList.value) ? pengampuList.value : [];
+    return new Set(rows.filter(p => p.id_guru == gid).map(p => String(p.id_kelas)));
+  } catch (e) {
+    return new Set();
+  }
+});
+const kelasListForUser = computed(() => {
+  const list = kelasList.value || [];
+  if (isAdmin.value) return list;
+  const allowed = allowedKelasIds.value;
+  return list.filter(k => allowed.has(String(k.id_kelas)));
+});
 const filteredElemenList = computed(() => {
   if (!selectedDimensi.value) return [];
   return elemenList.value.filter(e => e.id_dimensi == selectedDimensi.value);
@@ -669,7 +699,7 @@ const truncateText = (text, maxLength) => {
 };
 
 const getNamaKelas = (id) => {
-  const kelas = kelasList.value.find(k => k.id_kelas == id);
+  const kelas = kelasListForUser.value.find(k => k.id_kelas == id);
   return kelas ? kelas.nama_kelas : 'N/A';
 };
 
@@ -1062,6 +1092,7 @@ const fetchData = async () => {
   try {
     await Promise.all([
       fetchKelasList(),
+      fetchPengampuList(),
       fetchDimensiList(),
       fetchElemenList(),
       fetchSubElemenList(),
@@ -1083,6 +1114,17 @@ const fetchKelasList = async () => {
     kelasList.value = kelasStore.getKelasList || [];
   } catch (error) {
     console.error('Error fetching kelas list:', error);
+  }
+};
+
+const fetchPengampuList = async () => {
+  try {
+    const res = await axios.get('/list/pengampu');
+    if (res.data?.success) {
+      pengampuList.value = res.data.data || [];
+    }
+  } catch (error) {
+    console.error('Error fetching pengampu list:', error);
   }
 };
 

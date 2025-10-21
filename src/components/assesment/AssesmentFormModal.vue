@@ -559,7 +559,7 @@ function getIdFaseFromKelas(namaKelas) {
 // Event Handlers for filtering - mengadopsi logika dari index.vue
 const onKelasChange = async () => {
   // Access guard: guru hanya boleh memilih kelas yang diampu
-  if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(form.value.id_kelas)) {
+  if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(String(form.value.id_kelas))) {
     kelasWarning.value = 'Anda bukan pengampu kelas ini. Pilih kelas yang Anda ampu.'
     form.value.id_kelas = ''
     return
@@ -835,7 +835,7 @@ onMounted(async () => {
     loadFormData()
 
     // Guard prefilled kelas if not allowed (for guru)
-    if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(form.value.id_kelas)) {
+    if (!isAdmin.value && form.value.id_kelas && !allowedKelasIds.value.has(String(form.value.id_kelas))) {
       kelasWarning.value = 'Anda bukan pengampu kelas ini. Pilih kelas yang Anda ampu.'
       form.value.id_kelas = ''
     }
