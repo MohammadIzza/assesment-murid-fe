@@ -30,7 +30,6 @@ export const useDimensiStore = defineStore('dimensi', {
           throw new Error('Gagal mengambil data dimensi')
         }
       } catch (error) {
-        console.error('Error fetching dimensi list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data dimensi'
         throw error
       } finally {

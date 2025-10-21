@@ -31,7 +31,6 @@ export const useSubElemenStore = defineStore('subElemen', {
           throw new Error('Gagal mengambil data sub elemen')
         }
       } catch (error) {
-        console.error('Error fetching sub elemen list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data sub elemen'
         throw error
       } finally {
@@ -50,7 +49,7 @@ export const useSubElemenStore = defineStore('subElemen', {
           throw new Error('Gagal mengambil data sub elemen');
         }
       } catch (error) {
-        console.error('Error fetching sub elemen list:', error);
+;
         this.error = error.message || 'Terjadi kesalahan saat mengambil data sub elemen';
         throw error;
       } finally {

@@ -36,7 +36,6 @@ export const useCapaianStore = defineStore('capaian', {
           this.capaianList = []
         }
       } catch (error) {
-        console.error('Error fetching capaian list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data capaian'
         throw error
       } finally {
@@ -80,7 +79,6 @@ export const useCapaianStore = defineStore('capaian', {
   this.capaianList = ids.map(id => ({ id_sub_elemen: id }))
         return this.capaianList
       } catch (error) {
-        console.error('Error fetching capaian kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data capaian kelas'
         throw error
       } finally {
@@ -122,7 +120,6 @@ export const useCapaianStore = defineStore('capaian', {
           throw new Error(response.data.message || 'Gagal menambahkan capaian kelas')
         }
       } catch (error) {
-        console.error('Error creating capaian:', error)
         this.error = error.message || 'Terjadi kesalahan saat menambahkan capaian kelas'
         throw error
       } finally {
@@ -159,7 +156,6 @@ export const useCapaianStore = defineStore('capaian', {
           throw new Error(response.data.message || 'Gagal mengupdate capaian kelas')
         }
       } catch (error) {
-        console.error('Error updating capaian:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengupdate capaian kelas'
         throw error
       } finally {
@@ -184,7 +180,6 @@ export const useCapaianStore = defineStore('capaian', {
           throw new Error(response.data.message || 'Gagal menghapus capaian kelas')
         }
       } catch (error) {
-        console.error('Error deleting capaian:', error)
         this.error = error.message || 'Terjadi kesalahan saat menghapus capaian kelas'
         throw error
       } finally {

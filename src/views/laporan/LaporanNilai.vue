@@ -1058,7 +1058,6 @@ const selectSiswa = async (siswa) => {
       });
     }
   } catch (error) {
-    console.error('Error fetching student nilai data:', error);
   }
   
   updateDistributionChart();
@@ -1072,7 +1071,6 @@ const onKelasChange = async () => {
     await fetchAssessmentData();
     await preloadNilaiForSelectedKelas();
   } catch (error) {
-    console.error('Error after kelas change:', error);
   } finally {
     loading.value = false;
   }
@@ -1102,7 +1100,6 @@ const fetchData = async () => {
     await fetchSiswaByKelas();
     await preloadNilaiForSelectedKelas();
   } catch (error) {
-    console.error('Error fetching initial data:', error);
   } finally {
     loading.value = false;
   }
@@ -1113,7 +1110,6 @@ const fetchKelasList = async () => {
     await kelasStore.fetchKelasList();
     kelasList.value = kelasStore.getKelasList || [];
   } catch (error) {
-    console.error('Error fetching kelas list:', error);
   }
 };
 
@@ -1124,7 +1120,6 @@ const fetchPengampuList = async () => {
       pengampuList.value = res.data.data || [];
     }
   } catch (error) {
-    console.error('Error fetching pengampu list:', error);
   }
 };
 
@@ -1133,7 +1128,6 @@ const fetchDimensiList = async () => {
     await dimensiStore.fetchDimensiList();
     dimensiList.value = dimensiStore.getDimensiList || [];
   } catch (error) {
-    console.error('Error fetching dimensi list:', error);
   }
 };
 
@@ -1142,7 +1136,6 @@ const fetchElemenList = async () => {
     await elemenStore.fetchElemenList();
     elemenList.value = elemenStore.getElemenList || [];
   } catch (error) {
-    console.error('Error fetching elemen list:', error);
   }
 };
 
@@ -1151,7 +1144,6 @@ const fetchSubElemenList = async () => {
     await subElemenStore.fetchSubElemenList();
     subElemenList.value = subElemenStore.getSubElemenList || [];
   } catch (error) {
-    console.error('Error fetching sub elemen list:', error);
   }
 };
 
@@ -1165,7 +1157,6 @@ const fetchCapaianList = async () => {
       capaianList.value = [];
     }
   } catch (error) {
-    console.error('Error fetching capaian list:', error);
     capaianList.value = [];
   }
 };
@@ -1185,7 +1176,6 @@ const fetchSiswaByKelas = async () => {
       totalSiswa.value = 0;
     }
   } catch (error) {
-    console.error('Error fetching siswa list:', error);
     siswaList.value = [];
     totalSiswa.value = 0;
   }
@@ -1220,7 +1210,6 @@ const fetchAssessmentData = async () => {
             });
           }
         } catch (nilaiError) {
-          console.error('Error fetching nilai data:', nilaiError);
         }
       }
       
@@ -1247,7 +1236,6 @@ const fetchAssessmentData = async () => {
       totalMaksimal.value = 0;
     }
   } catch (error) {
-    console.error('Error fetching assessment data:', error);
     assessmentList.value = [];
     totalAssessments.value = 0;
     sudahDinilai.value = 0;
@@ -1287,7 +1275,6 @@ const preloadNilaiForSelectedKelas = async () => {
           });
         }
       } catch (e) {
-        console.error('Failed to preload nilai for siswa', s.id_siswa, e);
       }
       await runNext();
     };
@@ -1296,7 +1283,6 @@ const preloadNilaiForSelectedKelas = async () => {
     const workers = Array.from({ length: Math.min(concurrency, students.length) }, () => runNext());
     await Promise.all(workers);
   } catch (error) {
-    console.error('Error preloading nilai for class:', error);
   }
 };
 
@@ -1370,10 +1356,8 @@ const prepareCapaianList = async () => {
         };
       });
       
-    console.log('Prepared capaian list for rapor:', siswaCapaianList.value);
     
   } catch (error) {
-    console.error('Error preparing capaian list:', error);
     siswaCapaianList.value = [];
   }
 };

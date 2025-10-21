@@ -543,7 +543,6 @@ let toastTimeout = null
 const assessmentValues = ref({}) // {id_capaian: {id_siswa: {assessmentNumber: nilai}}}
 
 const user = computed(() => authStore.getUser)
-console.log("Current User:", user)
 const currentEmailUser = computed(() => user.value?.email || '')
 
 // Track current editing assessment
@@ -558,15 +557,12 @@ const isOpen = ref(false)
 const historyData = ref([])
 
 const toggleHistory = async (id_guru) => {
-  console.log("CEK ID:", id_guru);
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     try {
       await assessmentStore.fetchAssessmentHistory(id_guru)
       historyData.value = assessmentStore.assessmentHistoryList
-      console.log("Processed data:", assessmentStore.assessmentHistoryList)
     } catch (error) {
-      console.error("Error fetching history list:", error)
     }
   }
 }
@@ -586,21 +582,17 @@ function formatDate(isoDate) {
 
 const getAssessment = (id) => {
   const assessment = assessmentStore.assessmentList.find(a => a.id_assessment == id)
-  console.log("ASSESSMENT CEK ", assessment)
-  console.log("ASSESSMENT CEK ID", id)
   return assessment ? assessment.nama_assessment : 'N/A'
 
 }
 
 const getSiswa = (id) => {
   const siswa = siswaStore.siswaList.find(s => s.id_siswa == id)
-  console.log("SISWA CEK ", siswaStore.siswaList)
   return siswa ? siswa.nama : 'N/A'
 }
 
 const getGuru = (email) => {
   const guru = guruStore.guruList.find(g => g.email == email)
-  console.log("GURU CEK ", guruStore.guruList)
   return guru ? guru.id_guru : 'N/A'
 }
 
@@ -759,7 +751,6 @@ const scrollToResult = async (index) => {
       // After data is available, allow a short delay for DOM render, then scroll
       await new Promise(res => setTimeout(res, 120))
     } catch (e) {
-      console.error('Error loading class for search scroll:', e)
     }
   }
 
@@ -779,7 +770,6 @@ const scrollToResult = async (index) => {
     }, 2000)
   } else {
     // If element still doesn't exist, log for debugging
-    console.warn('Search target element not found after loading class:', result.elementId)
   }
 }
 
@@ -1146,7 +1136,6 @@ const fetchKelasList = async () => {
     await kelasStore.fetchKelasList()
     // HAPUS: kelasList.value = kelasStore.getKelasList || []
   } catch (error) {
-    console.error('Error fetching kelas list:', error)
   }
 }
 
@@ -1155,7 +1144,6 @@ const fetchDimensiList = async () => {
     await dimensiStore.fetchDimensiList()
     dimensiList.value = dimensiStore.getDimensiList || []
   } catch (error) {
-    console.error('Error fetching dimensi list:', error)
   }
 }
 
@@ -1164,7 +1152,6 @@ const fetchElemenList = async () => {
     await elemenStore.fetchElemenList()
     elemenList.value = elemenStore.getElemenList || []
   } catch (error) {
-    console.error('Error fetching elemen list:', error)
   }
 }
 
@@ -1173,7 +1160,6 @@ const fetchSubElemenList = async () => {
     await subElemenStore.fetchSubElemenList()
     subElemenList.value = subElemenStore.getSubElemenList || []
   } catch (error) {
-    console.error('Error fetching sub elemen list:', error)
   }
 }
 
@@ -1196,7 +1182,6 @@ const fetchCapaianList = async (id_fase, id_sub_elemen) => {
       capaianList.value = []
     }
   } catch (error) {
-    console.error('Error fetching capaian list:', error)
     capaianList.value = []
   }
 }
@@ -1210,7 +1195,6 @@ const fetchSiswaByKelas = async (id_kelas) => {
       siswaList.value = []
     }
   } catch (error) {
-    console.error('Error fetching siswa list:', error)
     siswaList.value = []
   }
 }
@@ -1221,9 +1205,7 @@ const fetchAllSiswa = async () => {
     const siswaStore = useSiswaStore()
     await siswaStore.fetchSiswaList()
     allSiswaList.value = siswaStore.getSiswaList || []
-    console.log('Fetched all students for global search:', allSiswaList.value.length)
   } catch (error) {
-    console.error('Error fetching all siswa list:', error)
     allSiswaList.value = []
   }
 }
@@ -1236,18 +1218,15 @@ const fetchNilaiSiswa = async () => {
   if (!selectedKelas.value) return;
   
   try {
-    console.log('Fetching nilai for kelas:', selectedKelas.value);
     
     // Step 1: Fetch all assessments
     const responseAssessments = await axios.get(`/list/assessment`);
     
     if (!responseAssessments.data.success) {
-      console.error('Failed to fetch assessments');
       return;
     }
     
     const allAssessments = responseAssessments.data.data || [];
-    console.log('All assessments:', allAssessments.length);
     
     // Step 1.5: Fetch capaian_kelas map for current kelas to translate id_capaian_kelas -> id_capaian
     const resCk = await axios.get('/list/capaian_kelas');
@@ -1260,16 +1239,13 @@ const fetchNilaiSiswa = async () => {
     const responseNilai = await axios.get(`/list/nilai`);
     
     if (!responseNilai.data.success) {
-      console.error('Failed to fetch nilai data');
       return;
     }
     
     const allNilai = responseNilai.data.data || [];
-    console.log('All nilai:', allNilai.length);
     
     // Step 3: Get current class students
     const currentStudents = siswaList.value.map(s => s.id_siswa);
-    console.log('Current students:', currentStudents);
     
     // Step 4: Create assessment list with nilai data (similar to laporan logic)
     const assessmentList = allAssessments.map(assessment => {
@@ -1306,7 +1282,6 @@ const fetchNilaiSiswa = async () => {
       // Sort by creation date or ID to maintain order
       assessmentsForCapaian.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
       
-      console.log(`Processing capaian ${id_capaian} with ${assessmentsForCapaian.length} assessments with nilai`);
       
       // Initialize structure for this capaian
       if (!assessmentValues.value[id_capaian]) {
@@ -1330,13 +1305,11 @@ const fetchNilaiSiswa = async () => {
           studentAssessments.slice(0, 6).forEach((assessment, index) => {
             const assessmentNumber = index + 1; // 1-based numbering
             assessmentValues.value[id_capaian][id_siswa][assessmentNumber] = assessment.nilai[id_siswa];
-            console.log(`Stored: Capaian ${id_capaian}, Siswa ${id_siswa}, Assessment ${assessmentNumber} = ${assessment.nilai[id_siswa]}`);
           });
         }
       });
     });
     
-    console.log('Final assessment values structure:', assessmentValues.value);
     
     // Also maintain the existing nilaiSiswa structure for backward compatibility
     Object.keys(assessmentValues.value).forEach(id_ck => {
@@ -1349,7 +1322,6 @@ const fetchNilaiSiswa = async () => {
     });
     
   } catch (error) {
-    console.error('Error fetching nilai siswa:', error);
     nilaiSiswa.value = {}; // Reset on error
     assessmentValues.value = {};
   }
@@ -1383,7 +1355,7 @@ const fetchAllCapaianForKelas = async () => {
   try {
     await fetchCapaianList(id_fase, selectedSubElemen.value)
   } catch (error) {
-    console.error('Error fetching capaian list:', error);
+;
     capaianList.value = [];
   }
 }
@@ -1406,7 +1378,6 @@ const fetchData = async () => {
       fetchAllSiswa() // Fetch all students for global search
     ])
   } catch (error) {
-    console.error('Error fetching initial data:', error)
   } finally {
     loading.value = false
   }
@@ -1465,7 +1436,7 @@ const onSubElemenChange = async () => {
         try {
           await fetchCapaianList(id_fase, selectedSubElemen.value)
         } catch (error) {
-          console.error('Error fetching capaian list:', error);
+;
           capaianList.value = [];
         }
       } else {
@@ -1538,7 +1509,6 @@ const deleteAssessment = async (id) => {
     await assessmentStore.deleteAssessment(id)
     showSuccessToast('Assessment berhasil dihapus')
   } catch (error) {
-    console.error('Error deleting assessment:', error)
     showErrorToast('Gagal menghapus assessment: ' + (error.message || 'Unknown error'))
   } finally {
     loading.value = false
@@ -1612,7 +1582,6 @@ const saveAssessment = async (formData) => {
         bobot: parseInt(formData.bobot) || 20
       };
 
-      console.log('Sending assessment data:', assessmentPayload);
 
       // Use correct endpoint
       const res = await axios.post('/add/assessment', assessmentPayload);
@@ -1707,13 +1676,11 @@ const saveAssessment = async (formData) => {
             tanggal_input: new Date().toISOString().slice(0, 10)
           };
           
-          console.log('Sending nilai data:', nilaiPayload);
           
           // Fix: Use correct endpoint that matches backend
           nilaiPromises.push(
             axios.post('/add/nilai', nilaiPayload)
               .catch(err => {
-                console.error(`Error saving nilai for student ${id_siswa}:`, err);
                 throw new Error(`Gagal menyimpan nilai untuk siswa ${id_siswa}: ${err.response?.data?.message || err.message}`);
               })
           );
@@ -1724,9 +1691,7 @@ const saveAssessment = async (formData) => {
       if (nilaiPromises.length > 0) {
         try {
           await Promise.all(nilaiPromises);
-          console.log(`Successfully saved ${nilaiPromises.length} nilai records`);
         } catch (error) {
-          console.error('Error in batch nilai submission:', error);
           throw error;
         }
       }
@@ -1739,7 +1704,6 @@ const saveAssessment = async (formData) => {
       await fetchNilaiSiswa()
     }
   } catch (error) {
-    console.error('Error saving assessment:', error);
     
     let errorMessage = 'Gagal menyimpan assessment';
     

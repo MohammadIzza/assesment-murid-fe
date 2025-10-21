@@ -37,7 +37,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           throw new Error('Gagal mengambil data capaian kelas')
         }
       } catch (error) {
-        console.error('Error fetching capaian kelas list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data capaian kelas'
         throw error
       } finally {
@@ -71,7 +70,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
         this.capaianKelasList = list
         return list
       } catch (error) {
-        console.error('Error fetching filtered capaian_kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data (filter)'
         throw error
       } finally {
@@ -100,7 +98,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           throw new Error('Gagal mengambil detail capaian kelas')
         }
       } catch (error) {
-        console.error('Error fetching capaian kelas detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail capaian kelas'
         throw error
       } finally {
@@ -147,7 +144,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           throw new Error(response.data.message || 'Gagal menambahkan capaian kelas')
         }
       } catch (error) {
-        console.error('Error adding capaian kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat menambahkan capaian kelas'
         throw error
       } finally {
@@ -196,7 +192,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
 
         return results
       } catch (error) {
-        console.error('Error adding multiple capaian kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat menambahkan multiple capaian kelas'
         throw error
       } finally {
@@ -243,7 +238,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           throw new Error(response.data.message || 'Gagal mengupdate capaian kelas')
         }
       } catch (error) {
-        console.error('Error updating capaian kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengupdate capaian kelas'
         throw error
       } finally {
@@ -274,7 +268,6 @@ export const useCapaianKelasStore = defineStore('capaianKelas', {
           throw new Error(response.data.message || 'Gagal menghapus capaian kelas')
         }
       } catch (error) {
-        console.error('Error deleting capaian kelas:', error)
         this.error = error.message || 'Terjadi kesalahan saat menghapus capaian kelas'
         throw error
       } finally {

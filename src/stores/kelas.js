@@ -78,7 +78,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error('Gagal mengambil data kelas')
         }
       } catch (error) {
-        console.error('Error fetching kelas list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data kelas'
         throw error
       } finally {
@@ -104,7 +103,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error('Gagal mengambil detail kelas')
         }
       } catch (error) {
-        console.error('Error fetching kelas detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail kelas'
         throw error
       } finally {
@@ -141,7 +139,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error(response.data.message || 'Gagal menambahkan kelas');
         }
       } catch (error) {
-        console.error('Error creating kelas:', error);
         this.error = error.message || 'Terjadi kesalahan saat menambahkan kelas';
         throw error;
       } finally {
@@ -182,7 +179,6 @@ export const useKelasStore = defineStore('kelas', {
           return this.createKelas(kelasData);
         }
       } catch (error) {
-        console.error('Error adding kelas:', error);
         this.error = error.message || 'Terjadi kesalahan saat menambahkan kelas';
         throw error;
       } finally {
@@ -221,7 +217,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error(response.data.message || 'Gagal mengupdate kelas');
         }
       } catch (error) {
-        console.error('Error updating kelas:', error);
         this.error = error.message || 'Terjadi kesalahan saat mengupdate kelas';
         throw error;
       } finally {
@@ -248,7 +243,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error(response.data.message || 'Gagal menghapus kelas');
         }
       } catch (error) {
-        console.error('Error deleting kelas:', error);
         this.error = error.message || 'Terjadi kesalahan saat menghapus kelas';
         throw error;
       } finally {
@@ -272,7 +266,6 @@ export const useKelasStore = defineStore('kelas', {
           return 0
         }
       } catch (error) {
-        console.error('Error fetching siswa count by kelas:', error)
         return 0
       }
     },
@@ -307,7 +300,6 @@ export const useKelasStore = defineStore('kelas', {
           throw new Error('Gagal mengambil data kelas')
         }
       } catch (error) {
-        console.error('Error fetching kelas list with siswa count:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data kelas'
         throw error
       } finally {

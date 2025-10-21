@@ -612,7 +612,6 @@ const getClaimsFromToken = () => {
     const decoded = parseJWT(token)
     return { userId: decoded?.id || decoded?.user_id || null, email: decoded?.email || null }
   } catch (err) {
-    console.error('Error parsing token:', err)
     return { userId: null, email: null }
   }
 }
@@ -638,7 +637,7 @@ const fetchUserData = async () => {
       if (user) userData.value = { ...userData.value, ...JSON.parse(user) }
     }
   } catch (err) {
-    console.error('Error fetching user data:', err)
+    // Silent error handling
   }
 }
 
@@ -664,21 +663,14 @@ const fetchDashboardData = async () => {
     error.value = null
 
     const { userId, email } = getClaimsFromToken()
-    console.log('🔍 Debug - userId from token:', userId)
-    console.log('🔍 Debug - email from token:', email)
     
     let result = null
     let guruId = null
     
     try {
       const resultGet = await getGuruByUserId(userId)
-      console.log('🔍 Debug - resultGet.data:', resultGet.data)
       guruId = resultGet.data?.id_guru || null
-      console.log('🔍 Debug - guruId from API:', guruId)
     } catch (apiErr) {
-      console.warn('⚠️ Warning - getGuruByUserId failed:', apiErr.response?.data?.message)
-      console.log('🔍 Debug - Trying fallback method...')
-      
       // FALLBACK: Try to find guru by email
       try {
         const guruStore = useGuruStore()
@@ -688,16 +680,11 @@ const fetchDashboardData = async () => {
         
         if (foundGuru) {
           guruId = foundGuru.id_guru
-          console.log('🔍 Debug - Found guru by email fallback:', foundGuru)
-        } else {
-          console.warn('⚠️ Warning - No guru found by email either')
         }
       } catch (fallbackErr) {
-        console.error('❌ Fallback method also failed:', fallbackErr)
+        // Silent fallback failure
       }
     }
-    
-    console.log('🔍 Debug - Final guruId:', guruId)
     
     // Jika admin, ambil data global, jika tidak ambil data khusus guru
     if (isAdmin.value) {
@@ -762,15 +749,11 @@ const fetchDashboardData = async () => {
           siswaPerKelas.value = siswaPerKelasData;
         }
       } catch (adminErr) {
-        console.error('Error fetching admin dashboard data:', adminErr)
+        // Silent admin error handling
       }
     } else {
       // Ambil data spesifik guru
-      console.log('🔍 Debug - Fetching guru data for guruId:', guruId)
-      
       if (!guruId) {
-        console.warn('⚠️ Warning - No guruId found, user might not be linked to guru data')
-        console.log('🔍 Debug - Setting default values for guru without data')
         // Set default values for guru without data
         dashboardData.value.totalKelas = 0
         dashboardData.value.totalAssessment = 0
@@ -784,26 +767,18 @@ const fetchDashboardData = async () => {
       
       try {
         // Ambil data kelas
-        console.log('🔍 Debug - Fetching kelas data...')
         const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
-        console.log('🔍 Debug - Kelas response:', kelasRes.data);
         dashboardData.value.totalKelas = kelasRes.data.jumlah_kelas || 0
 
         // Ambil data assessment
-        console.log('🔍 Debug - Fetching assessment data...')
         const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
-        console.log('🔍 Debug - Assessment response:', assessmentRes.data);
         dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
         dashboardData.value.assessments = assessmentRes.data.data || []
 
         // Ambil data siswa
-        console.log('🔍 Debug - Fetching siswa data...')
         const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
-        console.log('🔍 Debug - Siswa response:', siswaRes.data);
         dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa || 0
       } catch (guruErr) {
-        console.error('❌ Error fetching guru data:', guruErr)
-        console.error('❌ Error details:', guruErr.response?.data)
         // Set default values on error
         dashboardData.value.totalKelas = 0
         dashboardData.value.totalAssessment = 0
@@ -818,9 +793,6 @@ const fetchDashboardData = async () => {
       dashboardData.value.userName = user ? JSON.parse(user).nama || '' : ''
     }
   } catch (err: any) {
-    console.error('❌ Dashboard fetch error:', err)
-    console.error('❌ Error response:', err.response?.data)
-    console.error('❌ Error status:', err.response?.status)
     error.value = err?.response?.data?.message || 'Tidak dapat mengambil data dashboard dari server'
   } finally {
     loading.value = false
@@ -1043,7 +1015,7 @@ const refreshData = async () => {
     await fetchUserData()
     await fetchDashboardData()
   } catch (err) {
-    console.error('Error refreshing data:', err)
+    // Silent error handling
   }
 }
 
@@ -1053,7 +1025,7 @@ onMounted(async () => {
     await fetchUserData()
     await fetchDashboardData()
   } catch (err) {
-    console.error('Error in onMounted:', err)
+    // Silent error handling
   }
 })
 
@@ -1087,7 +1059,6 @@ const deleteAssessment = async () => {
     await refreshData()
   } catch (err) {
     deleteError.value = err?.response?.data?.message || 'Gagal menghapus assessment'
-    console.error('Error deleting assessment:', err)
   }
 }
 </script>

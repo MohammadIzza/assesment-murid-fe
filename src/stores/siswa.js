@@ -62,10 +62,8 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error('Gagal mengambil data siswa dengan filter')
         }
       } catch (error) {
-        console.error('Error fetching filtered siswa list:', error)
         // Jika endpoint tidak mendukung filter, fallback ke method biasa
         if (error.response?.status === 404 || error.response?.status === 500) {
-          console.log('API tidak mendukung filter, menggunakan filter frontend...')
           await this.fetchSiswaList()
         } else {
           this.error = error.message || 'Terjadi kesalahan saat mengambil data siswa'
@@ -92,7 +90,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error('Gagal mengambil data siswa')
         }
       } catch (error) {
-        console.error('Error fetching siswa list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data siswa'
         throw error
       } finally {
@@ -117,7 +114,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error('Gagal mengambil detail siswa')
         }
       } catch (error) {
-        console.error('Error fetching siswa detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail siswa'
         throw error
       } finally {
@@ -148,15 +144,9 @@ export const useSiswaStore = defineStore('siswa', {
       this.error = null
       
       try {
-        console.log('Attempting to add siswa')
-        console.log('Add URL:', '/add/siswa')
-        console.log('Add data:', siswaData)
         
         const response = await axios.post('/add/siswa', siswaData)
         
-        console.log('Add response:', response)
-        console.log('Add response status:', response.status)
-        console.log('Add response data:', response.data)
         
         if (response.data.success) {
           // Reload siswa list untuk mendapatkan data terbaru
@@ -167,10 +157,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error(response.data.message || 'Gagal menambahkan siswa')
         }
       } catch (error) {
-        console.error('Error adding siswa:', error)
-        console.error('Add error response:', error.response)
-        console.error('Add error response status:', error.response?.status)
-        console.error('Add error response data:', error.response?.data)
         
         this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menambahkan siswa'
         throw error
@@ -189,15 +175,9 @@ export const useSiswaStore = defineStore('siswa', {
       this.error = null
       
       try {
-        console.log('Attempting to update siswa with ID:', id_siswa)
-        console.log('Update URL:', `/update/siswa/${id_siswa}`)
-        console.log('Update data:', siswaData)
         
         const response = await axios.put(`/update/siswa/${id_siswa}`, siswaData)
         
-        console.log('Update response:', response)
-        console.log('Update response status:', response.status)
-        console.log('Update response data:', response.data)
         
         if (response.data.success) {
           // Update current siswa jika sedang melihat detail siswa yang diupdate
@@ -213,10 +193,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error(response.data.message || 'Gagal mengupdate siswa')
         }
       } catch (error) {
-        console.error('Error updating siswa:', error)
-        console.error('Update error response:', error.response)
-        console.error('Update error response status:', error.response?.status)
-        console.error('Update error response data:', error.response?.data)
         
         this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat mengupdate siswa'
         throw error
@@ -234,14 +210,9 @@ export const useSiswaStore = defineStore('siswa', {
       this.error = null
       
       try {
-        console.log('Attempting to delete siswa with ID:', id_siswa)
-        console.log('Delete URL:', `/delete/siswa/${id_siswa}`)
         
         const response = await axios.delete(`/delete/siswa/${id_siswa}`)
         
-        console.log('Delete response:', response)
-        console.log('Delete response status:', response.status)
-        console.log('Delete response data:', response.data)
         
         if (response.data.success) {
           // Remove siswa from list
@@ -257,10 +228,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error(response.data.message || 'Gagal menghapus siswa')
         }
       } catch (error) {
-        console.error('Error deleting siswa:', error)
-        console.error('Delete error response:', error.response)
-        console.error('Delete error response status:', error.response?.status)
-        console.error('Delete error response data:', error.response?.data)
         
         this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus siswa'
         throw error
@@ -286,7 +253,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error('Operasi gagal')
         }
       } catch (error) {
-        console.error('Error in generic operation:', error)
         this.error = error.message || 'Terjadi kesalahan dalam operasi'
         throw error
       } finally {
@@ -314,7 +280,6 @@ export const useSiswaStore = defineStore('siswa', {
           throw new Error('Gagal mengambil data siswa berdasarkan kelas')
         }
       } catch (error) {
-        console.error('Error fetching students by class:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data siswa'
         throw error
       } finally {

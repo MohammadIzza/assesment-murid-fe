@@ -31,7 +31,6 @@ export const useElemenStore = defineStore('elemen', {
           throw new Error('Gagal mengambil data elemen')
         }
       } catch (error) {
-        console.error('Error fetching elemen list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data elemen'
         throw error
       } finally {
@@ -50,7 +49,7 @@ export const useElemenStore = defineStore('elemen', {
           throw new Error('Gagal mengambil data elemen');
         }
       } catch (error) {
-        console.error('Error fetching elemen list:', error);
+;
         this.error = error.message || 'Terjadi kesalahan saat mengambil data elemen';
         throw error;
       } finally {

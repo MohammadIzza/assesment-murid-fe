@@ -67,10 +67,8 @@ export const useGuruStore = defineStore('guru', {
           throw new Error('Gagal mengambil data guru dengan filter')
         }
       } catch (error) {
-        console.error('Error fetching filtered guru list:', error)
         // Jika endpoint tidak mendukung filter, fallback ke method biasa
         if (error.response?.status === 404 || error.response?.status === 500) {
-          console.log('API tidak mendukung filter, menggunakan filter frontend...')
           await this.fetchGuruList()
         } else {
           this.error = error.message || 'Terjadi kesalahan saat mengambil data guru'
@@ -98,7 +96,6 @@ export const useGuruStore = defineStore('guru', {
           throw new Error('Gagal mengambil data guru')
         }
       } catch (error) {
-        console.error('Error fetching guru list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data guru'
         throw error
       } finally {
@@ -123,7 +120,6 @@ export const useGuruStore = defineStore('guru', {
           throw new Error('Gagal mengambil detail guru')
         }
       } catch (error) {
-        console.error('Error fetching guru detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail guru'
         throw error
       } finally {
@@ -167,7 +163,6 @@ export const useGuruStore = defineStore('guru', {
             }
           } catch (err) {
             if (err?.response?.status !== 404) {
-              console.error('Error fetching guru via user_id:', err)
             }
           }
         }
@@ -183,7 +178,6 @@ export const useGuruStore = defineStore('guru', {
               return this.currentGuru
             }
           } catch (err) {
-            console.error('Error fetching guru list:', err)
           }
         }
 
@@ -192,7 +186,6 @@ export const useGuruStore = defineStore('guru', {
         return null
         
       } catch (error) {
-        console.error('Error resolving current guru from token:', error)
         this.error = error.message || 'Gagal menentukan profil guru'
         this.currentGuru = null
         return null
@@ -224,9 +217,6 @@ export const useGuruStore = defineStore('guru', {
       this.error = null
       
       try {
-        console.log('Attempting to add guru')
-        console.log('Add URL:', '/add/guru')
-        console.log('Add data:', guruData)
         
         // Utility: sanitize single guru payload
         const sanitize = (g) => {
@@ -264,9 +254,6 @@ export const useGuruStore = defineStore('guru', {
 
         const response = await axios.post('/add/guru', payload)
         
-        console.log('Add response:', response)
-        console.log('Add response status:', response.status)
-        console.log('Add response data:', response.data)
         
         if (response.data.success) {
           // Reload guru list untuk mendapatkan data terbaru
@@ -277,10 +264,6 @@ export const useGuruStore = defineStore('guru', {
           throw new Error(response.data.message || 'Gagal menambahkan guru')
         }
       } catch (error) {
-        console.error('Error adding guru:', error)
-        console.error('Add error response:', error.response)
-        console.error('Add error response status:', error.response?.status)
-        console.error('Add error response data:', error.response?.data)
         
         this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menambahkan guru'
         throw error
@@ -299,9 +282,6 @@ export const useGuruStore = defineStore('guru', {
       this.error = null
       
       try {
-        console.log('Attempting to update guru with ID:', id)
-        console.log('Update URL:', `/update/guru/${id}`)
-        console.log('Update data:', guruData)
         
         // Kirim hanya field yang didukung backend (dengan sanitasi)
         const payload = {
@@ -322,9 +302,6 @@ export const useGuruStore = defineStore('guru', {
         }
         const response = await axios.put(`/update/guru/${id}`, payload)
         
-        console.log('Update response:', response)
-        console.log('Update response status:', response.status)
-        console.log('Update response data:', response.data)
         
         if (response.data.success) {
           // Update guru di list jika ada
@@ -343,10 +320,6 @@ export const useGuruStore = defineStore('guru', {
           throw new Error('Gagal mengupdate data guru')
         }
       } catch (error) {
-        console.error('Error updating guru:', error)
-        console.error('Update error response:', error.response)
-        console.error('Update error response status:', error.response?.status)
-        console.error('Update error response data:', error.response?.data)
         
         this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat mengupdate guru'
         throw error
@@ -364,30 +337,23 @@ export const useGuruStore = defineStore('guru', {
       this.error = null
       
       try {
-        console.log('Attempting to delete guru with ID:', id)
         
   // Backend menyediakan DELETE /delete/guru/:id
   const response = await axios.delete(`/delete/guru/${id}`)
         
-        console.log('Final delete response:', response)
-        console.log('Response status:', response.status)
-        console.log('Response data:', response.data)
         
         // Cek berbagai format response yang mungkin
   const isSuccess = (response.data?.success !== false && response.status >= 200 && response.status < 300) || response.status === 204
         
         if (isSuccess) {
-          console.log('Delete operation successful, updating local state...')
           
           // Remove guru dari list
           const originalLength = this.guruList.length
           this.guruList = this.guruList.filter(guru => guru.id_guru != id)
-          console.log(`Removed guru from list. Original: ${originalLength}, New: ${this.guruList.length}`)
           
           // Clear current guru jika yang dihapus sedang dilihat
           if (this.currentGuru && this.currentGuru.id_guru == id) {
             this.currentGuru = null
-            console.log('Cleared current guru')
           }
           
           return response.data || { success: true, message: 'Guru berhasil dihapus' }
@@ -395,11 +361,6 @@ export const useGuruStore = defineStore('guru', {
           throw new Error(response.data?.message || 'Gagal menghapus data guru')
         }
       } catch (error) {
-        console.error('❌ FINAL ERROR deleting guru:', error)
-        console.error('Error response:', error.response)
-        console.error('Error response status:', error.response?.status)
-        console.error('Error response data:', error.response?.data)
-        console.error('Error message:', error.message)
         
   this.error = error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus guru'
         throw error

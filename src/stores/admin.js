@@ -48,7 +48,6 @@ export const useAdminStore = defineStore('admin', {
           throw new Error('Gagal mengambil data admin')
         }
       } catch (error) {
-        console.error('Error fetching admin list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data admin'
         throw error
       } finally {
@@ -73,7 +72,6 @@ export const useAdminStore = defineStore('admin', {
           throw new Error('Gagal mengambil detail admin')
         }
       } catch (error) {
-        console.error('Error fetching admin detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail admin'
         throw error
       } finally {

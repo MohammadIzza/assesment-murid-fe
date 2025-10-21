@@ -33,7 +33,6 @@ export const useThemeStore = defineStore('theme', {
      */
     setTheme(newTheme) {
       if (!['light', 'dark', 'auto'].includes(newTheme)) {
-        console.error(`Theme ${newTheme} not supported, using 'light' instead`)
         newTheme = 'light'
       }
       

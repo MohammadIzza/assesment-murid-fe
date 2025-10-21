@@ -215,7 +215,6 @@ const saveChanges = async () => {
     
     showMessage(`Berhasil menyimpan ${promises.length} perubahan nilai`, 'success')
   } catch (error) {
-    console.error('Error saving changes:', error)
     showMessage('Gagal menyimpan perubahan. Silakan coba lagi.', 'error')
   } finally {
     saving.value = false
@@ -235,7 +234,6 @@ const fetchAssessment = async () => {
       throw new Error(response.data.message || 'Failed to load assessment')
     }
   } catch (err) {
-    console.error('Error fetching assessment:', err)
     error.value = err.message || 'Failed to load assessment data'
     assessment.value = null
   } finally {
@@ -323,7 +321,6 @@ onMounted(async () => {
       kelas.value = kelasList.find(k => k.nama_kelas == nilaiSiswaList.value[0].kelas)
     }
   } catch (error) {
-    console.error('Error loading data:', error)
     showMessage('Gagal memuat data. Silakan refresh halaman.', 'error')
   } finally {
     loading.value = false

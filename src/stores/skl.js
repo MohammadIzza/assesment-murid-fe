@@ -47,7 +47,6 @@ export const useSklStore = defineStore('skl', {
           throw new Error('Gagal mengambil data SKL')
         }
       } catch (error) {
-        console.error('Error fetching SKL list:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil data SKL'
         throw error
       } finally {
@@ -72,7 +71,6 @@ export const useSklStore = defineStore('skl', {
           throw new Error('Gagal mengambil detail SKL')
         }
       } catch (error) {
-        console.error('Error fetching SKL detail:', error)
         this.error = error.message || 'Terjadi kesalahan saat mengambil detail SKL'
         throw error
       } finally {

@@ -66,13 +66,9 @@ export const useAssesmentStore = defineStore("assesment", {
           throw new Error("Gagal mengambil data assessment dengan filter");
         }
       } catch (error) {
-        console.error("Error fetching filtered assessment list:", error);
 
         // Jika endpoint tidak mendukung filter, fallback ke method biasa
         if (error.response?.status === 404 || error.response?.status === 500) {
-          console.log(
-            "API tidak mendukung filter, menggunakan filter frontend..."
-          );
           await this.fetchAssessmentList();
         } else {
           this.error =
@@ -100,7 +96,6 @@ export const useAssesmentStore = defineStore("assesment", {
           throw new Error("Gagal mengambil data assessment");
         }
       } catch (error) {
-        console.error("Error fetching assessment list:", error);
         this.error =
           error.message || "Terjadi kesalahan saat mengambil data assessment";
         throw error;
@@ -124,7 +119,6 @@ export const useAssesmentStore = defineStore("assesment", {
           throw new Error("Gagal mengambil data history assessment");
         }
       } catch (error) {
-        console.error("Error fetching assessment history:", error);
         this.error =
           error.message ||
           "Terjadi kesalahan saat mengambil data history assessment";
@@ -178,7 +172,6 @@ export const useAssesmentStore = defineStore("assesment", {
           throw new Error("Gagal mengambil detail assessment");
         }
       } catch (error) {
-        console.error("Error fetching assessment detail:", error);
         this.error =
           error.message || "Terjadi kesalahan saat mengambil detail assessment";
         throw error;
@@ -238,7 +231,6 @@ export const useAssesmentStore = defineStore("assesment", {
           );
         }
       } catch (error) {
-        console.error("Error adding assessment:", error);
 
         this.error =
           error.response?.data?.message ||
@@ -298,7 +290,6 @@ export const useAssesmentStore = defineStore("assesment", {
           );
         }
       } catch (error) {
-        console.error("Error updating assessment:", error);
 
         this.error =
           error.response?.data?.message ||
@@ -342,7 +333,6 @@ export const useAssesmentStore = defineStore("assesment", {
           );
         }
       } catch (error) {
-        console.error("Error deleting assessment:", error);
 
         this.error =
           error.response?.data?.message ||

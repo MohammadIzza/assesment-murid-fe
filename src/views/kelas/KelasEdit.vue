@@ -1257,7 +1257,6 @@ export default {
           form.id_wali_kelas = kelas.id_wali_kelas || ''
         }
       } catch (error) {
-        console.error('Failed to load kelas detail:', error)
         showMessage('Gagal memuat data kelas', 'error')
       }
     }
@@ -1322,7 +1321,6 @@ export default {
         }
 
       } catch (error) {
-        console.error('Failed to save kelas:', error)
         showMessage(isAddMode.value ? 'Gagal menambahkan kelas baru' : 'Gagal menyimpan data kelas', 'error')
         
         closeToast()
@@ -1376,7 +1374,6 @@ export default {
           faseList.value = response.data.data || []
         }
       } catch (error) {
-        console.error('Failed to fetch fase list:', error)
         // Fallback to empty array if API fails
         faseList.value = []
       } finally {
@@ -1425,7 +1422,6 @@ export default {
         await siswaStore.fetchSiswaByKelas(parseInt(route.params.id))
         currentStudents.value = siswaStore.getSiswaList
       } catch (error) {
-        console.error('Failed to load current students:', error)
         showNotification('error', 'Gagal Memuat Siswa', 'Terjadi kesalahan saat memuat daftar siswa')
       } finally {
         isManagingStudents.value = false
@@ -1445,7 +1441,6 @@ export default {
           !siswa.id_kelas || siswa.id_kelas !== currentClassId
         )
       } catch (error) {
-        console.error('Failed to load available students:', error)
         showNotification('error', 'Gagal Memuat Siswa', 'Terjadi kesalahan saat memuat daftar siswa tersedia')
       } finally {
         isManagingStudents.value = false
@@ -1469,7 +1464,6 @@ export default {
         
         showNotification('success', 'Berhasil!', 'Siswa berhasil ditambahkan ke kelas')
       } catch (error) {
-        console.error('Failed to add student to class:', error)
         showNotification('error', 'Gagal Menambah Siswa', 'Terjadi kesalahan saat menambahkan siswa ke kelas')
       } finally {
         isManagingStudents.value = false
@@ -1493,7 +1487,6 @@ export default {
         
         showNotification('success', 'Berhasil!', 'Siswa berhasil dihapus dari kelas')
       } catch (error) {
-        console.error('Failed to remove student from class:', error)
         showNotification('error', 'Gagal Menghapus Siswa', 'Terjadi kesalahan saat menghapus siswa dari kelas')
       } finally {
         isManagingStudents.value = false
@@ -1510,12 +1503,10 @@ export default {
         if (response.data && response.data.success) {
           // Filter pengampu by id_kelas
           currentPengampu.value = response.data.data.filter(p => p.id_kelas == kelasId) || []
-          console.log(`Loaded ${currentPengampu.value.length} pengampu for kelas ${kelasId}`)
         } else {
           currentPengampu.value = []
         }
       } catch (error) {
-        console.error('Failed to load pengampu:', error)
         currentPengampu.value = []
       } finally {
         isPengampuLoading.value = false
@@ -1530,12 +1521,10 @@ export default {
           // Filter guru by sekolah yang sama
           const userSekolahId = authStore.user?.idSekolah || sekolahScope.activeSekolahId
           availableGuru.value = response.data.data.filter(g => g.id_sekolah == userSekolahId) || []
-          console.log(`Loaded ${availableGuru.value.length} available guru`)
         } else {
           availableGuru.value = []
         }
       } catch (error) {
-        console.error('Failed to load guru list:', error)
         availableGuru.value = []
       }
     }
@@ -1570,7 +1559,6 @@ export default {
           throw new Error(response.data?.message || 'Gagal menambahkan guru pengampu')
         }
       } catch (error) {
-        console.error('Failed to add pengampu:', error)
         showNotification('error', 'Gagal Menambah Pengampu', error.response?.data?.message || error.message || 'Terjadi kesalahan saat menambahkan guru pengampu')
       } finally {
         isManagingPengampu.value = false
@@ -1596,7 +1584,6 @@ export default {
           throw new Error(response.data?.message || 'Gagal menghapus guru pengampu')
         }
       } catch (error) {
-        console.error('Failed to remove pengampu:', error)
         showNotification('error', 'Gagal Menghapus Pengampu', error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus guru pengampu')
       } finally {
         isManagingPengampu.value = false

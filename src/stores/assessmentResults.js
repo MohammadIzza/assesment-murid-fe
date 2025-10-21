@@ -106,7 +106,6 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
           }
         }
       } catch (error) {
-        console.error('Error getting or creating assessment ID:', error)
         throw error
       }
     },
@@ -132,7 +131,6 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
         
         return null
       } catch (error) {
-        console.error('Error finding assessment by filters:', error)
         return null
       }
     },
@@ -201,7 +199,6 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
           savedCount: responses.length
         }
       } catch (error) {
-        console.error('Error saving assessment result:', error)
         this.error = error.message || 'Terjadi kesalahan saat menyimpan assessment'
         throw error
       } finally {
@@ -232,7 +229,6 @@ export const useAssessmentResultsStore = defineStore('assessmentResults', {
           this.progress.current = 0
         }
       } catch (error) {
-        console.error('Error loading assessment results:', error)
         this.error = error.message || 'Terjadi kesalahan saat memuat hasil assessment'
         this.results = []
         this.progress.current = 0
