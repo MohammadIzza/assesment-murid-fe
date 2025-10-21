@@ -135,6 +135,7 @@ export const useGuruStore = defineStore('guru', {
      * Mengambil current guru berdasarkan user_id di JWT
      * Prioritas: user_id dari token -> endpoint /filter/guru/user/:user_id
      * Fallback: cari berdasarkan email jika 404
+     * GRACEFUL: Jika tidak ditemukan, return null (tidak error)
      */
     async fetchCurrentGuruFromToken() {
       this.loading = true
@@ -142,42 +143,59 @@ export const useGuruStore = defineStore('guru', {
 
       try {
         const token = Cookies.get('auth_token') || Cookies.get('token') || localStorage.getItem('token')
-        if (!token) throw new Error('Token tidak ditemukan, silakan login kembali')
+        if (!token) {
+          this.currentGuru = null
+          return null
+        }
+        
         const decoded = parseJWT(token) || {}
         const userId = decoded?.id || decoded?.user_id || null
         const email = decoded?.email || null
-        if (!userId && !email) throw new Error('Klaim user pada token tidak lengkap')
+        
+        if (!userId && !email) {
+          this.currentGuru = null
+          return null
+        }
 
         // Coba ambil via user_id terlebih dahulu
         if (userId) {
           try {
             const res = await axios.get(`/filter/guru/user/${userId}`)
-            if (res?.data?.success) {
+            if (res?.data?.success && res.data.data) {
               this.currentGuru = res.data.data
               return this.currentGuru
             }
           } catch (err) {
-            if (err?.response?.status !== 404) throw err
-            // jika 404, lanjut fallback by email
+            if (err?.response?.status !== 404) {
+              console.error('Error fetching guru via user_id:', err)
+            }
           }
         }
 
         // Fallback: cari berdasarkan email dari /list/guru
         if (email) {
-          const listRes = await axios.get('/list/guru')
-          const rows = listRes?.data?.data || []
-          const found = rows.find((g) => String(g.email).toLowerCase() === String(email).toLowerCase())
-          if (found) {
-            this.currentGuru = found
-            return this.currentGuru
+          try {
+            const listRes = await axios.get('/list/guru')
+            const rows = listRes?.data?.data || []
+            const found = rows.find((g) => String(g.email).toLowerCase() === String(email).toLowerCase())
+            if (found) {
+              this.currentGuru = found
+              return this.currentGuru
+            }
+          } catch (err) {
+            console.error('Error fetching guru list:', err)
           }
         }
 
-        throw new Error('Profil guru tidak ditemukan untuk user ini')
+        // Jika tidak ditemukan, set null
+        this.currentGuru = null
+        return null
+        
       } catch (error) {
         console.error('Error resolving current guru from token:', error)
         this.error = error.message || 'Gagal menentukan profil guru'
-        throw error
+        this.currentGuru = null
+        return null
       } finally {
         this.loading = false
       }

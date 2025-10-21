@@ -154,14 +154,12 @@ export const useAuthStore = defineStore('auth', {
           // Best-effort token verification: backend doesn't expose /user/profile; rely on token claims
           // Keep session active without remote verification to avoid breaking refresh
 
-          // Resolve current guru based on token (best-effort)
+          // Resolve current guru based on token (optional)
           try {
             const guruStore = useGuruStore()
-            if (!guruStore.getCurrentGuru) {
-              await guruStore.fetchCurrentGuruFromToken()
-            }
+            await guruStore.fetchCurrentGuruFromToken()
           } catch (e) {
-            // Non-fatal
+            // Non-fatal - guru resolution is optional
             console.warn('Could not resolve current guru on init:', e?.message || e)
           }
         } catch (error) {

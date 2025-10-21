@@ -163,15 +163,6 @@ const router = createRouter({
           },
         },
         {
-          path: 'verifikasiNIP',
-          name: 'verifikasi-nip',
-          component: () => import('@/views/auth/verifikasiNIP.vue'),
-          meta: {
-            requiresAuth: true,
-            title: 'Verifikasi NIP',
-          },
-        },
-        {
           path: 'settings',
           name: 'settings',
           component: SettingsView,

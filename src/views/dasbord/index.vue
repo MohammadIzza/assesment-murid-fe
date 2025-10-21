@@ -24,6 +24,7 @@
         </div>
       </div>
 
+
       <!-- Statistik Cards -->
   <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <!-- Total Kelas -->
@@ -519,12 +520,12 @@ import { parseJWT } from '@/utils/jwt'
 import { getGuruByUserId, getGuruByEmail } from '@/services/api'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
-// Removed unused store imports to avoid lint/TS errors
+import { useGuruStore } from '@/stores/guru'
 
 // Add store
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
-// Removed unused store instances
+const guruStore = useGuruStore();
 
 const isDarkMode = computed(() => themeStore.isDarkMode);
 const isAdmin = computed(() => authStore.isAdmin);
@@ -777,16 +778,21 @@ const capaianList = ref([])
 const siswaList = ref([])
 const pengampuList = ref([])
 
+
 // Access-control: allowed kelas for current user (normalize to strings)
 const allowedKelasIds = computed(() => {
   try {
     if (isAdmin.value) return new Set((kelasList.value || []).map(k => String(k.id_kelas)))
-    // derive current guru id from fetched userData
-    const gid = userData.value?.id_guru || null
+    
+    // For non-admin users, check if they have guru data
+    const guruStore = useGuruStore()
+    const currentGuru = guruStore.getCurrentGuru
+    const gid = currentGuru?.id_guru || null
+    
     if (!gid) {
-      // try to infer from pengampu list by email if available
-      return new Set((pengampuList.value || []).filter(() => false).map(() => '')) // empty set
+      return new Set() // No access if no guru data
     }
+    
     const rows = Array.isArray(pengampuList.value) ? pengampuList.value : []
     return new Set(rows.filter(p => String(p.id_guru) === String(gid)).map(p => String(p.id_kelas)))
   } catch (e) {

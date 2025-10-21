@@ -351,12 +351,11 @@ export default {
           showNotification('success', 'Login Berhasil!', 'Selamat datang! Anda akan diarahkan ke halaman berikutnya', 1500)
         }, 100)
 
-        // Decide redirect: if NIP not verified -> verifikasi page, else normal redirect
+        // Redirect to dashboard (NIP verification is optional)
         const redirectTo = route.query.redirect || '/dashboard'
-        const goTo = (decoded.is_verified_nip === 1) ? redirectTo : '/verifikasiNIP'
 
         setTimeout(() => {
-          router.push(goTo)
+          router.push(redirectTo)
         }, 1500)
         
       } catch (err) {
