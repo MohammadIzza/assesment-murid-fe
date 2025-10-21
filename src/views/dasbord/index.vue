@@ -282,6 +282,16 @@
           </svg>
           <p class="text-sm">{{ error }}</p>
         </div>
+        <div v-else-if="!isAdmin && dashboardData.totalKelas === 0 && dashboardData.totalAssessment === 0 && dashboardData.totalSiswa === 0" class="flex flex-col items-center py-8 text-amber-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm font-medium mb-2">Belum ada data untuk ditampilkan</p>
+          <p class="text-xs text-amber-500 text-center max-w-md">
+            Anda belum terdaftar sebagai pengampu kelas atau belum memiliki assessment. 
+            Hubungi admin untuk mengatur akses Anda ke kelas tertentu.
+          </p>
+        </div>
         <div v-else-if="filteredAssessments.length === 0" class="flex flex-col items-center py-8 text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -654,11 +664,40 @@ const fetchDashboardData = async () => {
     error.value = null
 
     const { userId, email } = getClaimsFromToken()
+    console.log('🔍 Debug - userId from token:', userId)
+    console.log('🔍 Debug - email from token:', email)
+    
     let result = null
-    const resultGet = await getGuruByUserId(userId)
-
-    console.log('userId from token:', resultGet.data)
-    const guruId = resultGet.data?.id_guru || null
+    let guruId = null
+    
+    try {
+      const resultGet = await getGuruByUserId(userId)
+      console.log('🔍 Debug - resultGet.data:', resultGet.data)
+      guruId = resultGet.data?.id_guru || null
+      console.log('🔍 Debug - guruId from API:', guruId)
+    } catch (apiErr) {
+      console.warn('⚠️ Warning - getGuruByUserId failed:', apiErr.response?.data?.message)
+      console.log('🔍 Debug - Trying fallback method...')
+      
+      // FALLBACK: Try to find guru by email
+      try {
+        const guruStore = useGuruStore()
+        await guruStore.fetchGuruList()
+        const guruList = guruStore.getGuruList || []
+        const foundGuru = guruList.find(g => String(g.email || '').toLowerCase() === String(email || '').toLowerCase())
+        
+        if (foundGuru) {
+          guruId = foundGuru.id_guru
+          console.log('🔍 Debug - Found guru by email fallback:', foundGuru)
+        } else {
+          console.warn('⚠️ Warning - No guru found by email either')
+        }
+      } catch (fallbackErr) {
+        console.error('❌ Fallback method also failed:', fallbackErr)
+      }
+    }
+    
+    console.log('🔍 Debug - Final guruId:', guruId)
     
     // Jika admin, ambil data global, jika tidak ambil data khusus guru
     if (isAdmin.value) {
@@ -727,22 +766,50 @@ const fetchDashboardData = async () => {
       }
     } else {
       // Ambil data spesifik guru
-      // Ambil data kelas
-      const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
-      console.log('response kelas', kelasRes.data.jumlah_kelas);
-      dashboardData.value.totalKelas = kelasRes.data.jumlah_kelas
+      console.log('🔍 Debug - Fetching guru data for guruId:', guruId)
+      
+      if (!guruId) {
+        console.warn('⚠️ Warning - No guruId found, user might not be linked to guru data')
+        console.log('🔍 Debug - Setting default values for guru without data')
+        // Set default values for guru without data
+        dashboardData.value.totalKelas = 0
+        dashboardData.value.totalAssessment = 0
+        dashboardData.value.totalSiswa = 0
+        dashboardData.value.assessments = []
+        
+        // Show user-friendly message instead of error
+        error.value = null
+        return
+      }
+      
+      try {
+        // Ambil data kelas
+        console.log('🔍 Debug - Fetching kelas data...')
+        const kelasRes = await axios.get(`/filter/guru/${guruId}/jumlah-kelas`)
+        console.log('🔍 Debug - Kelas response:', kelasRes.data);
+        dashboardData.value.totalKelas = kelasRes.data.jumlah_kelas || 0
 
-      // Ambil data assessment
-      const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
-      dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
-      console.log('response assessment', assessmentRes.data);
-      dashboardData.value.assessments = assessmentRes.data.data || []
+        // Ambil data assessment
+        console.log('🔍 Debug - Fetching assessment data...')
+        const assessmentRes = await axios.get(`/filter/assessment/guru/${guruId}`)
+        console.log('🔍 Debug - Assessment response:', assessmentRes.data);
+        dashboardData.value.totalAssessment = Array.isArray(assessmentRes.data.data) ? assessmentRes.data.data.length : 0
+        dashboardData.value.assessments = assessmentRes.data.data || []
 
-      // Ambil data siswa
-      const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
-      console.log('response siswa', siswaRes.data.jumlah_siswa);
-      dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa
-
+        // Ambil data siswa
+        console.log('🔍 Debug - Fetching siswa data...')
+        const siswaRes = await axios.get(`/filter/guru/${guruId}/jumlah-siswa`)
+        console.log('🔍 Debug - Siswa response:', siswaRes.data);
+        dashboardData.value.totalSiswa = siswaRes.data.jumlah_siswa || 0
+      } catch (guruErr) {
+        console.error('❌ Error fetching guru data:', guruErr)
+        console.error('❌ Error details:', guruErr.response?.data)
+        // Set default values on error
+        dashboardData.value.totalKelas = 0
+        dashboardData.value.totalAssessment = 0
+        dashboardData.value.totalSiswa = 0
+        dashboardData.value.assessments = []
+      }
     }
 
     // Ambil nama user dari localStorage sebagai fallback jika API belum berhasil
@@ -751,6 +818,9 @@ const fetchDashboardData = async () => {
       dashboardData.value.userName = user ? JSON.parse(user).nama || '' : ''
     }
   } catch (err: any) {
+    console.error('❌ Dashboard fetch error:', err)
+    console.error('❌ Error response:', err.response?.data)
+    console.error('❌ Error status:', err.response?.status)
     error.value = err?.response?.data?.message || 'Tidak dapat mengambil data dashboard dari server'
   } finally {
     loading.value = false
