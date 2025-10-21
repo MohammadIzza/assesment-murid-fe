@@ -641,6 +641,35 @@ const fetchUserData = async () => {
   }
 }
 
+// ✅ GURU: Ambil data sekolah untuk guru
+const fetchSekolahDataForGuru = async () => {
+  try {
+    const guruStore = useGuruStore()
+    
+    // ✅ GURU: Pastikan guru data sudah dimuat
+    if (!guruStore.getCurrentGuru) {
+      await guruStore.fetchCurrentGuruFromToken()
+    }
+    
+    const currentGuru = guruStore.getCurrentGuru
+    
+    if (currentGuru?.id_sekolah) {
+      const sekolahData = await guruStore.fetchSekolahDataForGuru()
+      if (sekolahData) {
+        // Update sekolah scope untuk navbar
+        const sekolahScope = useSekolahScopeStore()
+        await sekolahScope.setActiveSekolah(currentGuru.id_sekolah, sekolahData.nama_sekolah)
+        
+        // Update branding untuk logo
+        const brandingStore = useBrandingStore()
+        await brandingStore.refreshLogoForCurrentUser(authStore.user?.id)
+      }
+    }
+  } catch (err) {
+    // Error handling
+  }
+}
+
 // Warna untuk dimensi
 const dimensiColorMap = {
   'Beriman, Bertaqwa kepada Tuhan YME dan Berakhlak Mulia': '#3b82f6',
@@ -1024,6 +1053,9 @@ onMounted(async () => {
     await fetchReferenceData() // Penting untuk memuat referensi terlebih dahulu
     await fetchUserData()
     await fetchDashboardData()
+    
+    // ✅ GURU: Ambil data sekolah untuk guru
+    await fetchSekolahDataForGuru()
   } catch (err) {
     // Silent error handling
   }

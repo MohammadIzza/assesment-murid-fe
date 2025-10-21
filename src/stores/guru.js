@@ -195,6 +195,27 @@ export const useGuruStore = defineStore('guru', {
     },
 
     /**
+     * ✅ GURU: Ambil data sekolah dari guru data
+     * Untuk support branding dan sekolah scope
+     */
+    async fetchSekolahDataForGuru() {
+      try {
+        const currentGuru = this.getCurrentGuru
+        if (!currentGuru?.id_sekolah) {
+          return null
+        }
+        
+        const res = await axios.get(`/view/sekolah/${currentGuru.id_sekolah}`)
+        if (res?.data?.success && res.data.data) {
+          return res.data.data
+        }
+        return null
+      } catch (err) {
+        return null
+      }
+    },
+
+    /**
      * Membersihkan error
      */
     clearError() {

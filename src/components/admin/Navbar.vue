@@ -448,32 +448,22 @@ const isDashboardActive = computed(() => {
 
 // Debug the user role on mount and handle auth state
 onMounted(async () => {
-  console.log('============= NAVBAR MOUNTED =============')
-  console.log('User object:', authStore.user)
-  console.log('User role:', authStore.userRole)
-  console.log('Is admin?', authStore.isAdmin)
-  console.log('ID_ROLE in user object:', authStore.user?.id_role)
-  
   // Force auth state refresh on mount to ensure menus are properly shown
   if (authStore.isAuthenticated) {
     try {
-      console.log('Refreshing auth state on navbar mount')
       await authStore.checkAuth()
-      console.log('Auth state refreshed. Updated role:', authStore.userRole)
-      console.log('Is admin after refresh?', authStore.isAdmin)
-      if (authStore.user?.idSekolah) {
-        console.log('Admin school lock active. idSekolah =', authStore.user.idSekolah)
-      }
-      // Load school logo for current user
-      await brandingStore.refreshLogoForCurrentUser(authStore.user?.id)
-      // Initialize sekolah scope from auth (if available)
+      
+      // ✅ GURU: Initialize sekolah scope untuk guru dan admin FIRST
       await sekolahScope.initFromAuth(authStore)
+      
+      // ✅ GURU: Load logo sekolah untuk guru dan admin AFTER sekolah scope is set
+      if (authStore.user?.id) {
+        await brandingStore.refreshLogoForCurrentUser(authStore.user.id)
+      }
     } catch (error) {
-      console.error('Error refreshing auth state:', error)
+      // Error handling
     }
   }
-  
-  console.log('==========================================')
 })
 
 // Watch for changes in user role and admin status

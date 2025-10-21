@@ -16,7 +16,33 @@ export const useSekolahScopeStore = defineStore('sekolahScope', {
   actions: {
     async initFromAuth(authStore) {
       try {
-        const id = parseInt(authStore?.user?.idSekolah) || null
+        // ✅ GURU: Ambil id_sekolah dari guru data atau user data
+        let id = null
+        
+        if (authStore?.user?.idSekolah) {
+          // Admin: langsung ambil dari user
+          id = parseInt(authStore.user.idSekolah)
+        } else {
+          // ✅ GURU: Ambil dari guru data
+          try {
+            const { useGuruStore } = await import('./guru')
+            const guruStore = useGuruStore()
+            
+            // ✅ GURU: Pastikan guru data sudah dimuat
+            if (!guruStore.getCurrentGuru) {
+              await guruStore.fetchCurrentGuruFromToken()
+            }
+            
+            const currentGuru = guruStore.getCurrentGuru
+            if (currentGuru?.id_sekolah) {
+              id = parseInt(currentGuru.id_sekolah)
+            }
+          } catch (e) {
+            // Fallback: coba ambil dari user data jika ada
+            id = parseInt(authStore?.user?.idSekolah) || null
+          }
+        }
+        
         if (id && id !== this.activeSekolahId) {
           this.activeSekolahId = id
           await this.refreshActiveSekolahName()

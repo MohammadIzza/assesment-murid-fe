@@ -619,7 +619,21 @@ const filteredElemenList = computed(() => {
 });
 
 // Labels for preview header
-const schoolName = computed(() => sekolahScope.activeSekolahName || '-');
+const schoolName = computed(() => {
+  // ✅ GURU: Ambil nama sekolah dari sekolah scope atau guru data
+  if (sekolahScope.activeSekolahName) {
+    return sekolahScope.activeSekolahName;
+  }
+  
+  // Fallback: ambil dari guru data
+  const currentGuru = guruStore.getCurrentGuru;
+  if (currentGuru?.id_sekolah) {
+    // Coba ambil nama sekolah dari guru data
+    return currentGuru.nama_sekolah || 'Sekolah';
+  }
+  
+  return '-';
+});
 const selectedSemesterLabel = computed(() => {
   const val = selectedSemester.value != null ? String(selectedSemester.value) : '';
   if (val === '1') return 'Semester Ganjil';
@@ -1099,9 +1113,34 @@ const fetchData = async () => {
     ]);
     await fetchSiswaByKelas();
     await preloadNilaiForSelectedKelas();
+    
+    // ✅ GURU: Ambil data sekolah untuk guru
+    await fetchSekolahDataForGuru();
   } catch (error) {
   } finally {
     loading.value = false;
+  }
+};
+
+// ✅ GURU: Ambil data sekolah untuk guru
+const fetchSekolahDataForGuru = async () => {
+  try {
+    // ✅ GURU: Pastikan guru data sudah dimuat
+    if (!guruStore.getCurrentGuru) {
+      await guruStore.fetchCurrentGuruFromToken();
+    }
+    
+    const currentGuru = guruStore.getCurrentGuru;
+    
+    if (currentGuru?.id_sekolah) {
+      const sekolahData = await guruStore.fetchSekolahDataForGuru();
+      if (sekolahData) {
+        // Update sekolah scope untuk navbar
+        await sekolahScope.setActiveSekolah(currentGuru.id_sekolah, sekolahData.nama_sekolah);
+      }
+    }
+  } catch (err) {
+    // Error handling
   }
 };
 
