@@ -166,7 +166,7 @@ export const useKelasStore = defineStore('kelas', {
             id_wali_kelas: kelas.id_wali_kelas || null
           })).filter(kelas => kelas.nama_kelas); // Hanya data yang memiliki nama_kelas
           
-          const response = await axios.post('/add/kelas', { data: sanitizedData });
+          const response = await axios.post('/add/kelas', sanitizedData);
           
           if (response.data.success) {
             await this.fetchKelasList();

@@ -335,10 +335,10 @@
 
       <!-- Action Section -->
       <div :class="[
-        'rounded-xl shadow-lg border mb-6 p-6',
+        'rounded-xl shadow-lg border mb-6',
         isDarkMode ? 'bg-dark-surface border-dark-border' : 'bg-white border-gray-200'
       ]">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6">
           <div class="flex items-center space-x-3">
             <div class="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
               <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -371,7 +371,84 @@
             </button>
           </div>
         </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 p-6 pt-0 border-t border-gray-200">
+          <div class="flex-1">
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+              <button 
+                @click="loadCapaianKelasData" 
+                :disabled="capaianKelasStore.isLoading"
+                :class="[
+                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                  isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                ]"
+              >
+                <svg v-if="!capaianKelasStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <div v-else class="w-4 h-4 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin mr-2"></div>
+                {{ capaianKelasStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
+              </button>
+              <button 
+                @click="triggerImport" 
+                :disabled="capaianKelasStore.isLoading"
+                :class="[
+                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                  isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
+                ]"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
+                </svg>
+                Import Excel
+              </button>
+              <button 
+                @click="downloadTemplate" 
+                :disabled="capaianKelasStore.isLoading"
+                :class="[
+                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                  isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
+                ]"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
+                </svg>
+                Template Excel
+              </button>
+              <button 
+                @click="exportData" 
+                :disabled="filteredCapaianKelasList.length === 0"
+                :class="[
+                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                  isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                ]"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export Excel
+              </button>
+              <button 
+                @click="printData" 
+                :disabled="filteredCapaianKelasList.length === 0"
+                :class="[
+                  'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                  isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                ]"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print Data
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <!-- Hidden file input for import -->
+      <input ref="fileInputRef" class="hidden" type="file" accept=".xlsx,.xls" @change="onFileChange" />
 
       <!-- Loading State -->
       <div v-if="capaianKelasStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -520,7 +597,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCapaianKelasStore } from '@/stores/capaianKelas'
 import { useThemeStore } from '@/stores/theme'
@@ -532,6 +609,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import axios from '@/plugins/axios'
 import Toast from '@/components/common/Toast.vue'
+import ExcelJS from 'exceljs'
 
 export default {
   name: 'CapaianKelasList',
@@ -566,6 +644,15 @@ export default {
   const showDeleteModal = ref(false)
   const deleteTargetId = ref(null)
   const isDeleting = ref(false)
+  
+  // Excel import state
+  const fileInputRef = ref(null)
+  const isImporting = ref(false)
+  const importError = ref('')
+  const importedCount = ref(0)
+  const isUploading = ref(false)
+  const isDownloading = ref(false)
+  const isExporting = ref(false)
 
     // Computed properties
     const filteredCapaianKelasList = computed(() => {
@@ -1467,6 +1554,16 @@ export default {
       showDeleteModal,
       deleteTargetId,
       isDeleting,
+      // File import & export
+      fileInputRef,
+      triggerImport,
+      onFileChange,
+      downloadTemplate,
+      exportData,
+      isImporting,
+      isUploading,
+      isDownloading,
+      isExporting,
       // print
       printData
     }

@@ -400,6 +400,89 @@
         </div>
       </div>
 
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <div class="flex-1">
+                <label :class="[
+                  'flex text-sm font-semibold mb-3 items-center',
+                  isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                ]">
+                  <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  Aksi & Tools
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  <button 
+                    @click="loadKelasData" 
+                    :disabled="kelasStore.isLoading"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-blue-600 text-blue-300 bg-blue-900/30 hover:bg-blue-900/50' : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                    ]"
+                  >
+                    <svg v-if="!kelasStore.isLoading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <div v-else class="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                    {{ kelasStore.isLoading ? 'Memuat...' : 'Refresh Data' }}
+                  </button>
+                  <button 
+                    @click="triggerImport" 
+                    :disabled="kelasStore.isLoading"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-amber-600 text-amber-300 bg-amber-900/30 hover:bg-amber-900/50' : 'border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-3-3m3 3l3-3"></path>
+                    </svg>
+                    Import Excel
+                  </button>
+                  <button 
+                    @click="downloadTemplate" 
+                    :disabled="kelasStore.isLoading"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-teal-600 text-teal-300 bg-teal-900/30 hover:bg-teal-900/50' : 'border-teal-300 text-teal-700 bg-teal-50 hover:bg-teal-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 20h16"></path>
+                    </svg>
+                    Template Excel
+                  </button>
+                  <button 
+                    @click="exportData" 
+                    :disabled="filteredKelasList.length === 0"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-green-600 text-green-300 bg-green-900/30 hover:bg-green-900/50' : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Export Excel
+                  </button>
+                  <button 
+                    @click="printData" 
+                    :disabled="filteredKelasList.length === 0"
+                    :class="[
+                      'inline-flex items-center justify-center px-4 py-3 border rounded-xl text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed',
+                      isDarkMode ? 'border-purple-600 text-purple-300 bg-purple-900/30 hover:bg-purple-900/50' : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                    ]"
+                  >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    Print Data
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Active Filter Tags -->
             <div v-if="hasActiveFilters" class="pt-6 border-t border-gray-200">
               <div class="flex flex-wrap items-center gap-3">
@@ -541,6 +624,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Hidden file input for import -->
+      <input ref="fileInputRef" class="hidden" type="file" accept=".xlsx,.xls" @change="onFileChange" />
 
       <!-- Loading State -->
       <div v-if="kelasStore.isLoading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -781,6 +867,7 @@ import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useSekolahScopeStore } from '@/stores/sekolahScope'
 import axios from '@/plugins/axios'
+import ExcelJS from 'exceljs'
 
 export default {
   name: 'KelasList',
@@ -807,6 +894,12 @@ export default {
     const showAdvancedFilter = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
+    
+    // Import state
+    const isImporting = ref(false)
+    const importError = ref('')
+    const importedCount = ref(0)
+    const fileInputRef = ref(null)
     
     // ✅ SEKOLAH LIST STATE
     const sekolahList = ref([])
@@ -1573,6 +1666,7 @@ export default {
     }
 
 
+
     // Lifecycle
     onMounted(async () => {
       await Promise.all([
@@ -1633,7 +1727,16 @@ export default {
       getSchoolName,
       getSchoolClass,
       getWaliKelasName,
-      getSiswaCountClass
+      getSiswaCountClass,
+      // Import bindings
+      isImporting,
+      importError,
+      importedCount,
+      fileInputRef,
+      triggerImport,
+      onFileChange,
+      downloadTemplate,
+      exportData
     }
   }
 }
