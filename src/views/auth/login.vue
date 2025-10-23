@@ -15,11 +15,7 @@
       <div :key="$route.name" class="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-5xl z-10">
         <!-- Mobile Logo Section -->
         <div class="lg:hidden mb-3 text-center">
-          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 shadow-md mb-2">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
+          <img src="/arasitAuth.png" alt="ARASIT Logo" class="w-32 h-32 object-contain mx-auto mb-1 drop-shadow-2xl filter brightness-125 contrast-150 saturate-125" />
           <h2 class="text-lg font-bold text-gray-900 mb-1">ARASIT</h2>
           <p class="text-[10px] text-gray-600">Assessment Rapor SKL Islam Terpadu</p>
         </div>
@@ -39,12 +35,8 @@
             
             <div class="relative z-10">
               <!-- Logo and title -->
-              <div class="space-y-6">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
+              <div class="space-y-3">
+                <img src="/arasitAuth.png" alt="ARASIT Logo" class="w-36 h-36 object-contain hover:scale-110 transition-transform duration-300 drop-shadow-2xl filter brightness-125 contrast-150 saturate-125" />
                 <div>
                   <h2 class="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">ARASIT</h2>
                   <p class="text-sm text-gray-300 font-medium">Assessment Rapor SKL Islam Terpadu</p>

@@ -13,13 +13,13 @@
                   <img
                     :src="brandingStore.logoObjectUrl"
                     alt="Logo Sekolah"
-                    class="w-full h-full object-contain p-0.5"
+                    class="w-full h-full object-contain p-0.5 filter dark:brightness-110 dark:contrast-125 dark:saturate-110 brightness-75 contrast-125 saturate-125"
                     @error="onLogoError"
                   />
                 </template>
                 <template v-else>
                   <div class="w-full h-full flex items-center justify-center bg-blue-600">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white drop-shadow-lg filter brightness-110 contrast-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
