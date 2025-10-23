@@ -156,7 +156,7 @@
             </div>
 
             <!-- Basic Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
               <!-- ⭐ SCHOOL FILTER DIHIDE - Sudah otomatis filter by sekolah user yang login -->
               <!-- <div class="space-y-2">
                 <label class="flex text-sm font-medium text-gray-700 items-center">
@@ -305,6 +305,41 @@
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                   Filter aktif
+                </div>
+              </div>
+
+              <!-- ✅ SEARCH BOX - BARU DITAMBAHKAN -->
+              <div class="space-y-2">
+                <label class="flex text-sm font-medium text-gray-700 items-center">
+                  <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  Pencarian
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Cari nama guru, email, NIP..."
+                    :class="[
+                      'block w-full px-4 py-3 pl-10 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:shadow-md text-sm',
+                      isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                    ]"
+                  />
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg :class="[
+                      'h-4 w-4',
+                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="searchQuery" class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  Pencarian aktif: "{{ searchQuery }}"
                 </div>
               </div>
             </div>
@@ -1201,8 +1236,8 @@ export default {
       })
 
   // Kolom yang didukung backend
-  // Minimal: nama atau nip sebaiknya ada agar baris dianggap valid
-  const supported = ['id_sekolah', 'nama', 'nip', 'id_role']
+  // Minimal: nama dan email wajib, nip opsional
+  const supported = ['id_sekolah', 'nama', 'email', 'nip', 'id_role']
 
       const data = []
       worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
@@ -1215,11 +1250,11 @@ export default {
           if (!col) continue
           const raw = row.getCell(col).value
           if (key === 'id_sekolah' || key === 'id_role') record[key] = toNumberOrNull(raw)
-          else if (key === 'nip' || key === 'nama') record[key] = toStringOrNull(raw)
+          else if (key === 'nip' || key === 'nama' || key === 'email') record[key] = toStringOrNull(raw)
         }
 
-        // Consider valid if has at least a name or NIP
-        if (record.nama || record.nip) data.push(record)
+        // Consider valid if has nama AND email (NIP opsional)
+        if (record.nama && record.email) data.push(record)
       })
 
       return data
@@ -1233,7 +1268,7 @@ export default {
       const ws = wb.addWorksheet('ImportGuru', {
         views: [{ state: 'frozen', ySplit: 1 }]
       })
-      const headers = ['id_sekolah', 'nama', 'nip', 'id_role']
+      const headers = ['id_sekolah', 'nama', 'email', 'nip', 'id_role']
       ws.addRow(headers)
 
       // Style header
@@ -1250,7 +1285,7 @@ export default {
           right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
         }
       })
-      // Emphasize required columns (at least one of them): nama (B1) and nip (C1)
+      // Emphasize required columns: nama (B1) dan email (C1) wajib
       const requiredHeaderStyle = {
         type: 'pattern',
         pattern: 'solid',
@@ -1258,17 +1293,26 @@ export default {
       }
       ws.getCell('B1').fill = requiredHeaderStyle
       ws.getCell('C1').fill = requiredHeaderStyle
+      
+      // NIP (D1) opsional - beri warna berbeda
+      const optionalHeaderStyle = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF10B981' } // green
+      }
+      ws.getCell('D1').fill = optionalHeaderStyle
 
       // Column widths
       ws.columns = [
         { key: 'id_sekolah', width: 14 },
         { key: 'nama', width: 32 },
+        { key: 'email', width: 35 },
         { key: 'nip', width: 22 },
         { key: 'id_role', width: 12 }
       ]
 
       // Sample row
-      ws.addRow([1, 'Nama Guru Contoh', '1234567890', 2])
+      ws.addRow([1, 'Nama Guru Contoh', 'guru@example.com', '1234567890', 2])
       ws.getRow(2).eachCell((cell) => {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
@@ -1290,18 +1334,27 @@ export default {
           promptTitle: 'id_sekolah',
           prompt: 'Masukkan angka >= 1'
         }
-        // nip: minimal 5 karakter
+        // email: format email valid
         ws.getCell(`C${r}`).dataValidation = {
+          type: 'custom',
+          allowBlank: false,
+          formulae: [`AND(LEN(C${r})>0, ISNUMBER(FIND("@",C${r})), ISNUMBER(FIND(".",C${r})))`],
+          showErrorMessage: true,
+          errorTitle: 'Format Email Tidak Valid',
+          error: 'Masukkan email yang valid (contoh: guru@example.com)'
+        }
+        // nip: minimal 5 karakter (opsional)
+        ws.getCell(`D${r}`).dataValidation = {
           type: 'textLength',
           operator: 'greaterThanOrEqual',
           formulae: [5],
           allowBlank: true,
           showInputMessage: true,
-          promptTitle: 'NIP',
-          prompt: 'Minimal 5 karakter'
+          promptTitle: 'NIP (Opsional)',
+          prompt: 'Minimal 5 karakter jika diisi'
         }
         // id_role: pilih dari daftar referensi
-        ws.getCell(`D${r}`).dataValidation = {
+        ws.getCell(`E${r}`).dataValidation = {
           type: 'list',
           allowBlank: true,
           formulae: ['=Referensi!$A$2:$A$4'],
@@ -1309,24 +1362,15 @@ export default {
           errorTitle: 'Nilai tidak valid',
           error: 'Pilih salah satu nilai yang tersedia di daftar.'
         }
-        // Wajib minimal salah satu: nama (B) atau nip (C)
-        // Terapkan di kedua sel agar Excel menampilkan pesan pada sel aktif
-        const orFormula = `OR(LEN(B${r})>0, LEN(C${r})>0)`
+        // Wajib: nama (B) dan email (C)
         ws.getCell(`B${r}`).dataValidation = {
-          type: 'custom',
-          allowBlank: true,
-          formulae: [orFormula],
+          type: 'textLength',
+          operator: 'greaterThan',
+          formulae: [0],
+          allowBlank: false,
           showErrorMessage: true,
-          errorTitle: 'Isian wajib',
-          error: "Isi 'nama' atau 'nip' minimal salah satu."
-        }
-        ws.getCell(`C${r}`).dataValidation = {
-          type: 'custom',
-          allowBlank: true,
-          formulae: [orFormula],
-          showErrorMessage: true,
-          errorTitle: 'Isian wajib',
-          error: "Isi 'nama' atau 'nip' minimal salah satu."
+          errorTitle: 'Nama Wajib',
+          error: "Nama guru harus diisi."
         }
       }
 
@@ -1360,12 +1404,14 @@ export default {
         'Petunjuk Pengisian Template Import Guru:\n\n' +
         'Kolom & Aturan:\n' +
         '1) id_sekolah (opsional): angka ID sekolah. Contoh: 1, 2. Lihat sheet Referensi.\n' +
-        "2) nama (wajib salah satu dengan 'nip'): isi nama lengkap guru.\n" +
-        "3) nip (wajib salah satu dengan 'nama'): isi NIP minimal 5 karakter.\n" +
-        '4) id_role (opsional, disarankan): pilih dari daftar (1 = Admin, 2 = guru).\n\n' +
+        "2) nama (WAJIB): isi nama lengkap guru.\n" +
+        "3) email (WAJIB): isi email guru untuk login dan verifikasi. Contoh: guru@example.com\n" +
+        "4) nip (opsional): isi NIP minimal 5 karakter jika ada. Bisa diisi nanti saat verifikasi.\n" +
+        '5) id_role (opsional, disarankan): pilih dari daftar (1 = Admin, 2 = guru).\n\n' +
         'Ketentuan Pengisian:\n' +
         '- Isi data pada sheet ImportGuru mulai baris ke-2 (baris pertama adalah header).\n' +
-        "- Kolom 'nama' atau 'nip' harus diisi. Jika keduanya kosong, baris akan ditolak.\n" +
+        "- Kolom 'nama' dan 'email' WAJIB diisi. NIP boleh dikosongkan.\n" +
+        '- Email harus format valid dan akan digunakan untuk registrasi akun guru.\n' +
         '- id_sekolah membantu mengelompokkan guru ke sekolah terkait.\n' +
         '- Simpan file sebagai .xlsx lalu lakukan import di aplikasi.'
       help.getCell('A1').alignment = { wrapText: true, vertical: 'top' }

@@ -143,42 +143,7 @@
           </div>
 
           <!-- Basic Filters -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <!-- ⭐ SCHOOL FILTER DIHIDE - Sudah otomatis filter by sekolah user yang login -->
-            <!-- <div class="space-y-2">
-              <label :class="[
-                'flex text-sm font-medium items-center',
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              ]">
-                <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-                Sekolah
-              </label>
-              <div class="relative">
-                <select v-model="selectedSchool" :class="[
-                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
-                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'border-gray-300 bg-white text-gray-900'
-                ]">
-                  <option value="">Semua Sekolah</option>
-                  <option v-for="sekolah in sekolahList" :key="sekolah.id_sekolah" :value="sekolah.id_sekolah">
-                    {{ sekolah.nama_sekolah || sekolah.nama }}
-                  </option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-              </div>
-              <div v-if="selectedSchool" class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md">
-                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-                Filter aktif
-              </div>
-            </div> -->
-            
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
             <!-- Kelas Filter -->
             <div class="space-y-2">
               <label class="flex text-sm font-medium text-gray-700 items-center">
@@ -216,20 +181,20 @@
                 Filter aktif
               </div>
             </div>
-            
-            <!-- ⭐ STATUS FILTER DIHIDE -->
-            <!-- <div class="space-y-2">
+
+            <!-- ✅ JENIS KELAMIN FILTER - BARU DITAMBAHKAN -->
+            <div class="space-y-2">
               <label class="flex text-sm font-medium text-gray-700 items-center">
-                <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg class="w-4 h-4 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
-                Status
+                Jenis Kelamin
               </label>
               <div class="relative">
-                <select v-model="selectedStatus" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
-                  <option value="">Semua Status</option>
-                  <option value="aktif">Aktif</option>
-                  <option value="tidak_aktif">Tidak Aktif</option>
+                <select v-model="selectedJenisKelamin" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <option value="">Semua Jenis Kelamin</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,13 +202,40 @@
                   </svg>
                 </div>
               </div>
-              <div v-if="selectedStatus" class="flex items-center text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
+              <div v-if="selectedJenisKelamin" class="flex items-center text-xs text-pink-600 bg-pink-50 px-2 py-1 rounded-md">
                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
                 Filter aktif
               </div>
-            </div> -->
+            </div>
+
+            <!-- ✅ TAHUN LAHIR FILTER - BARU DITAMBAHKAN -->
+            <div class="space-y-2">
+              <label class="flex text-sm font-medium text-gray-700 items-center">
+                <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Tahun Lahir
+              </label>
+              <div class="relative">
+                <select v-model="selectedTahunLahir" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <option value="">Semua Tahun</option>
+                  <option v-for="tahun in availableYears" :key="tahun" :value="tahun">{{ tahun }}</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="selectedTahunLahir" class="flex items-center text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter aktif
+              </div>
+            </div>
 
             <!-- Search -->
             <div class="space-y-2">
@@ -257,7 +249,7 @@
                 <input
                   v-model="searchQuery"
                   type="text"
-                  placeholder="Cari nama, NIS..."
+                  placeholder="Cari nama, NISN..."
                   class="block w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
                 />
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -265,6 +257,129 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ FILTER CONTROLS SECTION - BARU DITAMBAHKAN -->
+          <div class="flex items-center justify-between mb-6">
+            <label class="text-sm font-semibold text-gray-800 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+              </svg>
+              Filter Lanjutan
+            </label>
+            <div class="flex items-center space-x-3">
+              <!-- Reset All Filters Button -->
+              <button 
+                @click="resetAllFilters"
+                v-if="hasActiveFilters"
+                class="inline-flex items-center text-sm text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-red-200"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Reset Filter
+              </button>
+              <!-- Toggle Advanced Filter Button -->
+              <button 
+                @click="toggleAdvancedFilter" 
+                class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-indigo-200"
+              >
+                <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+                {{ showAdvancedFilter ? 'Sembunyikan' : 'Tampilkan' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Filter Section (Collapsible) -->
+          <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+            <!-- Sort Options -->
+            <div class="space-y-2">
+              <label class="flex text-sm font-medium items-center text-gray-700">
+                <svg class="w-4 h-4 mr-1.5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                </svg>
+                Urutkan Berdasarkan
+              </label>
+              <div class="flex gap-2">
+                <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                  <option value="nama">Nama</option>
+                  <option value="nisn">NISN</option>
+                  <option value="tanggal_lahir">Tanggal Lahir</option>
+                  <option value="jenis_kelamin">Jenis Kelamin</option>
+                  <option value="id_kelas">Kelas</option>
+                  <option value="created_at">Tanggal Dibuat</option>
+                </select>
+                <button 
+                  @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
+                  class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 hover:shadow-md"
+                  :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
+                >
+                  <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                  </svg>
+                  <svg v-else class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="text-xs text-gray-500">
+                Urutan: {{ sortOrder === 'asc' ? 'A → Z' : 'Z → A' }}
+              </div>
+            </div>
+
+            <!-- Rentang Umur Filter -->
+            <div class="space-y-2">
+              <label class="flex text-sm font-medium items-center text-gray-700">
+                <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Rentang Umur
+              </label>
+              <select v-model="selectedRentangUmur" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                <option value="">Semua Umur</option>
+                <option value="6-8">6-8 Tahun (SD Kelas 1-2)</option>
+                <option value="9-11">9-11 Tahun (SD Kelas 3-5)</option>
+                <option value="12-14">12-14 Tahun (SD-SMP)</option>
+                <option value="15-17">15-17 Tahun (SMA)</option>
+                <option value="18+">18+ Tahun</option>
+              </select>
+              <div v-if="selectedRentangUmur" class="text-xs text-indigo-600">
+                Filter aktif: {{ getRentangUmurText(selectedRentangUmur) }}
+              </div>
+            </div>
+
+            <!-- Filter berdasarkan bulan lahir -->
+            <div class="space-y-2">
+              <label class="flex text-sm font-medium items-center text-gray-700">
+                <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Bulan Lahir
+              </label>
+              <select v-model="selectedBulanLahir" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                <option value="">Semua Bulan</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+              <div v-if="selectedBulanLahir" class="text-xs text-green-600">
+                Filter aktif: {{ getBulanName(selectedBulanLahir) }}
               </div>
             </div>
           </div>
@@ -650,6 +765,14 @@ const showAdvancedFilter = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
+// ✅ NEW FILTER VARIABLES - DITAMBAHKAN
+const selectedJenisKelamin = ref('')
+const selectedTahunLahir = ref('')
+const selectedRentangUmur = ref('')
+const selectedBulanLahir = ref('')
+const sortBy = ref('nama')
+const sortOrder = ref('asc')
+
 // Import state
 const fileInputRef = ref(null)
 const isImporting = ref(false)
@@ -700,20 +823,73 @@ const filteredSiswaList = computed(() => {
     )
   }
 
-  // ⭐ Filter by school manual sudah dihapus karena dropdown sekolah akan dihide
-  // if (selectedSchool.value) {
-  //   filtered = filtered.filter(siswa => siswa.id_sekolah == selectedSchool.value)
-  // }
-
   // Kelas filter
   if (selectedKelas.value) {
     filtered = filtered.filter(siswa => siswa.id_kelas === selectedKelas.value)
   }
 
-  // ⭐ Status filter dihapus karena filter status dihide
-  // if (selectedStatus.value) {
-  //   filtered = filtered.filter(siswa => siswa.status === selectedStatus.value)
-  // }
+  // ✅ NEW FILTERS - Jenis Kelamin
+  if (selectedJenisKelamin.value) {
+    filtered = filtered.filter(siswa => siswa.jenis_kelamin === selectedJenisKelamin.value)
+  }
+
+  // ✅ NEW FILTERS - Tahun Lahir
+  if (selectedTahunLahir.value) {
+    filtered = filtered.filter(siswa => {
+      if (!siswa.tanggal_lahir) return false
+      const tahunLahir = new Date(siswa.tanggal_lahir).getFullYear()
+      return tahunLahir.toString() === selectedTahunLahir.value
+    })
+  }
+
+  // ✅ NEW FILTERS - Rentang Umur
+  if (selectedRentangUmur.value) {
+    filtered = filtered.filter(siswa => {
+      if (!siswa.tanggal_lahir) return false
+      const umur = calculateAge(siswa.tanggal_lahir)
+      
+      switch (selectedRentangUmur.value) {
+        case '6-8': return umur >= 6 && umur <= 8
+        case '9-11': return umur >= 9 && umur <= 11
+        case '12-14': return umur >= 12 && umur <= 14
+        case '15-17': return umur >= 15 && umur <= 17
+        case '18+': return umur >= 18
+        default: return true
+      }
+    })
+  }
+
+  // ✅ NEW FILTERS - Bulan Lahir
+  if (selectedBulanLahir.value) {
+    filtered = filtered.filter(siswa => {
+      if (!siswa.tanggal_lahir) return false
+      const bulanLahir = new Date(siswa.tanggal_lahir).getMonth() + 1
+      return bulanLahir.toString() === selectedBulanLahir.value
+    })
+  }
+
+  // ✅ SORTING IMPLEMENTATION
+  if (sortBy.value) {
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy.value]
+      let bValue = b[sortBy.value]
+
+      // Handle null/undefined values
+      if (!aValue && !bValue) return 0
+      if (!aValue) return sortOrder.value === 'asc' ? 1 : -1
+      if (!bValue) return sortOrder.value === 'asc' ? -1 : 1
+
+      // Handle different data types
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase()
+        bValue = bValue.toLowerCase()
+      }
+
+      if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1
+      return 0
+    })
+  }
 
   return filtered
 })
@@ -726,6 +902,26 @@ const paginatedSiswaList = computed(() => {
 
 const totalPages = computed(() => {
   return Math.ceil(filteredSiswaList.value.length / itemsPerPage.value)
+})
+
+// ✅ NEW COMPUTED PROPERTIES FOR FILTER OPTIONS
+const availableYears = computed(() => {
+  const years = new Set()
+  siswaStore.getSiswaList.forEach(siswa => {
+    if (siswa.tanggal_lahir) {
+      years.add(new Date(siswa.tanggal_lahir).getFullYear())
+    }
+  })
+  return Array.from(years).sort((a, b) => b - a) // Sort descending (newest first)
+})
+
+const hasActiveFilters = computed(() => {
+  return searchQuery.value || 
+         selectedKelas.value || 
+         selectedJenisKelamin.value || 
+         selectedTahunLahir.value || 
+         selectedRentangUmur.value || 
+         selectedBulanLahir.value
 })
 
 const visiblePages = computed(() => {
@@ -745,21 +941,67 @@ const visiblePages = computed(() => {
   return pages
 })
 
-const hasActiveFilters = computed(() => {
-  // ⭐ selectedSchool dan selectedStatus tidak dihitung
-  return searchQuery.value || selectedKelas.value
-})
+
 
 const activeFilterCount = computed(() => {
   let count = 0
   if (searchQuery.value) count++
-  // ⭐ selectedSchool tidak dihitung karena sudah otomatis filter by sekolah user
-  // if (selectedSchool.value) count++
   if (selectedKelas.value) count++
-  // ⭐ selectedStatus tidak dihitung karena filter status dihide
-  // if (selectedStatus.value) count++
+  if (selectedJenisKelamin.value) count++
+  if (selectedTahunLahir.value) count++
+  if (selectedRentangUmur.value) count++
+  if (selectedBulanLahir.value) count++
   return count
 })
+
+// ✅ HELPER FUNCTIONS FOR NEW FILTERS
+const calculateAge = (birthDate) => {
+  const today = new Date()
+  const birth = new Date(birthDate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  
+  return age
+}
+
+const getRentangUmurText = (rentang) => {
+  const texts = {
+    '6-8': '6-8 Tahun (SD Kelas 1-2)',
+    '9-11': '9-11 Tahun (SD Kelas 3-5)', 
+    '12-14': '12-14 Tahun (SD-SMP)',
+    '15-17': '15-17 Tahun (SMA)',
+    '18+': '18+ Tahun'
+  }
+  return texts[rentang] || rentang
+}
+
+const getBulanName = (bulan) => {
+  const bulanNames = [
+    '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ]
+  return bulanNames[parseInt(bulan)] || bulan
+}
+
+const toggleAdvancedFilter = () => {
+  showAdvancedFilter.value = !showAdvancedFilter.value
+}
+
+const resetAllFilters = () => {
+  searchQuery.value = ''
+  selectedKelas.value = ''
+  selectedJenisKelamin.value = ''
+  selectedTahunLahir.value = ''
+  selectedRentangUmur.value = ''
+  selectedBulanLahir.value = ''
+  sortBy.value = 'nama'
+  sortOrder.value = 'asc'
+  currentPage.value = 1
+}
 
 // Methods
 const fetchData = async () => {
@@ -790,10 +1032,6 @@ const clearAllFilters = () => {
   // ⭐ selectedStatus tidak direset karena filter status dihide
   // selectedStatus.value = ''
   currentPage.value = 1
-}
-
-const toggleAdvancedFilter = () => {
-  showAdvancedFilter.value = !showAdvancedFilter.value
 }
 
 const prevPage = () => {

@@ -151,7 +151,7 @@
                 />
               </div>
 
-      <!-- Email (opsional) -->
+      <!-- Email (wajib jika tidak ada NIP) -->
               <div class="group">
                 <label for="email" :class="[
                   'block text-sm font-medium mb-2',
@@ -161,24 +161,25 @@
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                     </svg>
-        Email <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
+        Email <span class="text-red-500 ml-1">*</span>
                   </span>
                 </label>
                 <input
                   v-model="form.email"
                   type="email"
                   id="email"
+                  required
                   @input="watchFormChanges"
                   :class="[
                     'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
                     isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
                   ]"
-                  placeholder="guru@example.com (opsional, akan terhubung saat verifikasi NIP)"
+                  placeholder="guru@example.com (diperlukan untuk login dan verifikasi)"
                 />
                 <p :class="[
                   'mt-2 text-xs',
                   isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                ]">Email guru akan otomatis terhubung setelah proses verifikasi NIP pada akun pengguna.</p>
+                ]">Email diperlukan untuk registrasi dan login guru. Guru dapat melakukan verifikasi NIP nanti jika diperlukan.</p>
               </div>
 
               <!-- NIP -->
@@ -191,21 +192,24 @@
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    NIP <span class="text-red-500 ml-1">*</span>
+                    NIP <span class="text-gray-400 text-xs ml-1">(Opsional)</span>
                   </span>
                 </label>
                 <input
                   v-model="form.nip"
                   type="text"
                   id="nip"
-                  required
                   @input="watchFormChanges"
                   :class="[
                     'block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400',
                     isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'border-gray-300 bg-white'
                   ]"
-                  placeholder="Masukkan Nomor Induk Pegawai"
+                  placeholder="Masukkan NIP (opsional, dapat diisi nanti saat verifikasi)"
                 />
+                <p :class="[
+                  'mt-2 text-xs',
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                ]">NIP dapat diisi saat verifikasi akun guru atau dikosongkan jika belum memiliki NIP.</p>
               </div>
             </div>
 
@@ -509,10 +513,10 @@ export default {
 
     // Watch form changes for validation
     const checkFormValidity = () => {
-      // Backend hanya membutuhkan: nama, nip, id_sekolah, id_role
+      // Backend membutuhkan: nama, email wajib, id_sekolah, id_role. NIP opsional
       formValid.value = !!(
         form.nama.trim() &&
-        form.nip.trim() &&
+        form.email.trim() &&
         form.id_sekolah &&
         form.id_role
       )
@@ -550,9 +554,9 @@ export default {
     }
 
     const submitForm = async () => {
-  if (!form.nama || !form.nip || !form.id_sekolah || !form.id_role) {
-        showMessage('Mohon lengkapi semua field yang wajib diisi', 'error')
-        showNotification('error', 'Validasi Gagal', 'Mohon lengkapi semua field yang wajib diisi')
+  if (!form.nama || !form.email || !form.id_sekolah || !form.id_role) {
+        showMessage('Mohon lengkapi semua field yang wajib diisi (nama, email, sekolah, role)', 'error')
+        showNotification('error', 'Validasi Gagal', 'Mohon lengkapi semua field yang wajib diisi: nama, email, sekolah, dan role')
         return
       }
 
@@ -571,12 +575,17 @@ export default {
       showNotification('info', 'Menyimpan Data', 'Sedang memproses data guru...', 0)
 
       try {
-        // Hanya kirim field yang didukung backend
+        // Kirim field yang didukung backend (email ditambahkan, nip opsional)
         const formData = {
           nama: form.nama,
-          nip: form.nip,
+          email: form.email,
           id_sekolah: form.id_sekolah,
           id_role: form.id_role
+        }
+
+        // Tambahkan NIP hanya jika diisi
+        if (form.nip && form.nip.trim()) {
+          formData.nip = form.nip
         }
 
         if (isAddMode.value) {

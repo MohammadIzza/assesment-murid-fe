@@ -242,6 +242,7 @@ export const useGuruStore = defineStore('guru', {
         // Utility: sanitize single guru payload
         const sanitize = (g) => {
           const nama = g?.nama != null ? String(g.nama).trim() : null
+          const email = g?.email != null ? String(g.email).trim() : null
           const nip = g?.nip != null ? String(g.nip).trim() : null
           const id_sekolah = g?.id_sekolah !== undefined && g?.id_sekolah !== ''
             ? Number(g.id_sekolah)
@@ -250,22 +251,22 @@ export const useGuruStore = defineStore('guru', {
             ? Number(g.id_role)
             : null
 
-          return { id_sekolah, nama, nip, id_role }
+          return { id_sekolah, nama, email, nip, id_role }
         }
 
         // Kirim hanya field yang didukung backend (dengan sanitasi)
         const payload = Array.isArray(guruData)
           ? guruData
               .map(sanitize)
-              // Hanya kirim baris yang punya minimal nama atau nip
-              .filter((r) => (r.nama != null && r.nama !== '') || (r.nip != null && r.nip !== ''))
+              // Hanya kirim baris yang punya minimal nama atau email (untuk import)
+              .filter((r) => (r.nama != null && r.nama !== '') || (r.email != null && r.email !== ''))
           : sanitize(guruData)
 
         // Validasi minimal untuk single create (form add)
         if (!Array.isArray(payload)) {
           const missing = []
           if (!payload.nama) missing.push('nama')
-          if (!payload.nip) missing.push('nip')
+          if (!payload.email) missing.push('email')
           if (payload.id_sekolah === null || Number.isNaN(payload.id_sekolah)) missing.push('id_sekolah')
           if (payload.id_role === null || Number.isNaN(payload.id_role)) missing.push('id_role')
           if (missing.length) {
@@ -304,18 +305,23 @@ export const useGuruStore = defineStore('guru', {
       
       try {
         
-        // Kirim hanya field yang didukung backend (dengan sanitasi)
+        // Kirim field yang didukung backend (dengan sanitasi, email wajib, nip opsional)
         const payload = {
           id_sekolah: guruData?.id_sekolah !== undefined && guruData?.id_sekolah !== '' ? Number(guruData.id_sekolah) : null,
           nama: guruData?.nama != null ? String(guruData.nama).trim() : null,
-          nip: guruData?.nip != null ? String(guruData.nip).trim() : null,
+          email: guruData?.email != null ? String(guruData.email).trim() : null,
           id_role: guruData?.id_role !== undefined && guruData?.id_role !== '' ? Number(guruData.id_role) : null,
+        }
+
+        // Tambahkan NIP hanya jika ada
+        if (guruData?.nip != null && String(guruData.nip).trim() !== '') {
+          payload.nip = String(guruData.nip).trim()
         }
 
         // Validasi minimal
         const missing = []
         if (!payload.nama) missing.push('nama')
-        if (!payload.nip) missing.push('nip')
+        if (!payload.email) missing.push('email')
         if (payload.id_sekolah === null || Number.isNaN(payload.id_sekolah)) missing.push('id_sekolah')
         if (payload.id_role === null || Number.isNaN(payload.id_role)) missing.push('id_role')
         if (missing.length) {

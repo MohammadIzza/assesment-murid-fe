@@ -183,7 +183,7 @@
         <!-- Filter Body -->
         <div class="p-6 space-y-6">
           <!-- Filter Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- Kelas Filter -->
             <div class="space-y-2">
               <label :class="[
@@ -327,6 +327,44 @@
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
                 Filter aktif
+              </div>
+            </div>
+
+            <!-- ✅ SEARCH BOX - BARU DITAMBAHKAN -->
+            <div class="space-y-2">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
+                <svg class="w-4 h-4 mr-1.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Pencarian
+              </label>
+              <div class="relative">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Cari kelas, dimensi, elemen..."
+                  :class="[
+                    'block w-full px-4 py-3 pl-10 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 hover:shadow-md text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                  ]"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="searchQuery" class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-md">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Pencarian aktif: "{{ searchQuery }}"
               </div>
             </div>
           </div>
@@ -630,6 +668,7 @@ export default {
   const currentPage = ref(1)
     const itemsPerPage = ref(10)
   // Filters
+  const searchQuery = ref('') // ✅ BARU DITAMBAHKAN
   const selectedKelas = ref('')
   const selectedDimensi = ref('')
   const selectedElemen = ref('')
@@ -665,16 +704,54 @@ export default {
       if (userSekolahId) {
         list = list.filter(capaian => capaian.id_sekolah == userSekolahId)
       }
+
+      // ✅ SEARCH FILTER - BARU DITAMBAHKAN
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        list = list.filter(capaian => {
+          // Search dalam nama kelas, dimensi, elemen, sub elemen
+          const kelasName = capaian.kelas?.nama_kelas?.toLowerCase() || ''
+          const dimensiName = capaian.dimensi?.nama_dimensi?.toLowerCase() || ''
+          const elemenName = capaian.elemen?.nama_elemen?.toLowerCase() || ''
+          const subElemenName = capaian.sub_elemen?.nama_sub_elemen?.toLowerCase() || ''
+          
+          return kelasName.includes(query) ||
+                 dimensiName.includes(query) ||
+                 elemenName.includes(query) ||
+                 subElemenName.includes(query)
+        })
+      }
+
+      // Filter by kelas
+      if (selectedKelas.value) {
+        list = list.filter(capaian => capaian.id_kelas == selectedKelas.value)
+      }
+
+      // Filter by dimensi
+      if (selectedDimensi.value) {
+        list = list.filter(capaian => capaian.id_dimensi == selectedDimensi.value)
+      }
+
+      // Filter by elemen
+      if (selectedElemen.value) {
+        list = list.filter(capaian => capaian.id_elemen == selectedElemen.value)
+      }
+
+      // Filter by sub elemen
+      if (selectedSubElemen.value) {
+        list = list.filter(capaian => capaian.id_sub_elemen == selectedSubElemen.value)
+      }
       
       return list
     })
 
     const hasActiveFilters = computed(() => {
-      return !!(selectedKelas.value || selectedDimensi.value || selectedElemen.value || selectedSubElemen.value)
+      return !!(searchQuery.value || selectedKelas.value || selectedDimensi.value || selectedElemen.value || selectedSubElemen.value)
     })
 
     const activeFilterCount = computed(() => {
       let count = 0
+      if (searchQuery.value) count++ // ✅ BARU DITAMBAHKAN
       if (selectedKelas.value) count++
       if (selectedDimensi.value) count++
       if (selectedElemen.value) count++
@@ -865,6 +942,7 @@ export default {
     }
 
     const clearAllFilters = async () => {
+      searchQuery.value = '' // ✅ BARU DITAMBAHKAN
       selectedKelas.value = ''
       selectedDimensi.value = ''
       selectedElemen.value = ''
