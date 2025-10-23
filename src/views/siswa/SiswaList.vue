@@ -129,7 +129,7 @@
 
         <!-- Filter Content -->
         <div class="p-6 space-y-4">
-          <!-- Advanced Filters Section -->
+          <!-- Filter Toggle Section -->
           <div class="flex items-center justify-between mb-6">
             <label :class="[
               'text-sm font-semibold flex items-center',
@@ -140,13 +140,31 @@
               </svg>
               Filter 
             </label>
+            <button 
+              @click="toggleAdvancedFilter" 
+              :class="[
+                'inline-flex items-center text-sm px-3 py-1.5 rounded-lg transition-all duration-200 border',
+                isDarkMode ? 'text-indigo-300 bg-indigo-900/30 border-indigo-700 hover:bg-indigo-900/50' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border-indigo-200'
+              ]"
+            >
+              <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+              </svg>
+              {{ showAdvancedFilter ? 'Sembunyikan' : 'Tampilkan' }}
+            </button>
           </div>
 
-          <!-- Basic Filters -->
+          <!-- Basic Filters (Always Visible) -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
             <!-- Kelas Filter -->
             <div class="space-y-2">
-              <label class="flex text-sm font-medium text-gray-700 items-center">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 <svg class="w-4 h-4 mr-1.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
@@ -156,7 +174,10 @@
                 <select 
                   v-model="selectedKelas" 
                   :disabled="kelasLoading"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm"
+                  :class="[
+                    'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                  ]"
                 >
                   <option value="">{{ kelasLoading ? 'Memuat...' : 'Semua Kelas' }}</option>
                   <option 
@@ -169,7 +190,10 @@
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <div v-if="kelasLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                  <svg v-else class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg v-else :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </div>
@@ -182,22 +206,31 @@
               </div>
             </div>
 
-            <!-- ✅ JENIS KELAMIN FILTER - BARU DITAMBAHKAN -->
+            <!-- Jenis Kelamin Filter -->
             <div class="space-y-2">
-              <label class="flex text-sm font-medium text-gray-700 items-center">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 <svg class="w-4 h-4 mr-1.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
                 Jenis Kelamin
               </label>
               <div class="relative">
-                <select v-model="selectedJenisKelamin" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
-                  <option value="">Semua Jenis Kelamin</option>
+                <select v-model="selectedJenisKelamin" :class="[
+                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                ]">
+                  <option value="">Semua</option>
                   <option value="L">Laki-laki</option>
                   <option value="P">Perempuan</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </div>
@@ -210,21 +243,108 @@
               </div>
             </div>
 
-            <!-- ✅ TAHUN LAHIR FILTER - BARU DITAMBAHKAN -->
+            <!-- Status Filter -->
             <div class="space-y-2">
-              <label class="flex text-sm font-medium text-gray-700 items-center">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
+                <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Status
+              </label>
+              <div class="relative">
+                <select v-model="selectedStatus" :class="[
+                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                ]">
+                  <option value="">Semua Status</option>
+                  <option value="aktif">Aktif</option>
+                  <option value="tidak_aktif">Tidak Aktif</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="selectedStatus" class="flex items-center text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter aktif
+              </div>
+            </div>
+
+            <!-- Search -->
+            <div class="space-y-2">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
+                <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Pencarian
+              </label>
+              <div class="relative">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Cari nama, NISN..."
+                  :class="[
+                    'block w-full px-4 py-3 pl-10 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md text-sm',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                  ]"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div v-if="searchQuery" class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Pencarian aktif: "{{ searchQuery }}"
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Filter Section (Collapsible) -->
+          <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+            <!-- Tahun Lahir Filter -->
+            <div class="space-y-2">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 <svg class="w-4 h-4 mr-1.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
                 Tahun Lahir
               </label>
               <div class="relative">
-                <select v-model="selectedTahunLahir" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                <select v-model="selectedTahunLahir" :class="[
+                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                ]">
                   <option value="">Semua Tahun</option>
                   <option v-for="tahun in availableYears" :key="tahun" :value="tahun">{{ tahun }}</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </div>
@@ -237,88 +357,73 @@
               </div>
             </div>
 
-            <!-- Search -->
+            <!-- Rentang Umur Filter -->
             <div class="space-y-2">
-              <label class="flex text-sm font-medium text-gray-700 items-center">
-                <svg class="w-4 h-4 mr-1.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
+                <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                Pencarian
+                Rentang Umur
               </label>
               <div class="relative">
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Cari nama, NISN..."
-                  class="block w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md text-sm"
-                />
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <select v-model="selectedRentangUmur" :class="[
+                  'block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                ]">
+                  <option value="">Semua Umur</option>
+                  <option value="6-8">6-8 Tahun</option>
+                  <option value="9-11">9-11 Tahun</option>
+                  <option value="12-14">12-14 Tahun</option>
+                  <option value="15-17">15-17 Tahun</option>
+                  <option value="18+">18+ Tahun</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg :class="[
+                    'h-4 w-4',
+                    isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
                 </div>
               </div>
+              <div v-if="selectedRentangUmur" class="flex items-center text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Filter aktif
+              </div>
             </div>
-          </div>
 
-          <!-- ✅ FILTER CONTROLS SECTION - BARU DITAMBAHKAN -->
-          <div class="flex items-center justify-between mb-6">
-            <label class="text-sm font-semibold text-gray-800 flex items-center">
-              <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-              </svg>
-              Filter Lanjutan
-            </label>
-            <div class="flex items-center space-x-3">
-              <!-- Reset All Filters Button -->
-              <button 
-                @click="resetAllFilters"
-                v-if="hasActiveFilters"
-                class="inline-flex items-center text-sm text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-red-200"
-              >
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                Reset Filter
-              </button>
-              <!-- Toggle Advanced Filter Button -->
-              <button 
-                @click="toggleAdvancedFilter" 
-                class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all duration-200 border border-indigo-200"
-              >
-                <svg v-if="!showAdvancedFilter" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-                <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                </svg>
-                {{ showAdvancedFilter ? 'Sembunyikan' : 'Tampilkan' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Advanced Filter Section (Collapsible) -->
-          <div v-show="showAdvancedFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
-            <!-- Sort Options -->
+            <!-- Sorting Options -->
             <div class="space-y-2">
-              <label class="flex text-sm font-medium items-center text-gray-700">
+              <label :class="[
+                'flex text-sm font-medium items-center',
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              ]">
                 <svg class="w-4 h-4 mr-1.5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                 </svg>
                 Urutkan Berdasarkan
               </label>
               <div class="flex gap-2">
-                <select v-model="sortBy" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
+                <select v-model="sortBy" :class="[
+                  'flex-1 px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md appearance-none text-sm',
+                  isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100' : 'bg-white border-gray-300 text-gray-900'
+                ]">
                   <option value="nama">Nama</option>
                   <option value="nisn">NISN</option>
                   <option value="tanggal_lahir">Tanggal Lahir</option>
                   <option value="jenis_kelamin">Jenis Kelamin</option>
-                  <option value="id_kelas">Kelas</option>
-                  <option value="created_at">Tanggal Dibuat</option>
                 </select>
                 <button 
                   @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
-                  class="px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 hover:shadow-md"
+                  :class="[
+                    'px-3 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 hover:shadow-md',
+                    isDarkMode ? 'bg-dark-surface border-dark-border text-gray-100 hover:bg-gray-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ]"
                   :title="sortOrder === 'asc' ? 'Urutkan Descending' : 'Urutkan Ascending'"
                 >
                   <svg v-if="sortOrder === 'asc'" class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,60 +434,102 @@
                   </svg>
                 </button>
               </div>
-              <div class="text-xs text-gray-500">
+              <div :class="[
+                'text-xs',
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              ]">
                 Urutan: {{ sortOrder === 'asc' ? 'A → Z' : 'Z → A' }}
               </div>
             </div>
+          </div>
 
-            <!-- Rentang Umur Filter -->
-            <div class="space-y-2">
-              <label class="flex text-sm font-medium items-center text-gray-700">
-                <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <!-- Active Filter Tags -->
+          <div v-if="hasActiveFilters" class="pt-6 border-t border-gray-200">
+            <div class="flex flex-wrap items-center gap-3">
+              <span :class="[
+                'text-sm font-semibold flex items-center',
+                isDarkMode ? 'text-gray-200' : 'text-gray-800'
+              ]">
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                 </svg>
-                Rentang Umur
-              </label>
-              <select v-model="selectedRentangUmur" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
-                <option value="">Semua Umur</option>
-                <option value="6-8">6-8 Tahun (SD Kelas 1-2)</option>
-                <option value="9-11">9-11 Tahun (SD Kelas 3-5)</option>
-                <option value="12-14">12-14 Tahun (SD-SMP)</option>
-                <option value="15-17">15-17 Tahun (SMA)</option>
-                <option value="18+">18+ Tahun</option>
-              </select>
-              <div v-if="selectedRentangUmur" class="text-xs text-indigo-600">
-                Filter aktif: {{ getRentangUmurText(selectedRentangUmur) }}
+                Filter Aktif:
+              </span>
+              
+              <div v-if="searchQuery" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Pencarian: "{{ searchQuery }}"
+                <button @click="searchQuery = ''" class="ml-1.5 text-green-600 hover:text-green-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
-            </div>
-
-            <!-- Filter berdasarkan bulan lahir -->
-            <div class="space-y-2">
-              <label class="flex text-sm font-medium items-center text-gray-700">
-                <svg class="w-4 h-4 mr-1.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              
+              <div v-if="selectedKelas" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                Kelas: {{ getKelasName(selectedKelas) }}
+                <button @click="selectedKelas = ''" class="ml-1.5 text-purple-600 hover:text-purple-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div v-if="selectedJenisKelamin" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800 border border-pink-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Jenis Kelamin: {{ getJenisKelamin(selectedJenisKelamin) }}
+                <button @click="selectedJenisKelamin = ''" class="ml-1.5 text-pink-600 hover:text-pink-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div v-if="selectedStatus" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Status: {{ getStatusText(selectedStatus) }}
+                <button @click="selectedStatus = ''" class="ml-1.5 text-orange-600 hover:text-orange-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div v-if="selectedTahunLahir" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                Bulan Lahir
-              </label>
-              <select v-model="selectedBulanLahir" class="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:shadow-md appearance-none text-sm">
-                <option value="">Semua Bulan</option>
-                <option value="1">Januari</option>
-                <option value="2">Februari</option>
-                <option value="3">Maret</option>
-                <option value="4">April</option>
-                <option value="5">Mei</option>
-                <option value="6">Juni</option>
-                <option value="7">Juli</option>
-                <option value="8">Agustus</option>
-                <option value="9">September</option>
-                <option value="10">Oktober</option>
-                <option value="11">November</option>
-                <option value="12">Desember</option>
-              </select>
-              <div v-if="selectedBulanLahir" class="text-xs text-green-600">
-                Filter aktif: {{ getBulanName(selectedBulanLahir) }}
+                Tahun Lahir: {{ selectedTahunLahir }}
+                <button @click="selectedTahunLahir = ''" class="ml-1.5 text-orange-600 hover:text-orange-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div v-if="selectedRentangUmur" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Rentang Umur: {{ selectedRentangUmur }} Tahun
+                <button @click="selectedRentangUmur = ''" class="ml-1.5 text-indigo-600 hover:text-indigo-800 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -756,7 +903,7 @@ const closeToast = () => {
   showToast.value = false
 }
 
-// Reactive data
+// Reactive data  
 const searchQuery = ref('')
 const selectedSchool = ref('')
 const selectedKelas = ref('')
@@ -765,7 +912,7 @@ const showAdvancedFilter = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
-// ✅ NEW FILTER VARIABLES - DITAMBAHKAN
+// Filter Variables
 const selectedJenisKelamin = ref('')
 const selectedTahunLahir = ref('')
 const selectedRentangUmur = ref('')
