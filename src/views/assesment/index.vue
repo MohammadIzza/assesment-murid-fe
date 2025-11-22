@@ -1165,15 +1165,22 @@ const fetchSubElemenList = async () => {
 
 const fetchCapaianList = async (id_fase, id_sub_elemen) => {
   try {
+    // Fetch all capaian_kelas and filter client-side (more reliable)
     const res = await axios.get('/list/capaian_kelas')
     if (res.data.success) {
       let list = res.data.data || []
-      if (selectedKelas.value) list = list.filter(x => x.id_kelas == selectedKelas.value)
-      if (id_sub_elemen) list = list.filter(x => x.id_sub_elemen == id_sub_elemen)
+      // Filter by kelas if selected
+      if (selectedKelas.value) {
+        list = list.filter(x => x.id_kelas == selectedKelas.value)
+      }
+      // Filter by sub_elemen if provided
+      if (id_sub_elemen) {
+        list = list.filter(x => x.id_sub_elemen == id_sub_elemen)
+      }
       // Map capaian to capaian_kelas contract used by backend (ck.id is the key)
       capaianList.value = list.map(x => ({
         // preserve existing field name for template usage but hold ck id
-        id_capaian: x.id_capaian ?? x.id, // legacy fallback
+        id_capaian: x.id ?? x.id_capaian, // prefer ck.id, fallback to legacy field if exists
         deskripsi: x.nama_ck || `Capaian ${x.kode_ck || x.id}`,
         id_sub_elemen: x.id_sub_elemen,
         id_ck: x.id
@@ -1182,6 +1189,7 @@ const fetchCapaianList = async (id_fase, id_sub_elemen) => {
       capaianList.value = []
     }
   } catch (error) {
+    console.error('Error fetching capaian_kelas list:', error)
     capaianList.value = []
   }
 }
@@ -1347,16 +1355,17 @@ function getIdFaseFromKelas(namaKelas) {
 }
 
 const fetchAllCapaianForKelas = async () => {
-  if (!selectedKelas.value) return;
-  const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
-  if (!kelas) return;
-  const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
-  if (!id_fase) return;
+  if (!selectedKelas.value) {
+    capaianList.value = []
+    return
+  }
   try {
-    await fetchCapaianList(id_fase, selectedSubElemen.value)
+    // Fetch all capaian for the selected kelas (without sub_elemen filter)
+    // This is used when kelas changes to preload capaian data
+    await fetchCapaianList(null, null)
   } catch (error) {
-;
-    capaianList.value = [];
+    console.error('Error fetching all capaian for kelas:', error)
+    capaianList.value = []
   }
 }
 
@@ -1429,20 +1438,31 @@ const onSubElemenChange = async () => {
   selectedCapaian.value = '';
   
   if (selectedSubElemen.value && selectedKelas.value) {
-    const kelas = kelasList.value.find(k => k.id_kelas == selectedKelas.value);
-    if (kelas) {
-      const id_fase = getIdFaseFromKelas(kelas.nama_kelas);
-      if (id_fase) {
-        try {
-          await fetchCapaianList(id_fase, selectedSubElemen.value)
-        } catch (error) {
-;
-          capaianList.value = [];
-        }
+    try {
+      // Use the same approach as modal: fetch all and filter client-side
+      // This is more reliable than depending on id_fase calculation
+      const listRes = await axios.get('/list/capaian_kelas')
+      if (listRes.data?.success) {
+        const rows = (listRes.data.data || [])
+          .filter(r => r.id_kelas == selectedKelas.value && r.id_sub_elemen == selectedSubElemen.value)
+
+        // Map capaian to capaian_kelas contract used by backend (ck.id is the key)
+        capaianList.value = rows.map(r => ({
+          // preserve existing field name for template usage but hold ck id
+          id_capaian: r.id ?? r.id_capaian, // prefer ck.id, fallback to legacy field if exists
+          deskripsi: r.nama_ck || `Capaian ${r.kode_ck || r.id}`,
+          id_sub_elemen: r.id_sub_elemen,
+          id_ck: r.id
+        }))
       } else {
-        capaianList.value = [];
+        capaianList.value = []
       }
+    } catch (error) {
+      console.error('Error fetching capaian_kelas list:', error)
+      capaianList.value = []
     }
+  } else {
+    capaianList.value = []
   }
 }
 
